@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D-Jarvan", "D-Jarvan\D-Jarv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D-Elise", "D-Elise\D-Elise.csproj", "{466BE24B-1909-4DE2-A870-0BF67BCDE371}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D-Diana", "D-Diana\D-Diana.csproj", "{C08F10AA-EA7A-41E6-88F0-A257BDC841AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{466BE24B-1909-4DE2-A870-0BF67BCDE371}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{466BE24B-1909-4DE2-A870-0BF67BCDE371}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{466BE24B-1909-4DE2-A870-0BF67BCDE371}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C08F10AA-EA7A-41E6-88F0-A257BDC841AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C08F10AA-EA7A-41E6-88F0-A257BDC841AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C08F10AA-EA7A-41E6-88F0-A257BDC841AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C08F10AA-EA7A-41E6-88F0-A257BDC841AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
