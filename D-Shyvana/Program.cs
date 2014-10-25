@@ -23,7 +23,7 @@ namespace D_Shyvana
 
         private static Int32 _lastSkin;
 
-        private static Items.Item _Tiamat, _Hydra, _Blade, _Bilge, _Rand, _lotis;
+        private static Items.Item _tiamat, _hydra, _blade, _bilge, _rand, _lotis;
 
         private static SpellSlot _igniteSlot;
 
@@ -45,11 +45,11 @@ namespace D_Shyvana
             _e.SetSkillshot(0.25f, 60f, 1700, false, SkillshotType.SkillshotLine);
             _r.SetSkillshot(0.25f, 150f, 1500, false, SkillshotType.SkillshotLine);
 
-            _Bilge = new Items.Item(3144, 475f);
-            _Blade = new Items.Item(3153, 425f);
-            _Hydra = new Items.Item(3074, 375f);
-            _Tiamat = new Items.Item(3077, 375f);
-            _Rand = new Items.Item(3143, 490f);
+            _bilge = new Items.Item(3144, 475f);
+            _blade = new Items.Item(3153, 425f);
+            _hydra = new Items.Item(3074, 375f);
+            _tiamat = new Items.Item(3077, 375f);
+            _rand = new Items.Item(3143, 490f);
             _lotis = new Items.Item(3190, 590f);
 
             _igniteSlot = _player.GetSpellSlot("SummonerDot");
@@ -259,36 +259,36 @@ namespace D_Shyvana
 
             var t = SimpleTs.GetTarget(_r.Range, SimpleTs.DamageType.Magical);
 
-            if (t.Distance(_player.Position) < _w.Range + 250)
+            if (_player.Distance(t) < _w.Range + 250)
             {
                 if (useW && _w.IsReady())
                 {
-                    if (t != null && t.Distance(_player.Position) < _e.Range)
+                    if (t != null && _player.Distance(t) < _e.Range)
                         _w.Cast();
 
                 }
                 if (useE && _e.IsReady())
                 {
 
-                    if (t != null && t.Distance(_player.Position) < _e.Range &&
+                    if (t != null && _player.Distance(t) < _e.Range &&
                         _e.GetPrediction(t).Hitchance >= Echange())
                         _e.Cast(t, Packets(), true);
                 }
                 if (useQ && _q.IsReady())
                 {
-                    if (t != null && t.Distance(_player.Position) < _w.Range)
+                    if (t != null && _player.Distance(t) < _w.Range)
                         _q.Cast();
                 }
                 if (useR && _r.IsReady())
                 {
-                    if (t != null && t.Distance(_player.Position) > _w.Range + 150)
+                    if (t != null && _player.Distance(t) > _w.Range + 150)
                         if (!t.HasBuff("JudicatorIntervention") && !t.HasBuff("Undying Rage") &&
                             _r.GetDamage(t) > t.Health
                             && _r.GetPrediction(t).Hitchance >= Rchange())
                             _r.Cast(t, Packets(), true);
                 }
             }
-            else if (t.Distance(_player.Position) > _w.Range + 250)
+            else if (_player.Distance(t) > _w.Range + 250)
             {
 
                 if (useR && _r.IsReady() && !_w.IsReady())
@@ -298,23 +298,23 @@ namespace D_Shyvana
                 }
                 if (useW && _w.IsReady())
                 {
-                    if (t != null && t.Distance(_player.Position) < _e.Range)
+                    if (t != null && _player.Distance(t) < _e.Range)
                         _w.Cast();
                 }
                 if (useE && _e.IsReady())
                 {
 
-                    if (t != null && t.Distance(_player.Position) < _e.Range &&
+                    if (t != null && _player.Distance(t) < _e.Range &&
                         _e.GetPrediction(t).Hitchance >= Echange())
                         _e.Cast(t, Packets(), true);
                 }
                 if (useQ && _q.IsReady())
                 {
-                    if (t != null && t.Distance(_player.Position) < _w.Range)
+                    if (t != null && _player.Distance(t) < _w.Range)
                         _q.Cast();
                 }
             }
-            else if (t.Distance(_player.Position) < _r.Range)
+            else if (_player.Distance(t) < _r.Range)
             {
 
                 if (_r.IsReady() && autoR)
@@ -326,19 +326,19 @@ namespace D_Shyvana
                 }
                 if (useW && _w.IsReady())
                 {
-                    if (t != null && t.Distance(_player.Position) < _e.Range)
+                    if (t != null && _player.Distance(t) < _e.Range)
                         _w.Cast();
                 }
                 if (useE && _e.IsReady())
                 {
 
-                    if (t != null && t.Distance(_player.Position) < _e.Range &&
+                    if (t != null && _player.Distance(t) < _e.Range &&
                         _e.GetPrediction(t).Hitchance >= Echange())
                         _e.Cast(t, Packets(), true);
                 }
                 if (useQ && _q.IsReady())
                 {
-                    if (t != null && t.Distance(_player.Position) < _w.Range)
+                    if (t != null && _player.Distance(t) < _w.Range)
                         _q.Cast();
                 }
             }
@@ -361,22 +361,22 @@ namespace D_Shyvana
             if (useW && _w.IsReady())
             {
                 var t = SimpleTs.GetTarget(_w.Range, SimpleTs.DamageType.Magical);
-                if (t != null && t.Distance(_player.Position) < _w.Range)
+                if (t != null && _player.Distance(t) < _w.Range)
                     _w.Cast();
             }
             if (useE && _e.IsReady())
             {
                 var t = SimpleTs.GetTarget(_e.Range, SimpleTs.DamageType.Magical);
-                if (t != null && t.Distance(_player.Position) < _e.Range && _e.GetPrediction(t).Hitchance >= Echange())
+                if (t != null && _player.Distance(t) < _e.Range && _e.GetPrediction(t).Hitchance >= Echange())
                     _e.Cast(t, Packets(), true);
             }
-            if (useItemsH && _Tiamat.IsReady() && target.Distance(_player.Position) < _Tiamat.Range)
+            if (useItemsH && _tiamat.IsReady() && _player.Distance(target) < _tiamat.Range)
             {
-                _Tiamat.Cast();
+                _tiamat.Cast();
             }
-            if (useItemsH && _Hydra.IsReady() && target.Distance(_player.Position) < _Hydra.Range)
+            if (useItemsH && _hydra.IsReady() && _player.Distance(target) < _hydra.Range)
             {
-                _Hydra.Cast();
+                _hydra.Cast();
             }
         }
 
@@ -429,13 +429,13 @@ namespace D_Shyvana
                             _e.Cast(minion);
             }
 
-            if (useItemsl && _Tiamat.IsReady() && allMinionsW.Count > 0)
+            if (useItemsl && _tiamat.IsReady() && allMinionsW.Count > 0)
             {
-                _Tiamat.Cast();
+                _tiamat.Cast();
             }
-            if (useItemsl && _Hydra.IsReady() && allMinionsW.Count > 0)
+            if (useItemsl && _hydra.IsReady() && allMinionsW.Count > 0)
             {
-                _Hydra.Cast();
+                _hydra.Cast();
             }
         }
 
@@ -488,13 +488,13 @@ namespace D_Shyvana
                     _e.Cast(mob, Packets());
                 }
             }
-            if (UseItemsJ && _Tiamat.IsReady() && mobs.Count > 0)
+            if (UseItemsJ && _tiamat.IsReady() && mobs.Count > 0)
             {
-                _Tiamat.Cast();
+                _tiamat.Cast();
             }
-            if (UseItemsJ && _Hydra.IsReady() && mobs.Count > 0)
+            if (UseItemsJ && _hydra.IsReady() && mobs.Count > 0)
             {
-                _Hydra.Cast();
+                _hydra.Cast();
             }
 
         }
@@ -576,29 +576,29 @@ namespace D_Shyvana
             //var imp = _config.Item("Mppotion").GetValue<bool>();
             //var impuse = _player.Health <= (_player.MaxHealth * (_config.Item("Mppotionuse").GetValue<Slider>().Value) / 100);
 
-            if (_player.Distance(target) <= 450 && iBilge && (iBilgeEnemyhp || iBilgemyhp) && _Bilge.IsReady())
+            if (_player.Distance(target) <= 450 && iBilge && (iBilgeEnemyhp || iBilgemyhp) && _bilge.IsReady())
             {
-                _Bilge.Cast(target);
+                _bilge.Cast(target);
 
             }
-            if (_player.Distance(target) <= 450 && iBlade && (iBladeEnemyhp || iBlademyhp) && _Blade.IsReady())
+            if (_player.Distance(target) <= 450 && iBlade && (iBladeEnemyhp || iBlademyhp) && _blade.IsReady())
             {
-                _Blade.Cast(target);
+                _blade.Cast(target);
 
             }
-            if (Utility.CountEnemysInRange(350) >= 1 && iTiamat && _Tiamat.IsReady())
+            if (Utility.CountEnemysInRange(350) >= 1 && iTiamat && _tiamat.IsReady())
             {
-                _Tiamat.Cast(target);
+                _tiamat.Cast(target);
 
             }
-            if (Utility.CountEnemysInRange(350) >= 1 && iHydra && _Hydra.IsReady())
+            if (Utility.CountEnemysInRange(350) >= 1 && iHydra && _hydra.IsReady())
             {
-                _Hydra.Cast(target);
+                _hydra.Cast(target);
 
             }
-            if (iOmenenemys && iOmen && _Rand.IsReady())
+            if (iOmenenemys && iOmen && _rand.IsReady())
             {
-                _Rand.Cast();
+                _rand.Cast();
 
             }
             if (ilotis)

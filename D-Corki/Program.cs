@@ -222,7 +222,7 @@ namespace D_Corki
             if (useQ && _q.IsReady())
             {
                 var t = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
-                if (t != null && t.Distance(_player.Position) < _q.Range && _q.GetPrediction(t).Hitchance >= Qchangecombo())
+                if (t != null && _player.Distance(t) < _q.Range && _q.GetPrediction(t).Hitchance >= Qchangecombo())
                     _q.Cast(t, Packets(), true);
             }
             if (useW && _w.IsReady() && usewhE &&
@@ -241,7 +241,7 @@ namespace D_Corki
             if (useR && _r.IsReady())
             {
                 var t = SimpleTs.GetTarget(_r.Range, SimpleTs.DamageType.Magical);
-                if (t != null && t.Distance(_player.Position) < _r.Range && _r.GetPrediction(t).Hitchance >= Rchangecombo())
+                if (t != null && _player.Distance(t) < _r.Range && _r.GetPrediction(t).Hitchance >= Rchangecombo())
                     _r.Cast(t, Packets(), true);
             }
         }
@@ -255,7 +255,7 @@ namespace D_Corki
             if (useQ && _q.IsReady())
             {
                 var t = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
-                if (t != null && t.Distance(_player.Position) < _q.Range && _q.GetPrediction(t).Hitchance >= Qchangehar())
+                if (t != null && _player.Distance(t) < _q.Range && _q.GetPrediction(t).Hitchance >= Qchangehar())
                     _q.Cast(t, Packets(), true);
             }
             if (useE && _e.IsReady())
@@ -267,7 +267,7 @@ namespace D_Corki
             if (useR && _r.IsReady() && rlimH < UltiStucks())
             {
                 var t = SimpleTs.GetTarget(_r.Range, SimpleTs.DamageType.Magical);
-                if (t != null && t.Distance(_player.Position) < _r.Range && _r.GetPrediction(t).Hitchance >= Rchangehar())
+                if (t != null && _player.Distance(t) < _r.Range && _r.GetPrediction(t).Hitchance >= Rchangehar())
                     _r.Cast(t, Packets(), true);
             }
         }
