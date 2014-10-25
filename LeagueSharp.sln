@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D-Udyr", "D-Udyr\D-Udyr.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D-MissF", "D-MissF\D-MissF.csproj", "{3A743EBC-CF7A-4E14-B259-8C5A842B63F2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nidalino", "Nidalino\Nidalino.csproj", "{FB6BA55A-0B41-4F48-94D2-0B7189A6C24E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{3A743EBC-CF7A-4E14-B259-8C5A842B63F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A743EBC-CF7A-4E14-B259-8C5A842B63F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A743EBC-CF7A-4E14-B259-8C5A842B63F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB6BA55A-0B41-4F48-94D2-0B7189A6C24E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB6BA55A-0B41-4F48-94D2-0B7189A6C24E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB6BA55A-0B41-4F48-94D2-0B7189A6C24E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB6BA55A-0B41-4F48-94D2-0B7189A6C24E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
