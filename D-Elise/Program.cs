@@ -132,7 +132,7 @@ namespace D_Elise
             _config.SubMenu("Misc").AddItem(new MenuItem("Humangapcloser", "HumanE to GapCloser")).SetValue(true);
             _config.SubMenu("Misc").AddItem(new MenuItem("UseEInt", "HumanE to Interrupt")).SetValue(true);
             _config.SubMenu("Misc").AddItem(new MenuItem("smite", "Smite Minion in HumanE path").SetValue(true));
-            _config.SubMenu("Misc").AddItem(new MenuItem("SmiteSteal", "Use Smite + Q(Dragon-Baron)").SetValue(new KeyBind("L".ToCharArray()[0], KeyBindType.Press)));
+            _config.SubMenu("Misc").AddItem(new MenuItem("Usesmite", "Use Smite").SetValue(new KeyBind("L".ToCharArray()[0], KeyBindType.Toggle)));
             _config.SubMenu("Misc").AddItem(new MenuItem("autoE", "HUmanE with VeryHigh Chance").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
             _config.SubMenu("Misc")
                                    .AddItem(new MenuItem("Echange", "E Hit").SetValue(
@@ -155,6 +155,7 @@ namespace D_Elise
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawE", "Human E")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("SpiderDrawQ", "Spider Q")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("SpiderDrawE", "Spider E")).SetValue(true);
+            _config.SubMenu("Drawings").AddItem(new MenuItem("Drawsmite", "Draw Smite")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("CircleLag", "Lag Free Circles").SetValue(true));
             _config.SubMenu("Drawings").AddItem(new MenuItem("CircleQuality", "Circles Quality").SetValue(new Slider(100, 100, 10)));
             _config.SubMenu("Drawings").AddItem(new MenuItem("CircleThickness", "Circles Thickness").SetValue(new Slider(1, 10, 1)));
@@ -180,7 +181,10 @@ namespace D_Elise
             _orbwalker.SetAttack(true);
 
             CheckSpells();
-
+            if (_config.Item("Usesmite").GetValue<KeyBind>().Active)
+            {
+                SmiteSteal();
+            }
             if (_config.Item("ActiveFreeze").GetValue<KeyBind>().Active ||
                 _config.Item("ClearActive").GetValue<KeyBind>().Active)
 
@@ -209,11 +213,7 @@ namespace D_Elise
                 AutoE();
 
             }
-            if (_config.Item("SmiteSteal").GetValue<KeyBind>().Active)
-            {
-                SmiteSteal();
-            }
-        }
+          }
 
         private static void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
@@ -447,42 +447,54 @@ namespace D_Elise
             }
         }
 
+        private static int getSmiteDmg()
+        {
+            int level = _player.Level;
+            int index = _player.Level / 5;
+            float[] dmgs = { 370 + 20 * level, 330 + 30 * level, 240 + 40 * level, 100 + 50 * level };
+            return (int)dmgs[index];
+        }
+
         private static void SmiteSteal()
         {
-            var baronDragon = MinionManager.GetMinions(_player.Position, 1100, MinionTypes.All, MinionTeam.NotAlly).FirstOrDefault(i => i.Name == "Worm12.1.1" || i.Name == "Dragon6.1.1");
-            var smiteDmg = _player.GetSummonerSpellDamage(baronDragon, Damage.SummonerSpell.Smite);
-            var smiterdy = (_smiteSlot != null && _smiteSlot.Slot != SpellSlot.Unknown && _smiteSlot.State == SpellState.Ready);
-            if (baronDragon == null) return;
-            if (_human && _humanQ.IsReady() && _player.Distance(baronDragon) <= _humanQ.Range)
+            string[] jungleMinions;
+            if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
             {
-                if (!smiterdy && _humanQ.GetDamage(baronDragon) >= baronDragon.Health)
-                {
-                    _humanQ.Cast(baronDragon, Packets());
-                }
+                jungleMinions = new string[] { "TT_Spiderboss", "TT_NWraith", "TT_NGolem", "TT_NWolf" };
+            }
+            else
+            {
+                jungleMinions = new string[] { "AncientGolem", "LizardElder", "Worm", "Dragon" };
+            }
 
-                else if (smiterdy && baronDragon.Health <= (smiteDmg + _humanQ.GetDamage(baronDragon)))
+            var minions = MinionManager.GetMinions(_player.Position, 1000, MinionTypes.All, MinionTeam.Neutral);
+            if (minions.Count() > 0)
+            {
+                int smiteDmg = getSmiteDmg();
+                foreach (Obj_AI_Base minion in minions)
                 {
-                    _humanQ.Cast(baronDragon, Packets());
-                    _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, baronDragon);
 
+                    Boolean b;
+                    if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
+                    {
+                        b = minion.Health <= smiteDmg &&
+                            jungleMinions.Any(name => minion.Name.Substring(0, minion.Name.Length - 5).Equals(name));
+                    }
+                    else
+                    {
+                        b = minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name));
+                    }
+
+                    if (b)
+                    {
+                        _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, minion);
+                    }
                 }
             }
-            if (_spider && _spiderQ.IsReady() && _player.Distance(baronDragon) <= _spiderQ.Range)
-                if (!smiterdy && _spiderQ.GetDamage(baronDragon) >= baronDragon.Health)
-                {
-                    _spiderQ.Cast(baronDragon, Packets());
-                }
-
-                else if (smiterdy && baronDragon.Health <= (smiteDmg + _spiderQ.GetDamage(baronDragon)))
-                {
-                    _spiderQ.Cast(baronDragon, Packets());
-                    _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, baronDragon);
-                }
-            if (smiterdy && baronDragon.IsValidTarget(_smiteSlot.SData.CastRange[0]) && smiteDmg > baronDragon.Health)
-                _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, baronDragon);
         }
         private static void AutoE()
         {
+            _player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
             var target = SimpleTs.GetTarget(_humanE.Range, SimpleTs.DamageType.Magical);
 
             if (_human && _player.Distance(target) < _humanE.Range && _humanE.IsReady() && _humanE.GetPrediction(target).Hitchance >= HitChance.VeryHigh)
@@ -645,7 +657,17 @@ namespace D_Elise
         static void Drawing_OnDraw(EventArgs args)
         {
             var elise = Drawing.WorldToScreen(_player.Position);
-
+            if (_config.Item("Drawsmite").GetValue<bool>())
+            {
+                if (_config.Item("Usesmite").GetValue<KeyBind>().Active)
+                {
+                    Drawing.DrawText(Drawing.Width * 0.90f, Drawing.Height * 0.68f, System.Drawing.Color.DarkOrange,
+                        "Smite Is On");
+                }
+                else
+                    Drawing.DrawText(Drawing.Width * 0.90f, Drawing.Height * 0.68f, System.Drawing.Color.DarkRed,
+                        "Smite Is Off");
+            }
             if (_config.Item("CircleLag").GetValue<bool>())
             {
                 if (_human && _config.Item("DrawQ").GetValue<bool>())

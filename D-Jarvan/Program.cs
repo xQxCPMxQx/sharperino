@@ -434,8 +434,7 @@ namespace D_Jarvan
             UseItemes(t);
         }
 
-        private static
-        void ComboEqr()
+        private static void ComboEqr()
         {
             _player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
             var manacheck = _player.Mana > _player.Spellbook.GetSpell(SpellSlot.Q).ManaCost + _player.Spellbook.GetSpell(SpellSlot.E).ManaCost + _player.Spellbook.GetSpell(SpellSlot.R).ManaCost;
