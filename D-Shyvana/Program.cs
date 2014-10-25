@@ -372,11 +372,11 @@ namespace D_Shyvana
             }
             if (useItemsH && _tiamat.IsReady() && _player.Distance(target) < _tiamat.Range)
             {
-                _tiamat.Cast();
+                _tiamat.Cast(target);
             }
             if (useItemsH && _hydra.IsReady() && _player.Distance(target) < _hydra.Range)
             {
-                _hydra.Cast();
+                _hydra.Cast(target);
             }
         }
 

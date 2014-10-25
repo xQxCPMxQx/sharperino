@@ -499,11 +499,11 @@ namespace D_Jarvan
 
             if (useItemsH && _tiamat.IsReady() && target.Distance(_player.Position) < _tiamat.Range)
             {
-                _tiamat.Cast();
+                _tiamat.Cast(target);
             }
             if (useItemsH && _hydra.IsReady() && target.Distance(_player.Position) < _hydra.Range)
             {
-                _hydra.Cast();
+                _hydra.Cast(target);
             }
         }
 
