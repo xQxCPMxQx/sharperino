@@ -498,11 +498,11 @@ namespace D_Jarvan
 
             if (useItemsH && _tiamat.IsReady() && target.Distance(_player.Position) < _tiamat.Range)
             {
-                _tiamat.Cast(target);
+                _tiamat.Cast();
             }
             if (useItemsH && _hydra.IsReady() && target.Distance(_player.Position) < _hydra.Range)
             {
-                _hydra.Cast(target);
+                _hydra.Cast();
             }
         }
 
@@ -744,12 +744,12 @@ namespace D_Jarvan
             }
             if (Utility.CountEnemysInRange(350) >= 1 && iTiamat && _tiamat.IsReady())
             {
-                _tiamat.Cast(target);
+                _tiamat.Cast();
 
             }
             if (Utility.CountEnemysInRange(350) >= 1 && iHydra && _hydra.IsReady())
             {
-                _hydra.Cast(target);
+                _hydra.Cast();
 
             }
             if (iOmenenemys && iOmen && _rand.IsReady())

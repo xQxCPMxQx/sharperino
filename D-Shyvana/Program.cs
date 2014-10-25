@@ -372,11 +372,11 @@ namespace D_Shyvana
             }
             if (useItemsH && _tiamat.IsReady() && _player.Distance(target) < _tiamat.Range)
             {
-                _tiamat.Cast(target);
+                _tiamat.Cast();
             }
             if (useItemsH && _hydra.IsReady() && _player.Distance(target) < _hydra.Range)
             {
-                _hydra.Cast(target);
+                _hydra.Cast();
             }
         }
 
@@ -588,12 +588,12 @@ namespace D_Shyvana
             }
             if (Utility.CountEnemysInRange(350) >= 1 && iTiamat && _tiamat.IsReady())
             {
-                _tiamat.Cast(target);
+                _tiamat.Cast();
 
             }
             if (Utility.CountEnemysInRange(350) >= 1 && iHydra && _hydra.IsReady())
             {
-                _hydra.Cast(target);
+                _hydra.Cast();
 
             }
             if (iOmenenemys && iOmen && _rand.IsReady())
