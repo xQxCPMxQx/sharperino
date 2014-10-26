@@ -1,16 +1,11 @@
 ﻿
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Text;
-using System.Linq;
-using System.Security.AccessControl;
 using LeagueSharp;
 using LeagueSharp.Common;
-using SharpDX;
-using Color = System.Drawing.Color;
+using System.Linq;
+
 
 namespace D_Udyr
 {
@@ -51,9 +46,9 @@ namespace D_Udyr
 
 
         //Tiger Style
-        private static Spell[] Tiger = { _q, _w, _e, _q, _q, _e, _q, _e, _q, _e, _e, _w, _w, _w, _w, _r, _r, _r };
+        static List<int> Tiger = new List<int> { 0, 1, 2, 0, 0, 2, 0, 2, 0, 2, 2, 1, 1, 1, 1, 3, 3, 3 };
         //Phoenix Style
-        private static Spell[] Phoenix = { _r, _q, _e, _r, _r, _e, _r, _e, _r, _e, _e, _w, _q, _q, _q, _w, _w, _w };
+        static List<int> Phoenix = new List<int> { 3, 0, 2, 3, 3, 2, 3, 2, 3, 2, 2, 1, 0, 0, 0, 1, 1, 1 };
 
         private static void Main(string[] args)
         {
@@ -226,9 +221,9 @@ namespace D_Udyr
 
             if (!_config.Item("AutoLevel").GetValue<bool>()) return;
             if (_config.Item("Style").GetValue<StringList>().SelectedIndex == 0)
-                _player.Spellbook.LevelUpSpell(Tiger[args.NewLevel - 1].Slot);
-            else if (_config.Item("Style").GetValue<StringList>().SelectedIndex == 1)
-                _player.Spellbook.LevelUpSpell(Phoenix[args.NewLevel - 1].Slot);
+                _player.Spellbook.LevelUpSpell((SpellSlot)Tiger[args.NewLevel - 1]);
+               else if (_config.Item("Style").GetValue<StringList>().SelectedIndex == 1)
+             _player.Spellbook.LevelUpSpell((SpellSlot)Phoenix[args.NewLevel - 1]);
         }
 
 
@@ -268,6 +263,7 @@ namespace D_Udyr
         private static void Forest()
         {
             if (_player.HasBuff("Recall")) return;
+            
             if (_e.IsReady() && _config.Item("ForestE").GetValue<bool>())
             {
                 _e.Cast();
