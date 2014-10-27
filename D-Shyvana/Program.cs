@@ -26,6 +26,8 @@ namespace D_Shyvana
 
         private static SpellSlot _igniteSlot;
 
+        private static SpellDataInst _smiteSlot;
+
         static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -52,6 +54,7 @@ namespace D_Shyvana
             _lotis = new Items.Item(3190, 590f);
 
             _igniteSlot = _player.GetSpellSlot("SummonerDot");
+            _smiteSlot = _player.SummonerSpellbook.GetSpell(_player.GetSpellSlot("summonersmite"));
 
             //D Shyvana
             _config = new Menu("D-Shyvana", "D-Shyvana", true);
@@ -120,6 +123,8 @@ namespace D_Shyvana
             _config.SubMenu("Farm").AddItem(new MenuItem("UseQJ", "Q Jungle")).SetValue(true);
             _config.SubMenu("Farm").AddItem(new MenuItem("UseWJ", "W Jungle")).SetValue(true);
             _config.SubMenu("Farm").AddItem(new MenuItem("UseEJ", "E Jungle")).SetValue(true);
+            _config.SubMenu("Farm").AddItem(new MenuItem("Usesmite", "Use Smite(toggle)").SetValue(new KeyBind("H".ToCharArray()[0],
+                    KeyBindType.Toggle)));
             _config.SubMenu("Farm").AddItem(new MenuItem("ActiveLast", "LastHit!").SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
             _config.SubMenu("Farm").AddItem(new MenuItem("ActiveLane", "LaneClear/Jungle!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
 
@@ -158,6 +163,7 @@ namespace D_Shyvana
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawW", "Draw W")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawE", "Draw E")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawR", "Draw R")).SetValue(true);
+            _config.SubMenu("Drawings").AddItem(new MenuItem("Drawsmite", "Draw smite")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("CircleLag", "Lag Free Circles").SetValue(true));
             _config.SubMenu("Drawings").AddItem(new MenuItem("CircleQuality", "Circles Quality").SetValue(new Slider(100, 100, 10)));
             _config.SubMenu("Drawings").AddItem(new MenuItem("CircleThickness", "Circles Thickness").SetValue(new Slider(1, 10, 1)));
@@ -205,7 +211,10 @@ namespace D_Shyvana
             {
                 Forest();
             }
-
+            if (_config.Item("Usesmite").GetValue<KeyBind>().Active)
+            {
+                Smiteuse();
+            }
             _player = ObjectManager.Player;
 
 
@@ -605,8 +614,65 @@ namespace D_Shyvana
                 _e.Cast(target, Packets());
             }
         }
+
+        private static int GetSmiteDmg()
+        {
+            int level = _player.Level;
+            int index = _player.Level / 5;
+            float[] dmgs = { 370 + 20 * level, 330 + 30 * level, 240 + 40 * level, 100 + 50 * level };
+            return (int)dmgs[index];
+        }
+
+        private static void Smiteuse()
+        {
+            string[] jungleMinions;
+            if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
+            {
+                jungleMinions = new string[] { "TT_Spiderboss", "TT_NWraith", "TT_NGolem", "TT_NWolf" };
+            }
+            else
+            {
+                jungleMinions = new string[] { "AncientGolem", "LizardElder", "Worm", "Dragon" };
+            }
+
+            var minions = MinionManager.GetMinions(_player.Position, 1000, MinionTypes.All, MinionTeam.Neutral);
+            if (minions.Count() > 0)
+            {
+                int smiteDmg = GetSmiteDmg();
+                foreach (Obj_AI_Base minion in minions)
+                {
+
+                    Boolean b;
+                    if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
+                    {
+                        b = minion.Health <= smiteDmg &&
+                            jungleMinions.Any(name => minion.Name.Substring(0, minion.Name.Length - 5).Equals(name));
+                    }
+                    else
+                    {
+                        b = minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name));
+                    }
+
+                    if (b)
+                    {
+                        _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, minion);
+                    }
+                }
+            }
+        }
         private static void Drawing_OnDraw(EventArgs args)
         {
+            if (_config.Item("Drawsmite").GetValue<bool>())
+            {
+                if (_config.Item("Usesmite").GetValue<KeyBind>().Active)
+                {
+                    Drawing.DrawText(Drawing.Width * 0.90f, Drawing.Height * 0.68f, System.Drawing.Color.DarkOrange,
+                        "Smite Is On");
+                }
+                else
+                    Drawing.DrawText(Drawing.Width * 0.90f, Drawing.Height * 0.68f, System.Drawing.Color.DarkRed,
+                        "Smite Is Off");
+            }
             if (_config.Item("CircleLag").GetValue<bool>())
             {
                 if (_config.Item("DrawQ").GetValue<bool>())
