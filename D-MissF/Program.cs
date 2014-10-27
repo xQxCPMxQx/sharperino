@@ -407,6 +407,23 @@ namespace D_MissF
                 _timeTick = Environment.TickCount;
             }
         }
+
+        private static void CastR2()
+        {
+            if (!_r.IsReady()) return;
+
+            Obj_AI_Hero target = SimpleTs.GetTarget(_r.Range - 200, SimpleTs.DamageType.Magical);
+            if (target == null) return;
+            if (_r.GetDamage(target) * 8 < target.Health) return;
+            if (target.HasBuff("JudicatorIntervention") && target.HasBuff("Undying Rage")) return;
+            if (_r.GetPrediction(target).Hitchance >= HitChance.Medium)
+            {
+                _r.CastIfHitchanceEquals(target, target.IsMoving ? HitChance.High : HitChance.Medium, Packets());
+                Program._orbwalker.SetAttack(false);
+                Program._orbwalker.SetMovement(false);
+                _timeTick = Environment.TickCount;
+            }
+        }
         private static void KillSteal()
         {
             var target = SimpleTs.GetTarget(_w.Range, SimpleTs.DamageType.Magical);
@@ -428,7 +445,7 @@ namespace D_MissF
             }
             if (_r.IsReady() && _config.Item("UseRM").GetValue<bool>())
             {
-                CastR();
+                CastR2();
             }
         }
         private static void Drawing_OnDraw(EventArgs args)
