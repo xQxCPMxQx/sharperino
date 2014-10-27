@@ -29,6 +29,8 @@ namespace D_Jarvan
 
         private static SpellDataInst _smiteSlot;
 
+        private static SpellSlot _FlashSlot;
+
         private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -49,6 +51,7 @@ namespace D_Jarvan
 
             _smiteSlot = _player.SummonerSpellbook.GetSpell(_player.GetSpellSlot("summonersmite"));
             _igniteSlot = _player.GetSpellSlot("SummonerDot");
+            _FlashSlot = _player.GetSpellSlot("SummonerFlash");
 
             _bilge = new Items.Item(3144, 475f);
             _blade = new Items.Item(3153, 425f);
@@ -90,8 +93,12 @@ namespace D_Jarvan
                 .AddItem(
                     new MenuItem("ActiveComboEQR", "ComboEQ-R!").SetValue(new KeyBind("T".ToCharArray()[0],
                         KeyBindType.Press)));
-
-
+             _config.SubMenu("Combo")
+                .AddItem(
+                    new MenuItem("ComboeqFlash", "ComboEQ- Flash!").SetValue(new KeyBind("H".ToCharArray()[0],
+                        KeyBindType.Press)));
+             _config.SubMenu("Combo").AddItem(new MenuItem("FlashDista", "Flash Distance").SetValue(new Slider(700, 500, 1000)));
+            
             //Items public static Int32 Tiamat = 3077, Hydra = 3074, Blade = 3153, Bilge = 3144, Rand = 3143, lotis = 3190;
             _config.AddSubMenu(new Menu("items", "items"));
             _config.SubMenu("items").AddSubMenu(new Menu("Offensive", "Offensive"));
@@ -231,12 +238,6 @@ namespace D_Jarvan
             _config.SubMenu("Misc").AddItem(new MenuItem("skinjarvan", "Skin Changer").SetValue(new Slider(4, 1, 7)));
             _config.SubMenu("Misc").AddItem(new MenuItem("usePackets", "Usepackes")).SetValue(true);
 
-            //Misc
-            _config.AddSubMenu(new Menu("HitChance", "HitChance"));
-            _config.SubMenu("HitChance")
-                  .AddItem(new MenuItem("Echange", "E Hit").SetValue(
-                      new StringList(new[] { "Low", "Medium", "High", "Very High" })));
-
             //Drawings
             _config.AddSubMenu(new Menu("Drawings", "Drawings"));
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawQ", "Draw Q")).SetValue(true);
@@ -244,6 +245,7 @@ namespace D_Jarvan
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawE", "Draw E")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawR", "Draw R")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawQR", "Draw EQ-R")).SetValue(true);
+            _config.SubMenu("Drawings").AddItem(new MenuItem("DrawEQF", "Draw EQ-Flash")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("Drawsmite", "Draw smite")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("CircleLag", "Lag Free Circles").SetValue(true));
             _config.SubMenu("Drawings")
@@ -311,7 +313,11 @@ namespace D_Jarvan
             {
                 Smiteuse();
             }
-
+            if (_config.Item("ComboeqFlash").GetValue<KeyBind>().Active)
+            {
+                ComboeqFlash();
+            }
+            
             _player = ObjectManager.Player;
 
             _orbwalker.SetAttack(true);
@@ -326,13 +332,16 @@ namespace D_Jarvan
                 _w.Cast(gapcloser.Sender, Packets());
             }
         }
+
         private static void Interrupter_OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
-            if (_e.IsReady() && _q.IsReady() && unit.IsValidTarget(_q.Range) && _config.Item("UseEQInt").GetValue<bool>()
-                && _e.GetPrediction(unit).Hitchance >= Echange())
+            if (_e.IsReady() && _q.IsReady() && unit.IsValidTarget(_q.Range) &&
+                _config.Item("UseEQInt").GetValue<bool>()
+                )
                 _e.Cast(unit, Packets());
             _q.Cast(unit, Packets());
         }
+
         private static void GenModelPacket(string champ, int skinId)
         {
             Packet.S2C.UpdateModel.Encoded(new Packet.S2C.UpdateModel.Struct(_player.NetworkId, skinId, champ))
@@ -479,7 +488,7 @@ namespace D_Jarvan
             if (useEqhp && useEq && _q.IsReady() && _e.IsReady())
             {
                 var t = SimpleTs.GetTarget(_e.Range, SimpleTs.DamageType.Magical);
-                if (t != null && t.Distance(_player.Position) < _e.Range && _e.GetPrediction(t).Hitchance >= Echange())
+                if (t != null && t.Distance(_player.Position) < _e.Range)
                     _e.Cast(t, Packets());
                 _q.Cast(t, Packets());
             }
@@ -492,7 +501,7 @@ namespace D_Jarvan
             if (useE && _e.IsReady())
             {
                 var t = SimpleTs.GetTarget(_e.Range, SimpleTs.DamageType.Magical);
-                if (t != null && t.Distance(_player.Position) < _e.Range && _e.GetPrediction(t).Hitchance >= Echange())
+                if (t != null && t.Distance(_player.Position) < _e.Range)
                     _e.Cast(t, Packets());
             }
 
@@ -506,6 +515,28 @@ namespace D_Jarvan
             }
         }
 
+        private static void ComboeqFlash()
+        {
+            _player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+            var flashDista = _config.Item("FlashDista").GetValue<Slider>().Value;
+            var manacheck = _player.Mana > _player.Spellbook.GetSpell(SpellSlot.Q).ManaCost + _player.Spellbook.GetSpell(SpellSlot.E).ManaCost;
+            var t = SimpleTs.GetTarget(_q.Range + 1000, SimpleTs.DamageType.Magical);
+            if (_FlashSlot != SpellSlot.Unknown && _player.SummonerSpellbook.CanUseSpell(_FlashSlot) == SpellState.Ready)
+            {
+                if (_e.IsReady() && _q.IsReady() && manacheck)
+                {
+                    if (t != null && _player.Distance(t) > _q.Range)
+                        _e.Cast(Game.CursorPos);
+                    _q.Cast(Game.CursorPos);
+                }
+
+                if (t.IsValidTarget(flashDista))
+                {
+                    _player.SummonerSpellbook.CastSpell(_FlashSlot, t.ServerPosition);
+                }
+            }
+            UseItemes(t);
+        }
         private static void Laneclear()
         {
             var allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _q.Range, MinionTypes.All);
@@ -646,24 +677,8 @@ namespace D_Jarvan
             return _config.Item("usePackets").GetValue<bool>();
         }
 
-        private static HitChance Echange()
-        {
-            switch (_config.Item("Echange").GetValue<StringList>().SelectedIndex)
-            {
-                case 0:
-                    return HitChance.Low;
-                case 1:
-                    return HitChance.Medium;
-                case 2:
-                    return HitChance.High;
-                case 3:
-                    return HitChance.VeryHigh;
-                default:
-                    return HitChance.Medium;
-            }
-        }
-
-        private static int getSmiteDmg()
+     
+        private static int GetSmiteDmg()
         {
             int level = _player.Level;
             int index = _player.Level / 5;
@@ -686,7 +701,7 @@ namespace D_Jarvan
             var minions = MinionManager.GetMinions(_player.Position, 1000, MinionTypes.All, MinionTeam.Neutral);
             if (minions.Count() > 0)
             {
-                int smiteDmg = getSmiteDmg();
+                int smiteDmg = GetSmiteDmg();
                 foreach (Obj_AI_Base minion in minions)
                 {
 
@@ -767,7 +782,6 @@ namespace D_Jarvan
                 }
             }
         }
-
 
         private static void KillSteal()
         {
@@ -858,6 +872,12 @@ namespace D_Jarvan
             }
             if (_config.Item("CircleLag").GetValue<bool>())
             {
+                if (_config.Item("DrawEQF").GetValue<bool>())
+                {
+                    Utility.DrawCircle(ObjectManager.Player.Position, _q.Range + _config.Item("FlashDista").GetValue<Slider>().Value, System.Drawing.Color.Gray,
+                        _config.Item("CircleThickness").GetValue<Slider>().Value,
+                        _config.Item("CircleQuality").GetValue<Slider>().Value);
+                }
                 if (_config.Item("DrawQ").GetValue<bool>())
                 {
                     Utility.DrawCircle(ObjectManager.Player.Position, _q.Range, System.Drawing.Color.Gray,
@@ -911,6 +931,10 @@ namespace D_Jarvan
                 if (_config.Item("DrawQR").GetValue<bool>())
                 {
                     Drawing.DrawCircle(ObjectManager.Player.Position, _q.Range + _r.Range, System.Drawing.Color.White);
+                }
+                if (_config.Item("DrawEQF").GetValue<bool>())
+                {
+                    Drawing.DrawCircle(ObjectManager.Player.Position, _q.Range + _config.Item("FlashDista").GetValue<Slider>().Value, System.Drawing.Color.White);
                 }
             }
         }
