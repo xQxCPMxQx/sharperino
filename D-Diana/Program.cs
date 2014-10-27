@@ -286,6 +286,7 @@ namespace D_Diana
             {
                 dmg += _player.GetSummonerSpellDamage(hero, Damage.SummonerSpell.Ignite);
             }
+            dmg += _player.GetAutoAttackDamage(hero, true) * 2;
             return (float)dmg;
         }
 
