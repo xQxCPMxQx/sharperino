@@ -5,7 +5,6 @@ using LeagueSharp;
 using System.Linq;
 using LeagueSharp.Common;
 using LX_Orbwalker;
-
 #endregion
 
 namespace D_Shyvana
@@ -222,11 +221,12 @@ namespace D_Shyvana
         {
             return (_config.Item("skinshyvana").GetValue<Slider>().Value != _lastSkin);
         }
+
         private static float ComboDamage(Obj_AI_Base enemy)
         {
             var damage = 0d;
             if (_igniteSlot != SpellSlot.Unknown &&
-               _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
+                _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
                 damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
             if (Items.HasItem(3077) && Items.CanUseItem(3077))
                 damage += _player.GetItemDamage(enemy, Damage.DamageItems.Tiamat);
@@ -237,18 +237,17 @@ namespace D_Shyvana
             if (Items.HasItem(3144) && Items.CanUseItem(3144))
                 damage += _player.GetItemDamage(enemy, Damage.DamageItems.Bilgewater);
             if (_q.IsReady())
-                damage += _player.GetSpellDamage(enemy, SpellSlot.Q) * 1.2;
+                damage += _player.GetSpellDamage(enemy, SpellSlot.Q)*1.2;
             if (_q.IsReady())
-                damage += _player.GetSpellDamage(enemy, SpellSlot.Q) * 3;
+                damage += _player.GetSpellDamage(enemy, SpellSlot.W)*3;
             if (_e.IsReady())
                 damage += _player.GetSpellDamage(enemy, SpellSlot.E);
             if (_r.IsReady())
                 damage += _player.GetSpellDamage(enemy, SpellSlot.R);
-
-            damage += _player.GetAutoAttackDamage(enemy, true) * 1.1;
-            damage += _player.GetAutoAttackDamage(enemy, true);
-            return (float)damage;
+            damage += _player.GetAutoAttackDamage(enemy, true)*2;
+            return (float) damage;
         }
+
         private static void Combo()
         {
             var useQ = _config.Item("UseQC").GetValue<bool>();
@@ -258,90 +257,49 @@ namespace D_Shyvana
             var autoR = _config.Item("UseRE").GetValue<bool>();
 
             var t = SimpleTs.GetTarget(_r.Range, SimpleTs.DamageType.Magical);
-
-            if (_player.Distance(t) < _w.Range + 250)
+            if (t != null && _config.Item("UseIgnite").GetValue<bool>() && _igniteSlot != SpellSlot.Unknown &&
+                _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
             {
-                if (useW && _w.IsReady())
+                if (ComboDamage(t) > t.Health)
                 {
-                    if (t != null && _player.Distance(t) < _e.Range)
-                        _w.Cast();
-
-                }
-                if (useE && _e.IsReady())
-                {
-
-                    if (t != null && _player.Distance(t) < _e.Range &&
-                        _e.GetPrediction(t).Hitchance >= Echange())
-                        _e.Cast(t, Packets(), true);
-                }
-                if (useQ && _q.IsReady())
-                {
-                    if (t != null && _player.Distance(t) < _w.Range)
-                        _q.Cast();
-                }
-                if (useR && _r.IsReady())
-                {
-                    if (t != null && _player.Distance(t) > _w.Range + 150)
-                        if (!t.HasBuff("JudicatorIntervention") && !t.HasBuff("Undying Rage") &&
-                            _r.GetDamage(t) > t.Health
-                            && _r.GetPrediction(t).Hitchance >= Rchange())
-                            _r.Cast(t, Packets(), true);
+                    _player.SummonerSpellbook.CastSpell(_igniteSlot, t);
                 }
             }
-            else if (_player.Distance(t) > _w.Range + 250)
+            if (useR && _r.IsReady())
+            {
+                if (t != null && _r.GetPrediction(t).Hitchance >= Rchange())
+                    if (!t.HasBuff("JudicatorIntervention") && !t.HasBuff("Undying Rage") &&
+                        ComboDamage(t) > t.Health)
+                        _r.CastIfHitchanceEquals(t, HitChance.Medium, Packets());
+            }
+            if (useW && _w.IsReady())
+            {
+                if (t != null && _player.Distance(t) < _e.Range)
+                    _w.Cast();
+            }
+
+            if (useE && _e.IsReady())
             {
 
-                if (useR && _r.IsReady() && !_w.IsReady())
-                {
-                    if (t != null && _r.GetPrediction(t).Hitchance >= Rchange())
-                        _r.Cast(t, Packets(), true);
-                }
-                if (useW && _w.IsReady())
-                {
-                    if (t != null && _player.Distance(t) < _e.Range)
-                        _w.Cast();
-                }
-                if (useE && _e.IsReady())
-                {
-
-                    if (t != null && _player.Distance(t) < _e.Range &&
-                        _e.GetPrediction(t).Hitchance >= Echange())
-                        _e.Cast(t, Packets(), true);
-                }
-                if (useQ && _q.IsReady())
-                {
-                    if (t != null && _player.Distance(t) < _w.Range)
-                        _q.Cast();
-                }
+                if (t != null && _player.Distance(t) < _e.Range &&
+                    _e.GetPrediction(t).Hitchance >= Echange())
+                    _e.Cast(t, Packets(), true);
             }
-            else if (_player.Distance(t) < _r.Range)
+
+            if (useQ && _q.IsReady())
             {
-
-                if (_r.IsReady() && autoR)
-                {
-                    if (ObjectManager.Get<Obj_AI_Hero>().Count(hero => hero.IsValidTarget(_r.Range)) >=
-                        _config.Item("MinTargets").GetValue<Slider>().Value
-                        && _r.GetPrediction(t).Hitchance >= Rchange())
-                        _r.Cast(t, Packets(), true);
-                }
-                if (useW && _w.IsReady())
-                {
-                    if (t != null && _player.Distance(t) < _e.Range)
-                        _w.Cast();
-                }
-                if (useE && _e.IsReady())
-                {
-
-                    if (t != null && _player.Distance(t) < _e.Range &&
-                        _e.GetPrediction(t).Hitchance >= Echange())
-                        _e.Cast(t, Packets(), true);
-                }
-                if (useQ && _q.IsReady())
-                {
-                    if (t != null && _player.Distance(t) < _w.Range)
-                        _q.Cast();
-                }
+                if (t != null && _player.Distance(t) < _w.Range)
+                    _q.Cast();
             }
+
+            if (_r.IsReady() && autoR)
+            {
+                if (ObjectManager.Get<Obj_AI_Hero>().Count(hero => hero.IsValidTarget(_r.Range)) >=
+                    _config.Item("MinTargets").GetValue<Slider>().Value
+                    && _r.GetPrediction(t).Hitchance >= Rchange())
+                    _r.Cast(t, Packets(), true);
+            }
+
             UseItemes(t);
         }
 
