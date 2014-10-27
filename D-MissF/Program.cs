@@ -61,6 +61,8 @@ namespace D_MissF
             _config.SubMenu("Combo").AddItem(new MenuItem("UseWC", "Use W")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseEC", "Use E")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseRC", "Use R(target kilable)")).SetValue(true);
+            _config.SubMenu("Combo")
+                .AddItem(new MenuItem("autoattack", "Autoattack to calc. the ComboDmg").SetValue(new Slider(3, 1, 6)));
             _config.SubMenu("Combo").AddItem(new MenuItem("UseRE", "AutoR Min Targ")).SetValue(true);
             _config.SubMenu("Combo")
                 .AddItem(new MenuItem("MinTargets", "Ult when>=min enemy(COMBO)").SetValue(new Slider(2, 1, 5)));
@@ -363,11 +365,12 @@ namespace D_MissF
                         spell.Cast(minion, Packets());
             }
         }
+
         private static float ComboDamage(Obj_AI_Base enemy)
         {
             var damage = 0d;
             if (_igniteSlot != SpellSlot.Unknown &&
-               _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
+                _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
                 damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
             if (Items.HasItem(3077) && Items.CanUseItem(3077))
                 damage += _player.GetItemDamage(enemy, Damage.DamageItems.Tiamat);
@@ -378,16 +381,16 @@ namespace D_MissF
             if (Items.HasItem(3144) && Items.CanUseItem(3144))
                 damage += _player.GetItemDamage(enemy, Damage.DamageItems.Bilgewater);
             if (_q.IsReady())
-                damage += _player.GetSpellDamage(enemy, SpellSlot.Q) * 2;
+                damage += _player.GetSpellDamage(enemy, SpellSlot.Q)*2;
             if (_e.IsReady())
                 damage += _player.GetSpellDamage(enemy, SpellSlot.E);
             if (_r.IsReady())
-                damage += _player.GetSpellDamage(enemy, SpellSlot.R) * 8;
+                damage += _player.GetSpellDamage(enemy, SpellSlot.R)*8;
 
-            damage += _player.GetAutoAttackDamage(enemy, true) * 1.1;
-            damage += _player.GetAutoAttackDamage(enemy, true);
-            return (float)damage;
+            damage += _player.GetAutoAttackDamage(enemy, true)*_config.Item("autoattack").GetValue<Slider>().Value;
+            return (float) damage;
         }
+
         private static void CastR()
         {
             if (!_r.IsReady()) return;
