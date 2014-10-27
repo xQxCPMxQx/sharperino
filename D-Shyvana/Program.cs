@@ -68,6 +68,7 @@ namespace D_Shyvana
 
             //Combo
             _config.AddSubMenu(new Menu("Combo", "Combo"));
+            _config.SubMenu("Combo").AddItem(new MenuItem("UseIgnite", "Use Ignite")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseQC", "Use Q")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseWC", "Use W")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseEC", "Use E")).SetValue(true);
@@ -237,14 +238,14 @@ namespace D_Shyvana
             if (Items.HasItem(3144) && Items.CanUseItem(3144))
                 damage += _player.GetItemDamage(enemy, Damage.DamageItems.Bilgewater);
             if (_q.IsReady())
-                damage += _player.GetSpellDamage(enemy, SpellSlot.Q)*1.2;
+                damage += _player.GetSpellDamage(enemy, SpellSlot.Q) * 1.2;
             if (_q.IsReady())
-                damage += _player.GetSpellDamage(enemy, SpellSlot.W)*3;
+                damage += _player.GetSpellDamage(enemy, SpellSlot.W) * 3;
             if (_e.IsReady())
                 damage += _player.GetSpellDamage(enemy, SpellSlot.E);
             if (_r.IsReady())
                 damage += _player.GetSpellDamage(enemy, SpellSlot.R);
-            damage += _player.GetAutoAttackDamage(enemy, true)*2;
+            damage += _player.GetAutoAttackDamage(enemy, true) * 2;
             return (float) damage;
         }
 
