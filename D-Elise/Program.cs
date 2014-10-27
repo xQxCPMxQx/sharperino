@@ -46,6 +46,7 @@ namespace D_Elise
 
         private static SpellDataInst _smiteSlot;
 
+        private static Items.Item _tiamat, _hydra, _blade, _bilge, _rand, _lotis;
 
         static void Main(string[] args)
         {
@@ -69,6 +70,12 @@ namespace D_Elise
             _humanW.SetSkillshot(0.25f, 100f, 1000, true, SkillshotType.SkillshotLine);
             _humanE.SetSkillshot(0.25f, 55f, 1300, true, SkillshotType.SkillshotLine);
 
+            _bilge = new Items.Item(3144, 475f);
+            _blade = new Items.Item(3153, 425f);
+            _hydra = new Items.Item(3074, 250f);
+            _tiamat = new Items.Item(3077, 250f);
+            _rand = new Items.Item(3143, 490f);
+            _lotis = new Items.Item(3190, 590f);
             //DFG = new Items.Item(3128, 750f);
 
             _igniteSlot = _player.GetSpellSlot("SummonerDot");
@@ -104,6 +111,47 @@ namespace D_Elise
             _config.SubMenu("Harass").AddItem(new MenuItem("UseWHarass", "Human W")).SetValue(true);
             _config.SubMenu("Harass").AddItem(new MenuItem("Harrasmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
             _config.SubMenu("Harass").AddItem(new MenuItem("ActiveHarass", "Harass key").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
+
+            //Items public static Int32 Tiamat = 3077, Hydra = 3074, Blade = 3153, Bilge = 3144, Rand = 3143, lotis = 3190;
+            _config.AddSubMenu(new Menu("items", "items"));
+            _config.SubMenu("items").AddSubMenu(new Menu("Offensive", "Offensive"));
+            _config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Tiamat", "Use Tiamat")).SetValue(true);
+            _config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Hydra", "Use Hydra")).SetValue(true);
+            _config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Bilge", "Use Bilge")).SetValue(true);
+            _config.SubMenu("items")
+                .SubMenu("Offensive")
+                .AddItem(new MenuItem("BilgeEnemyhp", "If Enemy Hp <").SetValue(new Slider(85, 1, 100)));
+            _config.SubMenu("items")
+                .SubMenu("Offensive")
+                .AddItem(new MenuItem("Bilgemyhp", "Or your Hp < ").SetValue(new Slider(85, 1, 100)));
+            _config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Blade", "Use Blade")).SetValue(true);
+            _config.SubMenu("items")
+                .SubMenu("Offensive")
+                .AddItem(new MenuItem("BladeEnemyhp", "If Enemy Hp <").SetValue(new Slider(85, 1, 100)));
+            _config.SubMenu("items")
+                .SubMenu("Offensive")
+                .AddItem(new MenuItem("Blademyhp", "Or Your  Hp <").SetValue(new Slider(85, 1, 100)));
+            _config.SubMenu("items").AddSubMenu(new Menu("Deffensive", "Deffensive"));
+            _config.SubMenu("items")
+                .SubMenu("Deffensive")
+                .AddItem(new MenuItem("Omen", "Use Randuin Omen"))
+                .SetValue(true);
+            _config.SubMenu("items")
+                .SubMenu("Deffensive")
+                .AddItem(new MenuItem("Omenenemys", "Randuin if enemys>").SetValue(new Slider(2, 1, 5)));
+            _config.SubMenu("items")
+                .SubMenu("Deffensive")
+                .AddItem(new MenuItem("lotis", "Use Iron Solari"))
+                .SetValue(true);
+            _config.SubMenu("items")
+                .SubMenu("Deffensive")
+                .AddItem(new MenuItem("lotisminhp", "Solari if Ally Hp<").SetValue(new Slider(35, 1, 100)));
+            /*_config.SubMenu("items").AddSubMenu(new Menu("Potions", "Potions"));
+            _config.SubMenu("items").SubMenu("Potions").AddItem(new MenuItem("Hppotion", "Use Hp potion")).SetValue(true);
+            _config.SubMenu("items").SubMenu("Potions").AddItem(new MenuItem("Hppotionuse", "Use Hp potion if HP<").SetValue(new Slider(35, 1, 100)));
+            _config.SubMenu("items").SubMenu("Potions").AddItem(new MenuItem("Mppotion", "Use Mp potion")).SetValue(true);
+            _config.SubMenu("items").SubMenu("Potions").AddItem(new MenuItem("Mppotionuse", "Use Mp potion if HP<").SetValue(new Slider(35, 1, 100)));
+            */
 
             //Farm
             _config.AddSubMenu(new Menu("Farm", "Farm"));
@@ -221,6 +269,64 @@ namespace D_Elise
                 //Game.PrintChat("Spell name: " + args.SData.Name.ToString());
                 GetCDs(args);
         }
+        private static void UseItemes(Obj_AI_Hero target)
+        {
+            var iBilge = _config.Item("Bilge").GetValue<bool>();
+            var iBilgeEnemyhp = target.Health <=
+                                (target.MaxHealth * (_config.Item("BilgeEnemyhp").GetValue<Slider>().Value) / 100);
+            var iBilgemyhp = _player.Health <=
+                             (_player.MaxHealth * (_config.Item("Bilgemyhp").GetValue<Slider>().Value) / 100);
+            var iBlade = _config.Item("Blade").GetValue<bool>();
+            var iBladeEnemyhp = target.Health <=
+                                (target.MaxHealth * (_config.Item("BladeEnemyhp").GetValue<Slider>().Value) / 100);
+            var iBlademyhp = _player.Health <=
+                             (_player.MaxHealth * (_config.Item("Blademyhp").GetValue<Slider>().Value) / 100);
+            var iOmen = _config.Item("Omen").GetValue<bool>();
+            var iOmenenemys = ObjectManager.Get<Obj_AI_Hero>().Count(hero => hero.IsValidTarget(450)) >=
+                              _config.Item("Omenenemys").GetValue<Slider>().Value;
+            var iTiamat = _config.Item("Tiamat").GetValue<bool>();
+            var iHydra = _config.Item("Hydra").GetValue<bool>();
+            var ilotis = _config.Item("lotis").GetValue<bool>();
+            //var ihp = _config.Item("Hppotion").GetValue<bool>();
+            // var ihpuse = _player.Health <= (_player.MaxHealth * (_config.Item("Hppotionuse").GetValue<Slider>().Value) / 100);
+            //var imp = _config.Item("Mppotion").GetValue<bool>();
+            //var impuse = _player.Health <= (_player.MaxHealth * (_config.Item("Mppotionuse").GetValue<Slider>().Value) / 100);
+
+            if (_player.Distance(target) <= 450 && iBilge && (iBilgeEnemyhp || iBilgemyhp) && _bilge.IsReady())
+            {
+                _bilge.Cast(target);
+
+            }
+            if (_player.Distance(target) <= 450 && iBlade && (iBladeEnemyhp || iBlademyhp) && _blade.IsReady())
+            {
+                _blade.Cast(target);
+
+            }
+            if (Utility.CountEnemysInRange(350) >= 1 && iTiamat && _tiamat.IsReady())
+            {
+                _tiamat.Cast();
+
+            }
+            if (Utility.CountEnemysInRange(350) >= 1 && iHydra && _hydra.IsReady())
+            {
+                _hydra.Cast();
+
+            }
+            if (iOmenenemys && iOmen && _rand.IsReady())
+            {
+                _rand.Cast();
+
+            }
+            if (ilotis)
+            {
+                foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsAlly || hero.IsMe))
+                {
+                    if (hero.Health <= (hero.MaxHealth * (_config.Item("lotisminhp").GetValue<Slider>().Value) / 100) &&
+                        hero.Distance(_player.ServerPosition) <= _lotis.Range && _lotis.IsReady())
+                        _lotis.Cast();
+                }
+            }
+        }
 
         private static void Combo()
         {
@@ -291,6 +397,7 @@ namespace D_Elise
             {
                 _r.Cast();
             }
+            UseItemes(target);
         }
 
         private static void Harass()

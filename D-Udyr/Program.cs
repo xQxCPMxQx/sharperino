@@ -73,8 +73,8 @@ namespace D_Udyr
 
             _bilgeCut = new Items.Item(3144, 475f);
             _boTrk = new Items.Item(3153, 425f);
-            _ravHydra = new Items.Item(3074, 375f);
-            _tiamat = new Items.Item(3077, 375f);
+            _ravHydra = new Items.Item(3074, 250f);
+            _tiamat = new Items.Item(3077, 250f);
             _ranOmen = new Items.Item(3143, 490f);
             _lotis = new Items.Item(3190, 590f);
 

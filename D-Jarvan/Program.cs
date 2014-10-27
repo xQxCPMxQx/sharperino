@@ -55,8 +55,8 @@ namespace D_Jarvan
 
             _bilge = new Items.Item(3144, 475f);
             _blade = new Items.Item(3153, 425f);
-            _hydra = new Items.Item(3074, 375f);
-            _tiamat = new Items.Item(3077, 375f);
+            _hydra = new Items.Item(3074, 250f);
+            _tiamat = new Items.Item(3077, 250f);
             _rand = new Items.Item(3143, 490f);
             _lotis = new Items.Item(3190, 590f);
 
@@ -139,6 +139,7 @@ namespace D_Jarvan
             _config.SubMenu("items").SubMenu("Potions").AddItem(new MenuItem("Mppotion", "Use Mp potion")).SetValue(true);
             _config.SubMenu("items").SubMenu("Potions").AddItem(new MenuItem("Mppotionuse", "Use Mp potion if HP<").SetValue(new Slider(35, 1, 100)));
             */
+
             //Harass
             _config.AddSubMenu(new Menu("Harass", "Harass"));
             _config.SubMenu("Harass").AddItem(new MenuItem("UseQH", "Use Q")).SetValue(true);
