@@ -97,7 +97,7 @@ namespace D_Jarvan
                 .AddItem(
                     new MenuItem("ComboeqFlash", "ComboEQ- Flash!").SetValue(new KeyBind("H".ToCharArray()[0],
                         KeyBindType.Press)));
-             _config.SubMenu("Combo").AddItem(new MenuItem("FlashDista", "Flash Distance").SetValue(new Slider(700, 500, 1000)));
+             _config.SubMenu("Combo").AddItem(new MenuItem("FlashDista", "Flash Distance").SetValue(new Slider(700, 700, 1000)));
             
             //Items public static Int32 Tiamat = 3077, Hydra = 3074, Blade = 3153, Bilge = 3144, Rand = 3143, lotis = 3190;
             _config.AddSubMenu(new Menu("items", "items"));
