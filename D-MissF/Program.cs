@@ -20,12 +20,14 @@ namespace D_MissF
         private static Obj_AI_Hero _player;
 
         private static Int32 _lastSkin = 0;
+
+        private static SpellSlot _igniteSlot;
         static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
         }
 
-        static void Game_OnGameLoad(EventArgs args)
+        private static void Game_OnGameLoad(EventArgs args)
         {
             _player = ObjectManager.Player;
             if (ObjectManager.Player.BaseSkinName != ChampionName) return;
@@ -38,6 +40,8 @@ namespace D_MissF
             _q.SetTargetted(0.29f, 1400f);
             _e.SetSkillshot(0.65f, 300f, 500, false, SkillshotType.SkillshotCircle);
             _r.SetSkillshot(0.333f, 200, float.MaxValue, false, SkillshotType.SkillshotLine);
+
+            _igniteSlot = _player.GetSpellSlot("SummonerDot");
 
             //D MissFortune
             _config = new Menu("D-MissFortune", "D-MissFortune", true);
@@ -58,16 +62,24 @@ namespace D_MissF
             _config.SubMenu("Combo").AddItem(new MenuItem("UseEC", "Use E")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseRC", "Use R(target kilable)")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseRE", "AutoR Min Targ")).SetValue(true);
-            _config.SubMenu("Combo").AddItem(new MenuItem("MinTargets", "Ult when>=min enemy(COMBO)").SetValue(new Slider(2, 1, 5)));
-            _config.SubMenu("Combo").AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
+            _config.SubMenu("Combo")
+                .AddItem(new MenuItem("MinTargets", "Ult when>=min enemy(COMBO)").SetValue(new Slider(2, 1, 5)));
+            _config.SubMenu("Combo")
+                .AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
 
             //Harass
             _config.AddSubMenu(new Menu("Harass", "Harass"));
             _config.SubMenu("Harass").AddItem(new MenuItem("UseQH", "Use Q")).SetValue(true);
             _config.SubMenu("Harass").AddItem(new MenuItem("UseEH", "Use E")).SetValue(true);
-            _config.SubMenu("Harass").AddItem(new MenuItem("harasstoggle", "AutoHarass (toggle)").SetValue(new KeyBind("G".ToCharArray()[0], KeyBindType.Toggle)));
-            _config.SubMenu("Harass").AddItem(new MenuItem("Harrasmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
-            _config.SubMenu("Harass").AddItem(new MenuItem("ActiveHarass", "Harass!").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
+            _config.SubMenu("Harass")
+                .AddItem(
+                    new MenuItem("harasstoggle", "AutoHarass (toggle)").SetValue(new KeyBind("G".ToCharArray()[0],
+                        KeyBindType.Toggle)));
+            _config.SubMenu("Harass")
+                .AddItem(new MenuItem("Harrasmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+            _config.SubMenu("Harass")
+                .AddItem(
+                    new MenuItem("ActiveHarass", "Harass!").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
 
             _config.AddSubMenu(new Menu("Farm", "Farm"));
             _config.SubMenu("Farm").AddItem(new MenuItem("UseQL", "Q LaneClear")).SetValue(true);
@@ -77,8 +89,13 @@ namespace D_MissF
             _config.SubMenu("Farm").AddItem(new MenuItem("UseQJ", "Q Jungle")).SetValue(true);
             _config.SubMenu("Farm").AddItem(new MenuItem("UseEJ", "E Jungle")).SetValue(true);
             _config.SubMenu("Farm").AddItem(new MenuItem("Lanemana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
-            _config.SubMenu("Farm").AddItem(new MenuItem("ActiveLast", "LastHit!").SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
-            _config.SubMenu("Farm").AddItem(new MenuItem("ActiveLane", "LaneClear!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
+            _config.SubMenu("Farm")
+                .AddItem(
+                    new MenuItem("ActiveLast", "LastHit!").SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
+            _config.SubMenu("Farm")
+                .AddItem(
+                    new MenuItem("ActiveLane", "LaneClear!").SetValue(new KeyBind("V".ToCharArray()[0],
+                        KeyBindType.Press)));
 
             //Misc
             _config.AddSubMenu(new Menu("Misc", "Misc"));
@@ -86,19 +103,20 @@ namespace D_MissF
             _config.SubMenu("Misc").AddItem(new MenuItem("UseEM", "Use E KillSteal")).SetValue(true);
             _config.SubMenu("Misc").AddItem(new MenuItem("UseRM", "Use R KillSteal")).SetValue(true);
             _config.SubMenu("Misc").AddItem(new MenuItem("Gap_E", "GapClosers E")).SetValue(true);
-            _config.SubMenu("Misc").AddItem(new MenuItem("skinMF", "Use Custom Skin").SetValue(true));
+            _config.SubMenu("Misc").AddItem(new MenuItem("skinMF", "Use Custom Skin").SetValue(false));
             _config.SubMenu("Misc").AddItem(new MenuItem("skinMiss", "Skin Changer").SetValue(new Slider(4, 1, 7)));
             _config.SubMenu("Misc").AddItem(new MenuItem("usePackets", "Usepackes")).SetValue(true);
 
             //Drawings
             _config.AddSubMenu(new Menu("Drawings", "Drawings"));
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawQ", "Draw Q")).SetValue(true);
-            _config.SubMenu("Drawings").AddItem(new MenuItem("DrawW", "Draw W")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawE", "Draw E")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawR", "Draw R")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("CircleLag", "Lag Free Circles").SetValue(true));
-            _config.SubMenu("Drawings").AddItem(new MenuItem("CircleQuality", "Circles Quality").SetValue(new Slider(100, 100, 10)));
-            _config.SubMenu("Drawings").AddItem(new MenuItem("CircleThickness", "Circles Thickness").SetValue(new Slider(1, 10, 1)));
+            _config.SubMenu("Drawings")
+                .AddItem(new MenuItem("CircleQuality", "Circles Quality").SetValue(new Slider(100, 100, 10)));
+            _config.SubMenu("Drawings")
+                .AddItem(new MenuItem("CircleThickness", "Circles Thickness").SetValue(new Slider(1, 10, 1)));
 
             _config.AddToMainMenu();
             Game.PrintChat("<font color='#881df2'>D-MissFortune by Diabaths</font> Loaded.");
@@ -112,8 +130,8 @@ namespace D_MissF
                 GenModelPacket(_player.ChampionName, _config.Item("skinMiss").GetValue<Slider>().Value);
                 _lastSkin = _config.Item("skinMiss").GetValue<Slider>().Value;
             }
-
         }
+
         private static void Game_OnGameUpdate(EventArgs args)
         {
             if (ObjectManager.Player.HasBuff("missfortunebulletsound"))
@@ -345,14 +363,38 @@ namespace D_MissF
                         spell.Cast(minion, Packets());
             }
         }
+        private static float ComboDamage(Obj_AI_Base enemy)
+        {
+            var damage = 0d;
+            if (_igniteSlot != SpellSlot.Unknown &&
+               _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
+                damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
+            if (Items.HasItem(3077) && Items.CanUseItem(3077))
+                damage += _player.GetItemDamage(enemy, Damage.DamageItems.Tiamat);
+            if (Items.HasItem(3074) && Items.CanUseItem(3074))
+                damage += _player.GetItemDamage(enemy, Damage.DamageItems.Hydra);
+            if (Items.HasItem(3153) && Items.CanUseItem(3153))
+                damage += _player.GetItemDamage(enemy, Damage.DamageItems.Botrk);
+            if (Items.HasItem(3144) && Items.CanUseItem(3144))
+                damage += _player.GetItemDamage(enemy, Damage.DamageItems.Bilgewater);
+            if (_q.IsReady())
+                damage += _player.GetSpellDamage(enemy, SpellSlot.Q) * 2;
+            if (_e.IsReady())
+                damage += _player.GetSpellDamage(enemy, SpellSlot.E);
+            if (_r.IsReady())
+                damage += _player.GetSpellDamage(enemy, SpellSlot.R) * 8;
 
+            damage += _player.GetAutoAttackDamage(enemy, true) * 1.1;
+            damage += _player.GetAutoAttackDamage(enemy, true);
+            return (float)damage;
+        }
         private static void CastR()
         {
             if (!_r.IsReady()) return;
 
             Obj_AI_Hero target = SimpleTs.GetTarget(_r.Range - 200, SimpleTs.DamageType.Magical);
             if (target == null) return;
-            if (_r.GetDamage(target) * 8 < target.Health) return;
+            if (ComboDamage(target) < target.Health) return;
             if (target.HasBuff("JudicatorIntervention") && target.HasBuff("Undying Rage")) return;
             if (_r.GetPrediction(target).Hitchance >= HitChance.Medium)
             {
@@ -371,7 +413,7 @@ namespace D_MissF
             {
                 if (target.Health <= qDmg)
                 {
-                    _q.Cast(target, Packets());
+                    CastQEnemy();
                 }
             }
             if (_e.IsReady() && _player.Distance(target) <= _e.Range && target != null && _config.Item("UseEM").GetValue<bool>())
@@ -392,25 +434,19 @@ namespace D_MissF
             {
                 if (_config.Item("DrawQ").GetValue<bool>())
                 {
-                    Utility.DrawCircle(ObjectManager.Player.Position, _q.Range, System.Drawing.Color.Orange,
-                        _config.Item("CircleThickness").GetValue<Slider>().Value,
-                        _config.Item("CircleQuality").GetValue<Slider>().Value);
-                }
-                if (_config.Item("DrawW").GetValue<bool>())
-                {
-                    Utility.DrawCircle(ObjectManager.Player.Position, _w.Range, System.Drawing.Color.Orange,
+                    Utility.DrawCircle(ObjectManager.Player.Position, _q.Range, System.Drawing.Color.Gray,
                         _config.Item("CircleThickness").GetValue<Slider>().Value,
                         _config.Item("CircleQuality").GetValue<Slider>().Value);
                 }
                 if (_config.Item("DrawE").GetValue<bool>())
                 {
-                    Utility.DrawCircle(ObjectManager.Player.Position, _e.Range, System.Drawing.Color.Orange,
+                    Utility.DrawCircle(ObjectManager.Player.Position, _e.Range, System.Drawing.Color.Gray,
                         _config.Item("CircleThickness").GetValue<Slider>().Value,
                         _config.Item("CircleQuality").GetValue<Slider>().Value);
                 }
                 if (_config.Item("DrawR").GetValue<bool>())
                 {
-                    Utility.DrawCircle(ObjectManager.Player.Position, _r.Range, System.Drawing.Color.Orange,
+                    Utility.DrawCircle(ObjectManager.Player.Position, _r.Range, System.Drawing.Color.Gray,
                         _config.Item("CircleThickness").GetValue<Slider>().Value,
                         _config.Item("CircleQuality").GetValue<Slider>().Value);
                 }
@@ -420,10 +456,6 @@ namespace D_MissF
                 if (_config.Item("DrawQ").GetValue<bool>())
                 {
                     Drawing.DrawCircle(ObjectManager.Player.Position, _q.Range, System.Drawing.Color.White);
-                }
-                if (_config.Item("DrawW").GetValue<bool>())
-                {
-                    Drawing.DrawCircle(ObjectManager.Player.Position, _w.Range, System.Drawing.Color.White);
                 }
                 if (_config.Item("DrawE").GetValue<bool>())
                 {
