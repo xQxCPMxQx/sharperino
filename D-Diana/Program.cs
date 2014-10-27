@@ -272,11 +272,11 @@ namespace D_Diana
             var dmg = 0d;
 
             if (_q.IsReady())
-                dmg += _player.GetSpellDamage(hero, SpellSlot.Q);
+                dmg += _player.GetSpellDamage(hero, SpellSlot.Q) * 2;
             if (_w.IsReady())
                 dmg += _player.GetSpellDamage(hero, SpellSlot.W);
             if (R.IsReady())
-                dmg += _player.GetSpellDamage(hero, SpellSlot.R) * 2;
+                dmg += _player.GetSpellDamage(hero, SpellSlot.R);
             if (Items.HasItem(3128))
             {
                 dmg += _player.GetItemDamage(hero, Damage.DamageItems.Dfg);
