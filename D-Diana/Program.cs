@@ -88,7 +88,7 @@ namespace D_Diana
             _config.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseRSecond", "Use Second R")).SetValue(false);
-            _config.SubMenu("Combo").AddItem(new MenuItem("UseItems", "Use Items")).SetValue(true);
+            _config.SubMenu("Combo").AddItem(new MenuItem("UseItems", "Use DFG")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
             //_config.SubMenu("Combo").AddItem(new MenuItem("ActiveCombo2", "Combo2!").SetValue(new KeyBind(32, KeyBindType.Press)));
 
