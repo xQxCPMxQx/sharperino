@@ -23,7 +23,8 @@ namespace D_Diana
         private static bool _qcreated = false;
 
         private static Menu _config;
-
+        public static Menu targetSelectorMenu;
+        
         private static Items.Item _dfg;
 
         private static Obj_AI_Hero _player;
@@ -73,7 +74,7 @@ namespace D_Diana
             _config = new Menu("D-Diana", "D-Diana", true);
 
             //TargetSelector
-            var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
+            targetSelectorMenu = new Menu("Target Selector", "Target Selector");
             SimpleTs.AddToMenu(targetSelectorMenu);
             _config.AddSubMenu(targetSelectorMenu);
 
@@ -218,9 +219,24 @@ namespace D_Diana
             {
                 LastHit();
             }
+
             if (_config.Item("ActiveCombo").GetValue<KeyBind>().Active)
             {
-                Misaya();
+                var assassinRange = TargetSelectorMenu.Item("AssassinRange").GetValue<Slider>().Value;
+                Obj_AI_Hero vTarget = null;
+                foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>()
+                    .Where(enemy => enemy.Team != Player.Team
+                        && !enemy.IsDead && enemy.IsVisible
+                        && TargetSelectorMenu.Item("Assassin" + enemy.ChampionName) != null
+                        && TargetSelectorMenu.Item("Assassin" + enemy.ChampionName).GetValue<bool>())
+                        .OrderBy(enemy => enemy.Distance(Game.CursorPos))
+                        )
+                {
+                    vTarget = Player.Distance(enemy) < assassinRange
+                        ? enemy
+                        : SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
+                }
+                Misaya(vTarget); /* added Assassin Manager by xQx */
             }
             /* if (_config.Item("ActiveCombo2").GetValue<KeyBind>().Active)
              {
@@ -277,9 +293,11 @@ namespace D_Diana
             }
         }
         //misaya combo by xSalice
-        private static void Misaya()
+        private static void Misaya(Obj_AI_Hero target)
         {
-            var target = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
+            if (target != null)
+                target = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
+
             if (target != null)
             {
                 if (_player.Distance(target) <= _dfg.Range && _config.Item("UseItems").GetValue<bool>() && _dfg.IsReady() && target.Health <= ComboDamage(target))
