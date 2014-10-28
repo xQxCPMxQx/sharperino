@@ -4,7 +4,7 @@ using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
 
-namespace Diana
+namespace D_Diana
 {
     internal class AssassinManager
     {

@@ -23,7 +23,8 @@ namespace D_Diana
         private static bool _qcreated = false;
 
         private static Menu _config;
-        public static Menu targetSelectorMenu;
+
+        public static Menu TargetSelectorMenu;
         
         private static Items.Item _dfg;
 
@@ -74,9 +75,9 @@ namespace D_Diana
             _config = new Menu("D-Diana", "D-Diana", true);
 
             //TargetSelector
-            targetSelectorMenu = new Menu("Target Selector", "Target Selector");
-            SimpleTs.AddToMenu(targetSelectorMenu);
-            _config.AddSubMenu(targetSelectorMenu);
+            TargetSelectorMenu = new Menu("Target Selector", "Target Selector");
+            SimpleTs.AddToMenu(TargetSelectorMenu);
+            _config.AddSubMenu(TargetSelectorMenu);
 
             //Orbwalker
             _config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
@@ -226,14 +227,14 @@ namespace D_Diana
                 var assassinRange = TargetSelectorMenu.Item("AssassinRange").GetValue<Slider>().Value;
                 Obj_AI_Hero vTarget = null;
                 foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>()
-                    .Where(enemy => enemy.Team != Player.Team
+                    .Where(enemy => enemy.Team != _player.Team
                         && !enemy.IsDead && enemy.IsVisible
                         && TargetSelectorMenu.Item("Assassin" + enemy.ChampionName) != null
                         && TargetSelectorMenu.Item("Assassin" + enemy.ChampionName).GetValue<bool>())
                         .OrderBy(enemy => enemy.Distance(Game.CursorPos))
                         )
                 {
-                    vTarget = Player.Distance(enemy) < assassinRange
+                    vTarget = _player.Distance(enemy) < assassinRange
                         ? enemy
                         : SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
                 }
