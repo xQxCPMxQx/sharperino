@@ -262,7 +262,7 @@ namespace D_Diana
         {
             if (_w.IsReady() && gapcloser.Sender.IsValidTarget(_w.Range) && _config.Item("Gap_W").GetValue<bool>())
             {
-                _w.Cast(gapcloser.Sender, Packets());
+                _w.Cast(gapcloser.Sender);
             }
         }
         private static void Interrupter_OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
@@ -591,7 +591,7 @@ namespace D_Diana
                 var mob = mobs[0];
                 if (useQ && _q.IsReady() && _player.Distance(mob) < _q.Range)
                 {
-                    _q.Cast(mob, Packets());
+                    _q.Cast(mob);
                 }
                 if (_w.IsReady() && useW && _player.Distance(mob) < _w.Range)
                 {
