@@ -34,7 +34,7 @@ namespace D_Diana
 
         private static SpellSlot _igniteSlot;
 
-        private static Items.Item _tiamat, _hydra, _blade, _bilge, _rand, _lotis;
+        private static Items.Item _tiamat, _hydra, _blade, _bilge, _rand, _lotis, _zhonya;
         
         static void Main(string[] args)
         {
@@ -65,6 +65,7 @@ namespace D_Diana
             _rand = new Items.Item(3143, 490f);
             _lotis = new Items.Item(3190, 590f);
             _dfg = new Items.Item(3128, 750f);
+            _zhonya = new Items.Item(3157, 10);
 
             _igniteSlot = _player.GetSpellSlot("SummonerDot");
             _smiteSlot = _player.SummonerSpellbook.GetSpell(_player.GetSpellSlot("summonersmite"));
@@ -127,7 +128,13 @@ namespace D_Diana
             _config.SubMenu("items")
                 .SubMenu("Deffensive")
                 .AddItem(new MenuItem("lotisminhp", "Solari if Ally Hp<").SetValue(new Slider(35, 1, 100)));
-
+            _config.SubMenu("items")
+               .SubMenu("Deffensive")
+               .AddItem(new MenuItem("Zhonyas", "Use Zhonya's"))
+               .SetValue(true);
+            _config.SubMenu("items")
+                .SubMenu("Deffensive")
+                .AddItem(new MenuItem("Zhonyashp", "Use Zhonya's if HP%<").SetValue(new Slider(20, 1, 100)));
             
             _config.AddSubMenu(new Menu("Harass", "Harass"));
             _config.SubMenu("Harass").AddItem(new MenuItem("UseQHarass", "Use Q")).SetValue(true);
@@ -262,7 +269,7 @@ namespace D_Diana
         {
             if (_w.IsReady() && gapcloser.Sender.IsValidTarget(_w.Range) && _config.Item("Gap_W").GetValue<bool>())
             {
-                _w.Cast(gapcloser.Sender);
+                _w.Cast();
             }
         }
         private static void Interrupter_OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
@@ -366,6 +373,9 @@ namespace D_Diana
             var iTiamat = _config.Item("Tiamat").GetValue<bool>();
             var iHydra = _config.Item("Hydra").GetValue<bool>();
             var ilotis = _config.Item("lotis").GetValue<bool>();
+            var iZhonyas = _config.Item("Zhonyas").GetValue<bool>();
+            var iZhonyashp = _player.Health <=
+                             (_player.MaxHealth * (_config.Item("Zhonyashp").GetValue<Slider>().Value) / 100);
             //var ihp = _config.Item("Hppotion").GetValue<bool>();
             // var ihpuse = _player.Health <= (_player.MaxHealth * (_config.Item("Hppotionuse").GetValue<Slider>().Value) / 100);
             //var imp = _config.Item("Mppotion").GetValue<bool>();
@@ -404,6 +414,11 @@ namespace D_Diana
                         hero.Distance(_player.ServerPosition) <= _lotis.Range && _lotis.IsReady())
                         _lotis.Cast();
                 }
+            }
+            if (iZhonyas && iZhonyashp && Utility.CountEnemysInRange(1000) >= 1)
+            {
+                _zhonya.Cast(_player);
+                    
             }
         }
 
