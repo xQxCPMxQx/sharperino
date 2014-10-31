@@ -264,7 +264,7 @@ namespace D_Kayle
                 }
                 if (_config.Item("UseECombo").GetValue<bool>() && _e.IsReady() && Utility.CountEnemysInRange(650) > 0)
                 {
-                    _e.Cast(target, Packets(), true);
+                    _e.Cast();
                 }
 
                 if (_config.Item("UseWCombo").GetValue<bool>() && _player.Distance(target) >= _q.Range)
@@ -276,16 +276,17 @@ namespace D_Kayle
 
         private static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
-            if (_e.IsReady() && gapcloser.Sender.IsValidTarget(_e.Range) &&
+            if (_q.IsReady() && gapcloser.Sender.IsValidTarget(_e.Range) &&
                 _config.Item("GapCloserE").GetValue<bool>())
             {
-                _e.Cast(gapcloser.Sender, Packets());
+                _q.Cast(gapcloser.Sender, Packets());
             }
         }
 
         private static void Escape()
         {
             var target = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
+            _player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
             if (_player.Spellbook.CanUseSpell(SpellSlot.W) == SpellState.Ready && _player.IsMe)
             {
                 if (target != null && Utility.CountEnemysInRange(1200) > 0)
@@ -313,7 +314,7 @@ namespace D_Kayle
 
                 if (_config.Item("ActiveHarass").GetValue<KeyBind>().Active &&
                     _config.Item("UseEHarass").GetValue<bool>())
-                    _e.Cast(target, Packets(), true);
+                    _e.Cast();
             }
         }
 
@@ -340,14 +341,14 @@ namespace D_Kayle
                 {
                     if (minions.Count > 2)
                     {
-                        _e.Cast(minion, Packets(), true);
+                        _e.Cast();
 
                     }
                     else
                         foreach (var minionE in minions)
                             if (!Orbwalking.InAutoAttackRange(minion) &&
                                 minionE.Health < 0.75 * _player.GetSpellDamage(minion, SpellSlot.E))
-                                _e.Cast(minionE, Packets(), true);
+                                _e.Cast();
                 }
             }
         }
@@ -368,7 +369,7 @@ namespace D_Kayle
                 if (_w.IsReady() && useE && minion.Health < 0.75 * _player.GetSpellDamage(minion, SpellSlot.E) &&
                     allMinions.Count > 2)
                 {
-                    _e.Cast(minion, Packets(), true);
+                    _e.Cast();
                 }
             }
         }
@@ -387,7 +388,7 @@ namespace D_Kayle
                 }
                 if (_config.Item("UseQjungle").GetValue<bool>() && _e.IsReady())
                 {
-                    _e.Cast(mob, Packets(), true);
+                    _e.Cast();
                 }
             }
         }
