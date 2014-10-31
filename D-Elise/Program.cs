@@ -46,7 +46,7 @@ namespace D_Elise
 
         private static SpellDataInst _smiteSlot;
 
-        private static Items.Item _tiamat, _hydra, _blade, _bilge, _rand, _lotis;
+        private static Items.Item _tiamat, _hydra, _blade, _bilge, _rand, _lotis, _zhonya;
 
         static void Main(string[] args)
         {
@@ -76,7 +76,8 @@ namespace D_Elise
             _tiamat = new Items.Item(3077, 250f);
             _rand = new Items.Item(3143, 490f);
             _lotis = new Items.Item(3190, 590f);
-            //DFG = new Items.Item(3128, 750f);
+            _zhonya = new Items.Item(3157, 10);
+           
 
             _igniteSlot = _player.GetSpellSlot("SummonerDot");
             _smiteSlot = _player.SummonerSpellbook.GetSpell(_player.GetSpellSlot("summonersmite"));
@@ -146,6 +147,13 @@ namespace D_Elise
             _config.SubMenu("items")
                 .SubMenu("Deffensive")
                 .AddItem(new MenuItem("lotisminhp", "Solari if Ally Hp<").SetValue(new Slider(35, 1, 100)));
+            _config.SubMenu("items")
+              .SubMenu("Deffensive")
+              .AddItem(new MenuItem("Zhonyas", "Use Zhonya's"))
+              .SetValue(true);
+            _config.SubMenu("items")
+                .SubMenu("Deffensive")
+                .AddItem(new MenuItem("Zhonyashp", "Use Zhonya's if HP%<").SetValue(new Slider(20, 1, 100)));
             /*_config.SubMenu("items").AddSubMenu(new Menu("Potions", "Potions"));
             _config.SubMenu("items").SubMenu("Potions").AddItem(new MenuItem("Hppotion", "Use Hp potion")).SetValue(true);
             _config.SubMenu("items").SubMenu("Potions").AddItem(new MenuItem("Hppotionuse", "Use Hp potion if HP<").SetValue(new Slider(35, 1, 100)));
@@ -166,6 +174,7 @@ namespace D_Elise
 
             //Farm
             _config.AddSubMenu(new Menu("Jungle", "Jungle"));
+            _config.SubMenu("Jungle").AddItem(new MenuItem("Usesmite", "Use Smite").SetValue(new KeyBind("L".ToCharArray()[0], KeyBindType.Toggle)));
             _config.SubMenu("Jungle").AddItem(new MenuItem("HumanQFarmJ", "Human Q")).SetValue(true);
             _config.SubMenu("Jungle").AddItem(new MenuItem("HumanWFarmJ", "Human W")).SetValue(true);
             _config.SubMenu("Jungle").AddItem(new MenuItem("SpiderQFarmJ", "Spider Q")).SetValue(false);
@@ -180,7 +189,6 @@ namespace D_Elise
             _config.SubMenu("Misc").AddItem(new MenuItem("Humangapcloser", "HumanE to GapCloser")).SetValue(true);
             _config.SubMenu("Misc").AddItem(new MenuItem("UseEInt", "HumanE to Interrupt")).SetValue(true);
             _config.SubMenu("Misc").AddItem(new MenuItem("smite", "Smite Minion in HumanE path").SetValue(true));
-            _config.SubMenu("Misc").AddItem(new MenuItem("Usesmite", "Use Smite").SetValue(new KeyBind("L".ToCharArray()[0], KeyBindType.Toggle)));
             _config.SubMenu("Misc").AddItem(new MenuItem("autoE", "HUmanE with VeryHigh Chance").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
             _config.SubMenu("Misc")
                                    .AddItem(new MenuItem("Echange", "E Hit").SetValue(
@@ -287,6 +295,9 @@ namespace D_Elise
             var iTiamat = _config.Item("Tiamat").GetValue<bool>();
             var iHydra = _config.Item("Hydra").GetValue<bool>();
             var ilotis = _config.Item("lotis").GetValue<bool>();
+            var iZhonyas = _config.Item("Zhonyas").GetValue<bool>();
+            var iZhonyashp = _player.Health <=
+                             (_player.MaxHealth * (_config.Item("Zhonyashp").GetValue<Slider>().Value) / 100);
             //var ihp = _config.Item("Hppotion").GetValue<bool>();
             // var ihpuse = _player.Health <= (_player.MaxHealth * (_config.Item("Hppotionuse").GetValue<Slider>().Value) / 100);
             //var imp = _config.Item("Mppotion").GetValue<bool>();
@@ -325,6 +336,11 @@ namespace D_Elise
                         hero.Distance(_player.ServerPosition) <= _lotis.Range && _lotis.IsReady())
                         _lotis.Cast();
                 }
+            }
+            if (iZhonyas && iZhonyashp && Utility.CountEnemysInRange(1000) >= 1)
+            {
+                _zhonya.Cast(_player);
+
             }
         }
 
