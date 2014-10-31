@@ -345,7 +345,7 @@ namespace D_Jarvan
                 }
                 if (_q.IsReady() && _epos != default(Vector3))
                 {
-                    _q.Cast(unit, Packets());
+                    _q.Cast(_epos, Packets());
                 }
             }
         }
