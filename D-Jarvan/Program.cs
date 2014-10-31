@@ -29,8 +29,9 @@ namespace D_Jarvan
 
         private static SpellDataInst _smiteSlot;
 
-        private static SpellSlot _FlashSlot;
+        private static SpellSlot _flashSlot;
 
+        private static Vector3 _epos = default(Vector3);
         private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -51,7 +52,7 @@ namespace D_Jarvan
 
             _smiteSlot = _player.SummonerSpellbook.GetSpell(_player.GetSpellSlot("summonersmite"));
             _igniteSlot = _player.GetSpellSlot("SummonerDot");
-            _FlashSlot = _player.GetSpellSlot("SummonerFlash");
+            _flashSlot = _player.GetSpellSlot("SummonerFlash");
 
             _bilge = new Items.Item(3144, 475f);
             _blade = new Items.Item(3153, 425f);
@@ -336,13 +337,19 @@ namespace D_Jarvan
 
         private static void Interrupter_OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
-            if (_e.IsReady() && _q.IsReady() && unit.IsValidTarget(_q.Range) &&
-                _config.Item("UseEQInt").GetValue<bool>()
-                )
-                _e.Cast(unit, Packets());
-            _q.Cast(unit, Packets());
+            if (unit.IsValidTarget(_q.Range) && _config.Item("UseEQInt").GetValue<bool>())
+            {
+                if (_e.IsReady() && _q.IsReady())
+                {
+                    _e.Cast(unit, Packets());
+                }
+                if (_q.IsReady() && _epos != default(Vector3))
+                {
+                    _q.Cast(unit, Packets());
+                }
+            }
         }
-
+        
         private static void GenModelPacket(string champ, int skinId)
         {
             Packet.S2C.UpdateModel.Encoded(new Packet.S2C.UpdateModel.Struct(_player.NetworkId, skinId, champ))
@@ -404,47 +411,46 @@ namespace D_Jarvan
                         ComboDamage(t) > t.Health)
                         _r.CastIfHitchanceEquals(t, HitChance.Medium, Packets());
             }
-            if (useE && _e.IsReady() && _q.IsReady() && useQ)
+            if (useE && _e.IsReady() && t.Distance(_player.Position) < _q.Range && _q.IsReady())
             {
                 //xsalice Code
                 var vec = t.ServerPosition - _player.ServerPosition;
-                var castBehind = _e.GetPrediction(t).CastPosition + Vector3.Normalize(vec) * 75;
+                var castBehind = _e.GetPrediction(t).CastPosition + Vector3.Normalize(vec)*75;
                 _e.Cast(castBehind, Packets());
-                _q.Cast(t, Packets());
             }
             else
             {
                 _e.Cast(t, Packets(), true);
-                _q.Cast(t, Packets());
             }
-            /* {
 
-                if (t != null && t.Distance(_player.Position) <= _e.Range && _e.GetPrediction(t).Hitchance >= Echange())
-                    _e.Cast(t, Packets(), true);
-                _q.Cast(t, Packets(), true);
-            }*/
+            if (useQ && _q.IsReady() && t.Distance(_player.Position) < _q.Range && _epos != default(Vector3))
+            {
+                _q.Cast(_epos, Packets());
+            }
+
             if (useW && _w.IsReady())
-            {
-                if (t != null && t.Distance(_player.Position) < _w.Range)
-                    _w.Cast();
+                {
+                    if (t != null && t.Distance(_player.Position) < _w.Range)
+                        _w.Cast();
 
-            }
-            if (useQ && _q.IsReady() && !_e.IsReady() && !_w.IsReady())
-            {
-                if (t != null && t.Distance(_player.Position) < _q.Range)
-                    _q.Cast(t, Packets(), true);
+                }
+                if (useQ && _q.IsReady() && !_e.IsReady() && !_w.IsReady())
+                {
+                    if (t != null && t.Distance(_player.Position) < _q.Range)
+                        _q.Cast(t, Packets(), true);
 
+                }
+                if (_r.IsReady() && autoR && !_haveulti)
+                {
+                    if (ObjectManager.Get<Obj_AI_Hero>().Count(hero => hero.IsValidTarget(_r.Range)) >=
+                        _config.Item("MinTargets").GetValue<Slider>().Value)
+                        _r.Cast(t, Packets(), true);
+                }
+                UseItemes(t);
             }
-            if (_r.IsReady() && autoR && !_haveulti)
-            {
-                if (ObjectManager.Get<Obj_AI_Hero>().Count(hero => hero.IsValidTarget(_r.Range)) >=
-                    _config.Item("MinTargets").GetValue<Slider>().Value)
-                    _r.Cast(t, Packets(), true);
-            }
-            UseItemes(t);
-        }
 
-        private static void ComboEqr()
+            private static
+            void ComboEqr()
         {
             _player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
             var manacheck = _player.Mana > _player.Spellbook.GetSpell(SpellSlot.Q).ManaCost + _player.Spellbook.GetSpell(SpellSlot.E).ManaCost + _player.Spellbook.GetSpell(SpellSlot.R).ManaCost;
@@ -522,7 +528,7 @@ namespace D_Jarvan
             var flashDista = _config.Item("FlashDista").GetValue<Slider>().Value;
             var manacheck = _player.Mana > _player.Spellbook.GetSpell(SpellSlot.Q).ManaCost + _player.Spellbook.GetSpell(SpellSlot.E).ManaCost;
             var t = SimpleTs.GetTarget(_q.Range + 1000, SimpleTs.DamageType.Magical);
-            if (_FlashSlot != SpellSlot.Unknown && _player.SummonerSpellbook.CanUseSpell(_FlashSlot) == SpellState.Ready)
+            if (_flashSlot != SpellSlot.Unknown && _player.SummonerSpellbook.CanUseSpell(_flashSlot) == SpellState.Ready)
             {
                 if (_e.IsReady() && _q.IsReady() && manacheck)
                 {
@@ -533,7 +539,7 @@ namespace D_Jarvan
 
                 if (t.IsValidTarget(flashDista))
                 {
-                    _player.SummonerSpellbook.CastSpell(_FlashSlot, t.ServerPosition);
+                    _player.SummonerSpellbook.CastSpell(_flashSlot, t.ServerPosition);
                 }
             }
             UseItemes(t);
@@ -555,8 +561,8 @@ namespace D_Jarvan
 
             if (_q.IsReady() && useQl)
             {
-                var fl1 = _e.GetLineFarmLocation(rangedMinionsQ, _e.Width);
-                var fl2 = _e.GetLineFarmLocation(allMinionsQ, _e.Width);
+                var fl1 = _q.GetLineFarmLocation(rangedMinionsQ, _q.Width);
+                var fl2 = _q.GetLineFarmLocation(allMinionsQ, _q.Width);
 
                 if (fl1.MinionsHit >= 3)
                 {
@@ -567,7 +573,7 @@ namespace D_Jarvan
                     _q.Cast(fl2.Position);
                 }
                 else
-                    foreach (var minion in allMinionsE)
+                    foreach (var minion in allMinionsQ)
                         if (!Orbwalking.InAutoAttackRange(minion) &&
                             minion.Health < 0.75 * _player.GetSpellDamage(minion, SpellSlot.Q))
                             _q.Cast(minion);
@@ -836,6 +842,10 @@ namespace D_Jarvan
         {
             if (!(sender is Obj_GeneralParticleEmmiter)) return;
             var obj = (Obj_GeneralParticleEmmiter)sender;
+            if (sender.Name == "JarvanDemacianStandard_buf_green.troy")
+            {
+                _epos = sender.Position;
+            }
             if (obj != null && obj.IsMe && obj.Name == "JarvanCataclysm_tar")
 
             //debug
@@ -850,6 +860,10 @@ namespace D_Jarvan
         private static void OnDeleteObj(GameObject sender, EventArgs args)
         {
             if (!(sender is Obj_GeneralParticleEmmiter)) return;
+            if (sender.Name == "JarvanDemacianStandard_buf_green.troy")
+            {
+                _epos = default(Vector3);
+            }
             var obj = (Obj_GeneralParticleEmmiter)sender;
             if (obj != null && obj.IsMe && obj.Name == "JarvanCataclysm_tar")
             {
