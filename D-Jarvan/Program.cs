@@ -601,13 +601,16 @@ namespace D_Jarvan
                 _w.Cast();
 
             }
-            if (useItemsl && _tiamat.IsReady() && allMinionsQ.Count > 2)
+            foreach (var minion in allMinionsQ)
             {
-                _tiamat.Cast();
-            }
-            if (useItemsl && _hydra.IsReady() && allMinionsQ.Count > 2)
-            {
-                _hydra.Cast();
+                if (useItemsl && _tiamat.IsReady() && _player.Distance(minion) < _tiamat.Range)
+                {
+                    _tiamat.Cast();
+                }
+                if (useItemsl && _hydra.IsReady()  && _player.Distance(minion) < _hydra.Range)
+                {
+                    _hydra.Cast();
+                }
             }
         }
 
