@@ -343,7 +343,7 @@ namespace D_Jarvan
                 {
                     _e.Cast(unit, Packets());
                 }
-                if (_q.IsReady() && _epos != default(Vector3))
+                if (_q.IsReady() && _epos != default(Vector3) && unit.IsValidTarget(150, true, _epos))
                 {
                     _q.Cast(_epos, Packets());
                 }
@@ -420,40 +420,39 @@ namespace D_Jarvan
             }
             else
             {
-                _e.Cast(t, Packets(), true);
+                _e.Cast(t, Packets());
             }
-
-            if (useQ && _q.IsReady() && t.Distance(_player.Position) < _q.Range && _epos != default(Vector3))
+            if (useQ && t.Distance(_player.Position) < _q.Range && _q.IsReady() && _epos != default(Vector3) && t.IsValidTarget(150, true, _epos))
             {
-                _q.Cast(_epos, Packets());
+               _q.Cast(_epos, Packets());
             }
 
             if (useW && _w.IsReady())
-                {
-                    if (t != null && t.Distance(_player.Position) < _w.Range)
-                        _w.Cast();
-
-                }
-                if (useQ && _q.IsReady() && !_e.IsReady() && !_w.IsReady())
-                {
-                    if (t != null && t.Distance(_player.Position) < _q.Range)
-                        _q.Cast(t, Packets(), true);
-
-                }
-                if (_r.IsReady() && autoR && !_haveulti)
-                {
-                    if (ObjectManager.Get<Obj_AI_Hero>().Count(hero => hero.IsValidTarget(_r.Range)) >=
-                        _config.Item("MinTargets").GetValue<Slider>().Value)
-                        _r.Cast(t, Packets(), true);
-                }
-                UseItemes(t);
+            {
+                if (t != null && t.Distance(_player.Position) < _w.Range)
+                    _w.Cast();
+            }
+            if (useQ && _q.IsReady() && !_e.IsReady())
+            {
+                if (t != null && t.Distance(_player.Position) < _q.Range)
+                    _q.Cast(t, Packets(), true);
+            }
+            if (_r.IsReady() && autoR && !_haveulti)
+            {
+                if (ObjectManager.Get<Obj_AI_Hero>().Count(hero => hero.IsValidTarget(_r.Range)) >=
+                    _config.Item("MinTargets").GetValue<Slider>().Value)
+                    _r.Cast(t, Packets(), true);
+            }
+            UseItemes(t);
             }
 
-            private static
-            void ComboEqr()
+        private static void ComboEqr()
         {
             _player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
-            var manacheck = _player.Mana > _player.Spellbook.GetSpell(SpellSlot.Q).ManaCost + _player.Spellbook.GetSpell(SpellSlot.E).ManaCost + _player.Spellbook.GetSpell(SpellSlot.R).ManaCost;
+            var manacheck = _player.Mana >
+                            _player.Spellbook.GetSpell(SpellSlot.Q).ManaCost +
+                            _player.Spellbook.GetSpell(SpellSlot.E).ManaCost +
+                            _player.Spellbook.GetSpell(SpellSlot.R).ManaCost;
             var t = SimpleTs.GetTarget(_q.Range + _r.Range, SimpleTs.DamageType.Magical);
 
             if (_e.IsReady() && _q.IsReady() && manacheck)
@@ -464,7 +463,7 @@ namespace D_Jarvan
 
             }
             if (t != null && _config.Item("UseIgnite").GetValue<bool>() && _igniteSlot != SpellSlot.Unknown &&
-               _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
+                _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
             {
                 if (ComboDamage(t) > t.Health)
                 {
@@ -482,7 +481,6 @@ namespace D_Jarvan
             }
             UseItemes(t);
         }
-
 
         private static void Harass()
         {
