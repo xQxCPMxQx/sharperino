@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -110,9 +111,7 @@ namespace D_Nidalee
             Config.SubMenu("Combo").AddItem(new MenuItem("UseQComboCougar", "Use Q Cougar")).SetValue(true);
             Config.SubMenu("Combo").AddItem(new MenuItem("UseWComboCougar", "Use W Cougar")).SetValue(true);
             Config.SubMenu("Combo").AddItem(new MenuItem("UseEComboCougar", "Use E Cougar")).SetValue(true);
-            Config.SubMenu("Combo").AddItem(new MenuItem("UseItemsdfg", "Use DFG")).SetValue(true);
-            Config.SubMenu("Combo").AddItem(new MenuItem("UseItemsignite", "Use Ignite")).SetValue(true);
-            Config.SubMenu("Combo").AddItem(new MenuItem("QHitCombo", "Q HitChange").SetValue(new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+           Config.SubMenu("Combo").AddItem(new MenuItem("QHitCombo", "Q HitChange").SetValue(new StringList(new[] { "Low", "Medium", "High", "Very High" })));
             
             Config.SubMenu("Combo").AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
 
@@ -125,6 +124,8 @@ namespace D_Nidalee
 
             Config.AddSubMenu(new Menu("items", "items"));
             Config.SubMenu("items").AddSubMenu(new Menu("Offensive", "Offensive"));
+            Config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("UseItemsdfg", "Use DFG")).SetValue(true);
+            Config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("UseItemsignite", "Use Ignite")).SetValue(true);
             Config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Tiamat", "Use Tiamat")).SetValue(true);
             Config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Hydra", "Use Hydra")).SetValue(true);
             Config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Bilge", "Use Bilge")).SetValue(true);
@@ -190,11 +191,21 @@ namespace D_Nidalee
            
            
             //Kill Steal
-            Config.AddSubMenu(new Menu("KillSteal", "Ks"));
-            Config.SubMenu("Ks").AddItem(new MenuItem("ActiveKs", "Use KillSteal")).SetValue(true);
-            Config.SubMenu("Ks").AddItem(new MenuItem("UseQKs", "Use Q")).SetValue(true);
-            Config.SubMenu("Ks").AddItem(new MenuItem("UseIgnite", "Use Ignite")).SetValue(true);
+            Config.AddSubMenu(new Menu("Misc", "Misc"));
+            Config.SubMenu("Misc").AddItem(new MenuItem("ActiveKs", "Use KillSteal")).SetValue(true);
+            Config.SubMenu("Misc").AddItem(new MenuItem("UseQKs", "Use Q")).SetValue(true);
+            Config.SubMenu("Misc").AddItem(new MenuItem("UseIgnite", "Use Ignite")).SetValue(true);
+            Config.SubMenu("Misc").AddItem(new MenuItem("escapeterino", "Escape!!!")).SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Press));
 
+            //Damage after combo:
+            MenuItem dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
+            Utility.HpBarDamageIndicator.DamageToUnit = ComboDamage;
+            Utility.HpBarDamageIndicator.Enabled = dmgAfterComboItem.GetValue<bool>();
+            dmgAfterComboItem.ValueChanged +=
+            delegate(object sender, OnValueChangeEventArgs eventArgs)
+            {
+                Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
+            };
 
             //Drawings
             Config.AddSubMenu(new Menu("Drawings", "Drawings"));
@@ -214,6 +225,12 @@ namespace D_Nidalee
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
             Game.PrintChat("<font color='#881df2'>SKO Nidallee Reworked By Diabaths </font>Loaded!");
+           
+             /*   WebClient wc = new WebClient();
+               // string amount = wc.UploadString("http://league.host22.com/mycounter.php", "assembly=" + ChampionName);
+                string amount = wc.DownloadString("http://league.host22.com/mycounter.php");
+                Game.PrintChat("D- " + ChampionName + " has been played in " + amount + " games.");*/
+           
         }
 
 
@@ -252,7 +269,32 @@ namespace D_Nidalee
             {
                 KillSteal();
             }
+            if (Config.Item("escapeterino").GetValue<KeyBind>().Active)
+            {
+                Escapeterino();
+            }
         }
+
+        private static void Escapeterino()
+        {
+            Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+            if (IsHuman)
+            {
+                if (R.IsReady())
+                {
+                    R.Cast();
+                }
+                if (WC.IsReady())
+                {
+                    WC.Cast(Game.CursorPos);
+                }
+            }
+            else if (IsCougar && WC.IsReady())
+            {
+                WC.Cast(Game.CursorPos);
+            }
+        }
+
         private static void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             if (sender.IsMe)
