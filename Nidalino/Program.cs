@@ -111,10 +111,7 @@ namespace D_Nidalee
             Config.SubMenu("Combo").AddItem(new MenuItem("UseQComboCougar", "Use Q Cougar")).SetValue(true);
             Config.SubMenu("Combo").AddItem(new MenuItem("UseWComboCougar", "Use W Cougar")).SetValue(true);
             Config.SubMenu("Combo").AddItem(new MenuItem("UseEComboCougar", "Use E Cougar")).SetValue(true);
-            Config.SubMenu("Combo")
-                .AddItem(
-                    new MenuItem("QHitCombo", "Q HitChange").SetValue(
-                        new StringList(new[] {"Low", "Medium", "High", "Very High"})));
+             //Config.SubMenu("Combo").AddItem(new MenuItem("QHitCombo", "Q HitChange").SetValue(new StringList(new[] {"Low", "Medium", "High", "Very High"})));
 
             Config.SubMenu("Combo")
                 .AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
@@ -178,10 +175,7 @@ namespace D_Nidalee
             Config.AddSubMenu(new Menu("Harass", "Harass"));
             Config.SubMenu("Harass").AddItem(new MenuItem("UseQHarass", "Use Q")).SetValue(true);
             Config.SubMenu("Harass").AddItem(new MenuItem("UseWHarass", "Use W")).SetValue(true);
-            Config.SubMenu("Harass")
-                .AddItem(
-                    new MenuItem("QHitharass", "Q HitChange").SetValue(
-                        new StringList(new[] {"Low", "Medium", "High", "Very High"})));
+           // Config.SubMenu("Harass").AddItem(new MenuItem("QHitharass", "Q HitChange").SetValue(new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             Config.SubMenu("Harass")
                 .AddItem(
                     new MenuItem("ActiveHarass", "Harass key").SetValue(new KeyBind("X".ToCharArray()[0],
