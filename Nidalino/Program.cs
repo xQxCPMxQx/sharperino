@@ -54,7 +54,7 @@ namespace D_Nidalee
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
         }
 
-        static void Game_OnGameLoad(EventArgs args)
+        private static void Game_OnGameLoad(EventArgs args)
         {
             Player = ObjectManager.Player;
             if (ObjectManager.Player.BaseSkinName != ChampionName) return;
@@ -87,7 +87,7 @@ namespace D_Nidalee
             _lotis = new Items.Item(3190, 590f);
             _dfg = new Items.Item(3128, 750f);
             _zhonya = new Items.Item(3157, 10);
-           
+
 
             IgniteSlot = Player.GetSpellSlot("SummonerDot");
 
@@ -111,21 +111,30 @@ namespace D_Nidalee
             Config.SubMenu("Combo").AddItem(new MenuItem("UseQComboCougar", "Use Q Cougar")).SetValue(true);
             Config.SubMenu("Combo").AddItem(new MenuItem("UseWComboCougar", "Use W Cougar")).SetValue(true);
             Config.SubMenu("Combo").AddItem(new MenuItem("UseEComboCougar", "Use E Cougar")).SetValue(true);
-           Config.SubMenu("Combo").AddItem(new MenuItem("QHitCombo", "Q HitChange").SetValue(new StringList(new[] { "Low", "Medium", "High", "Very High" })));
-            
-            Config.SubMenu("Combo").AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
+            Config.SubMenu("Combo")
+                .AddItem(
+                    new MenuItem("QHitCombo", "Q HitChange").SetValue(
+                        new StringList(new[] {"Low", "Medium", "High", "Very High"})));
+
+            Config.SubMenu("Combo")
+                .AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
 
             //Extra
             Config.AddSubMenu(new Menu("Heal", "Heal"));
             Config.SubMenu("Heal").AddItem(new MenuItem("UseAutoE", "Use auto E")).SetValue(true);
             Config.SubMenu("Heal").AddItem(new MenuItem("HPercent", "Health percent")).SetValue(new Slider(40, 1, 100));
             Config.SubMenu("Heal").AddItem(new MenuItem("AllyUseAutoE", "Ally Use auto E")).SetValue(true);
-            Config.SubMenu("Heal").AddItem(new MenuItem("AllyHPercent", "Health percent")).SetValue(new Slider(40, 1, 100));
+            Config.SubMenu("Heal")
+                .AddItem(new MenuItem("AllyHPercent", "Health percent"))
+                .SetValue(new Slider(40, 1, 100));
 
             Config.AddSubMenu(new Menu("items", "items"));
             Config.SubMenu("items").AddSubMenu(new Menu("Offensive", "Offensive"));
             Config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("UseItemsdfg", "Use DFG")).SetValue(true);
-            Config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("UseItemsignite", "Use Ignite")).SetValue(true);
+            Config.SubMenu("items")
+                .SubMenu("Offensive")
+                .AddItem(new MenuItem("UseItemsignite", "Use Ignite"))
+                .SetValue(true);
             Config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Tiamat", "Use Tiamat")).SetValue(true);
             Config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Hydra", "Use Hydra")).SetValue(true);
             Config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Bilge", "Use Bilge")).SetValue(true);
@@ -158,9 +167,9 @@ namespace D_Nidalee
                 .SubMenu("Deffensive")
                 .AddItem(new MenuItem("lotisminhp", "Solari if Ally Hp<").SetValue(new Slider(35, 1, 100)));
             Config.SubMenu("items")
-               .SubMenu("Deffensive")
-               .AddItem(new MenuItem("Zhonyas", "Use Zhonya's"))
-               .SetValue(true);
+                .SubMenu("Deffensive")
+                .AddItem(new MenuItem("Zhonyas", "Use Zhonya's"))
+                .SetValue(true);
             Config.SubMenu("items")
                 .SubMenu("Deffensive")
                 .AddItem(new MenuItem("Zhonyashp", "Use Zhonya's if HP%<").SetValue(new Slider(20, 1, 100)));
@@ -169,53 +178,78 @@ namespace D_Nidalee
             Config.AddSubMenu(new Menu("Harass", "Harass"));
             Config.SubMenu("Harass").AddItem(new MenuItem("UseQHarass", "Use Q")).SetValue(true);
             Config.SubMenu("Harass").AddItem(new MenuItem("UseWHarass", "Use W")).SetValue(true);
-            Config.SubMenu("Harass").AddItem(new MenuItem("UseEHarass", "Use E")).SetValue(true);
-            Config.SubMenu("Harass").AddItem(new MenuItem("QHitharass", "Q HitChange").SetValue(new StringList(new[] { "Low", "Medium", "High", "Very High" })));
-            Config.SubMenu("Harass").AddItem(new MenuItem("ActiveHarass", "Harass key").SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
-            Config.SubMenu("Harass").AddItem(new MenuItem("Harrasmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+            Config.SubMenu("Harass")
+                .AddItem(
+                    new MenuItem("QHitharass", "Q HitChange").SetValue(
+                        new StringList(new[] {"Low", "Medium", "High", "Very High"})));
+            Config.SubMenu("Harass")
+                .AddItem(
+                    new MenuItem("ActiveHarass", "Harass key").SetValue(new KeyBind("X".ToCharArray()[0],
+                        KeyBindType.Press)));
+            Config.SubMenu("Harass")
+                .AddItem(new MenuItem("Harrasmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
 
             Config.AddSubMenu(new Menu("Farm", "Farm"));
             Config.SubMenu("Farm").AddSubMenu(new Menu("LastHit", "LastHit"));
             Config.SubMenu("Farm").SubMenu("LastHit").AddItem(new MenuItem("UseQLH", "Use Q (Human)")).SetValue(true);
-            Config.SubMenu("Farm").SubMenu("LastHit").AddItem(new MenuItem("lastmana", "Minimum Mana% >").SetValue(new Slider(35, 1, 100)));
-            Config.SubMenu("Farm").SubMenu("LastHit").AddItem(new MenuItem("ActiveLast", "LastHit!").SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
+            Config.SubMenu("Farm")
+                .SubMenu("LastHit")
+                .AddItem(new MenuItem("lastmana", "Minimum Mana% >").SetValue(new Slider(35, 1, 100)));
+            Config.SubMenu("Farm")
+                .SubMenu("LastHit")
+                .AddItem(
+                    new MenuItem("ActiveLast", "LastHit!").SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
 
             Config.SubMenu("Farm").AddSubMenu(new Menu("Lane/Jungle", "Lane"));
             Config.SubMenu("Farm").SubMenu("Lane").AddItem(new MenuItem("farm_E1", "Use E (Human)")).SetValue(true);
             Config.SubMenu("Farm").SubMenu("Lane").AddItem(new MenuItem("UseQLane", "Use Q (Cougar)")).SetValue(true);
             Config.SubMenu("Farm").SubMenu("Lane").AddItem(new MenuItem("UseWLane", "Use W (Cougar)")).SetValue(true);
             Config.SubMenu("Farm").SubMenu("Lane").AddItem(new MenuItem("UseELane", "Use E (Cougar)")).SetValue(true);
-            Config.SubMenu("Farm").SubMenu("Lane").AddItem(new MenuItem("LaneClear", "Clear key").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
-            Config.SubMenu("Farm").SubMenu("Lane").AddItem(new MenuItem("farm_R", "Auto Switch Forms(toggle)").SetValue(new KeyBind("G".ToCharArray()[0], KeyBindType.Toggle)));
-            Config.SubMenu("Farm").SubMenu("Lane").AddItem(new MenuItem("Lane", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
-           
-           
+            Config.SubMenu("Farm")
+                .SubMenu("Lane")
+                .AddItem(
+                    new MenuItem("LaneClear", "Clear key").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
+            Config.SubMenu("Farm")
+                .SubMenu("Lane")
+                .AddItem(
+                    new MenuItem("farm_R", "Auto Switch Forms(toggle)").SetValue(new KeyBind("G".ToCharArray()[0],
+                        KeyBindType.Toggle)));
+            Config.SubMenu("Farm")
+                .SubMenu("Lane")
+                .AddItem(new MenuItem("Lane", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+
+
             //Kill Steal
             Config.AddSubMenu(new Menu("Misc", "Misc"));
             Config.SubMenu("Misc").AddItem(new MenuItem("ActiveKs", "Use KillSteal")).SetValue(true);
             Config.SubMenu("Misc").AddItem(new MenuItem("UseQKs", "Use Q")).SetValue(true);
             Config.SubMenu("Misc").AddItem(new MenuItem("UseIgnite", "Use Ignite")).SetValue(true);
-            Config.SubMenu("Misc").AddItem(new MenuItem("escapeterino", "Escape!!!")).SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Press));
+            Config.SubMenu("Misc")
+                .AddItem(new MenuItem("escapeterino", "Escape!!!"))
+                .SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Press));
 
             //Damage after combo:
             MenuItem dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
             Utility.HpBarDamageIndicator.DamageToUnit = ComboDamage;
             Utility.HpBarDamageIndicator.Enabled = dmgAfterComboItem.GetValue<bool>();
             dmgAfterComboItem.ValueChanged +=
-            delegate(object sender, OnValueChangeEventArgs eventArgs)
-            {
-                Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
-            };
+                delegate(object sender, OnValueChangeEventArgs eventArgs)
+                {
+                    Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
+                };
 
             //Drawings
             Config.AddSubMenu(new Menu("Drawings", "Drawings"));
             Config.SubMenu("Drawings").AddItem(new MenuItem("DrawQ", "Draw Q")).SetValue(true);
             Config.SubMenu("Drawings").AddItem(new MenuItem("DrawW", "Draw W")).SetValue(true);
             Config.SubMenu("Drawings").AddItem(new MenuItem("DrawE", "Draw E")).SetValue(true);
+            Config.SubMenu("Drawings").AddItem(dmgAfterComboItem);
             Config.SubMenu("Drawings").AddItem(new MenuItem("CircleLag", "Lag Free Circles").SetValue(true));
             Config.SubMenu("Drawings").AddItem(new MenuItem("DrawCooldown", "Draw Cooldown")).SetValue(true);
-            Config.SubMenu("Drawings").AddItem(new MenuItem("CircleQuality", "Circles Quality").SetValue(new Slider(100, 100, 10)));
-            Config.SubMenu("Drawings").AddItem(new MenuItem("CircleThickness", "Circles Thickness").SetValue(new Slider(1, 10, 1)));
+            Config.SubMenu("Drawings")
+                .AddItem(new MenuItem("CircleQuality", "Circles Quality").SetValue(new Slider(100, 100, 10)));
+            Config.SubMenu("Drawings")
+                .AddItem(new MenuItem("CircleThickness", "Circles Thickness").SetValue(new Slider(1, 10, 1)));
 
             Config.AddToMainMenu();
 
@@ -225,21 +259,22 @@ namespace D_Nidalee
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
             Game.PrintChat("<font color='#881df2'>SKO Nidallee Reworked By Diabaths </font>Loaded!");
-           
-             /*   WebClient wc = new WebClient();
+
+            /*   WebClient wc = new WebClient();
                // string amount = wc.UploadString("http://league.host22.com/mycounter.php", "assembly=" + ChampionName);
                 string amount = wc.DownloadString("http://league.host22.com/mycounter.php");
                 Game.PrintChat("D- " + ChampionName + " has been played in " + amount + " games.");*/
-           
         }
-
-
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
             if (Config.Item("UseAutoE").GetValue<bool>())
             {
                 AutoE();
+            }
+            if (Config.Item("escapeterino").GetValue<KeyBind>().Active)
+            {
+                Escapeterino();
             }
             AllyAutoE();
             Cooldowns();
@@ -249,7 +284,7 @@ namespace D_Nidalee
 
             CheckSpells();
             if (Config.Item("ActiveLast").GetValue<KeyBind>().Active &&
-              (100 * (Player.Mana / Player.MaxMana)) > Config.Item("lastmana").GetValue<Slider>().Value)
+                (100*(Player.Mana/Player.MaxMana)) > Config.Item("lastmana").GetValue<Slider>().Value)
             {
                 LastHit();
             }
@@ -257,7 +292,8 @@ namespace D_Nidalee
             {
                 Combo();
             }
-            if (Config.Item("ActiveHarass").GetValue<KeyBind>().Active && Config.Item("UseQHarass").GetValue<bool>() && Q.IsReady() && (100 * (Player.Mana / Player.MaxMana)) > Config.Item("Harrasmana").GetValue<Slider>().Value)
+            if (Config.Item("ActiveHarass").GetValue<KeyBind>().Active && Config.Item("UseQHarass").GetValue<bool>() &&
+                Q.IsReady() && (100*(Player.Mana/Player.MaxMana)) > Config.Item("Harrasmana").GetValue<Slider>().Value)
             {
                 Harass();
             }
@@ -269,11 +305,8 @@ namespace D_Nidalee
             {
                 KillSteal();
             }
-            if (Config.Item("escapeterino").GetValue<KeyBind>().Active)
-            {
-                Escapeterino();
-            }
         }
+
 
         private static void Escapeterino()
         {
@@ -337,7 +370,7 @@ namespace D_Nidalee
                     _spidEcd = Game.Time + CalculateCd(CougarEcd[EC.Level]);
             }
         }
-        private static HitChance QHitChanceCombo()
+        /*private static HitChance QHitChanceCombo()
         {
             switch (Config.Item("QHitCombo").GetValue<StringList>().SelectedIndex)
             {
@@ -368,7 +401,7 @@ namespace D_Nidalee
                 default:
                     return HitChance.High;
             }
-        }
+        }*/
         private static void Combo()
         {
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
@@ -392,9 +425,11 @@ namespace D_Nidalee
                 if (IsHuman && Player.Distance(target) <= Q.Range && Config.Item("UseQCombo").GetValue<bool>() &&
                     Q.IsReady())
                 {
-                    var prediction = Q.GetPrediction(target);
-                    if (prediction.Hitchance >= QHitChanceCombo() && target.Distance(Player.Position) <= Q.Range)
-                        Q.Cast(prediction.CastPosition);
+                    // var prediction = Q.GetPrediction(target);
+                    //if (prediction.Hitchance >= QHitChanceCombo())
+                    //  Q.Cast(prediction.CastPosition);
+                   if (Q.WillHit(target, target.ServerPosition))
+                           Q.Cast(target);
                  }
                 if (IsHuman && Player.Distance(target) <= W.Range && Config.Item("UseWCombo").GetValue<bool>() &&
                     W.IsReady())
@@ -564,11 +599,13 @@ namespace D_Nidalee
             if (target != null)
             {
                 if (IsHuman && Player.Distance(target) <= Q.Range && Config.Item("UseQHarass").GetValue<bool>() &&
-                    Q.IsReady() && Q.GetPrediction(target).Hitchance >= HitChance.High)
+                    Q.IsReady())
                 {
-                    var prediction = Q.GetPrediction(target);
-                    if (prediction.Hitchance >= QHitChanceHarass() && target.Distance(Player.Position) <= Q.Range)
-                        Q.Cast(prediction.CastPosition);
+                   // var prediction = Q.GetPrediction(target);
+                   // if (prediction.Hitchance >= QHitChanceHarass())
+                   //  Q.Cast(prediction.CastPosition);
+                  if (Q.WillHit(target, target.ServerPosition))
+                        Q.Cast(target);
                 }
 
                 if (IsHuman && Player.Distance(target) <= W.Range && Config.Item("UseWHarass").GetValue<bool>() &&
@@ -663,7 +700,8 @@ namespace D_Nidalee
             {
                 if (target.Health <= QHDmg)
                 {
-                    Q.Cast(target);
+                    if (Q.WillHit(target, target.ServerPosition))
+                        Q.Cast(target);
                 }
             }
         }
