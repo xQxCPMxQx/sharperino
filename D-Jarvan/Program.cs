@@ -207,9 +207,8 @@ namespace D_Jarvan
             _config.SubMenu("Farm").SubMenu("Jungle").AddItem(new MenuItem("UseQJ", "Q Jungle")).SetValue(true);
             _config.SubMenu("Farm").SubMenu("Jungle").AddItem(new MenuItem("UseEJ", "E Jungle")).SetValue(true);
             _config.SubMenu("Farm").SubMenu("Jungle").AddItem(new MenuItem("UseWJ", "W Jungle")).SetValue(true);
-            _config.SubMenu("Farm")
-                .SubMenu("Jungle")
-                .AddItem(new MenuItem("UseWJHP", "use W if Hp% <").SetValue(new Slider(35, 1, 100)));
+            _config.SubMenu("Farm").SubMenu("Jungle").AddItem(new MenuItem(" UseEQJ", "EQ In Jungle")).SetValue(true);
+            _config.SubMenu("Farm").SubMenu("Jungle").AddItem(new MenuItem("UseWJHP", "use W if Hp% <").SetValue(new Slider(35, 1, 100)));
             _config.SubMenu("Farm")
                 .SubMenu("Jungle")
                 .AddItem(new MenuItem("junglemana", "Minimum Mana% >").SetValue(new Slider(35, 1, 100)));
@@ -343,7 +342,7 @@ namespace D_Jarvan
                 {
                     _e.Cast(unit, Packets());
                 }
-                if (_q.IsReady() && _epos != default(Vector3) && unit.IsValidTarget(150, true, _epos))
+                if (_q.IsReady() && _epos != default(Vector3) && unit.IsValidTarget(200, true, _epos))
                 {
                     _q.Cast(_epos, Packets());
                 }
@@ -422,7 +421,7 @@ namespace D_Jarvan
             {
                 _e.Cast(t, Packets());
             }
-            if (useQ && t.Distance(_player.Position) < _q.Range && _q.IsReady() && _epos != default(Vector3) && t.IsValidTarget(150, true, _epos))
+            if (useQ && t.Distance(_player.Position) < _q.Range && _q.IsReady() && _epos != default(Vector3) && t.IsValidTarget(200, true, _epos))
             {
                _q.Cast(_epos, Packets());
             }
@@ -651,18 +650,33 @@ namespace D_Jarvan
             var useQ = _config.Item("UseQJ").GetValue<bool>();
             var useW = _config.Item("UseWJ").GetValue<bool>();
             var useE = _config.Item("UseEJ").GetValue<bool>();
-            var usewhp = (100 * (_player.Health / _player.MaxHealth)) < _config.Item("UseWJHP").GetValue<Slider>().Value;
+            var useEq = _config.Item(" UseEQJ").GetValue<bool>();
+            var usewhp = (100*(_player.Health/_player.MaxHealth)) < _config.Item("UseWJHP").GetValue<Slider>().Value;
 
             if (mobs.Count > 0)
             {
                 var mob = mobs[0];
-                if (useQ && _q.IsReady() && _player.Distance(mob) < _q.Range)
+                if (useEq)
                 {
-                    _q.Cast(mob, Packets());
+                    if (_e.IsReady() && useE && _player.Distance(mob) < _q.Range)
+                    {
+                        _e.Cast(mob, Packets());
+                    }
+                    if (useQ && _q.IsReady() && _player.Distance(mob) < _q.Range)
+                    {
+                        _q.Cast(mob, Packets());
+                    }
                 }
-                if (_e.IsReady() && useE && _player.Distance(mob) < _q.Range)
+                else
                 {
-                    _e.Cast(mob, Packets());
+                    if (useQ && _q.IsReady() && _player.Distance(mob) < _q.Range)
+                    {
+                        _q.Cast(mob, Packets());
+                    }
+                     if (_e.IsReady() && useE && _player.Distance(mob) < _q.Range)
+                    {
+                        _e.Cast(mob, Packets());
+                    }
                 }
                 if (_w.IsReady() && useW && usewhp && _player.Distance(mob) < _w.Range)
                 {
@@ -677,8 +691,8 @@ namespace D_Jarvan
                     _hydra.Cast();
                 }
             }
-
         }
+
 
         private static bool Packets()
         {
