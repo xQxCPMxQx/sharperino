@@ -276,7 +276,7 @@ namespace D_Kayle
 
         private static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
-            if (_q.IsReady() && gapcloser.Sender.IsValidTarget(_e.Range) &&
+            if (_q.IsReady() && gapcloser.Sender.IsValidTarget(_q.Range) &&
                 _config.Item("GapCloserE").GetValue<bool>())
             {
                 _q.Cast(gapcloser.Sender, Packets());
