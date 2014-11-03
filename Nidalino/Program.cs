@@ -414,8 +414,8 @@ namespace D_Nidalee
             var itemsIgnite = Config.Item("UseItemsignite").GetValue<bool>();
             if (target != null)
             {
-                if (target.HasBuff("nidaleepassivehunted", true) && Player.Distance(target) <= _dfg.Range && itemsDfg &&
-                    _dfg.IsReady() && target.Health <= ComboDamage(target))
+                if (_dfg.IsReady() && target.HasBuff("nidaleepassivehunted", true) && Player.Distance(target) <= _dfg.Range && itemsDfg &&
+                     target.Health <= ComboDamage(target))
                 {
                     _dfg.Cast(target);
                 }
@@ -427,22 +427,19 @@ namespace D_Nidalee
                         Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
                     }
                 }
-                if (IsHuman && Player.Distance(target) <= Q.Range && Config.Item("UseQCombo").GetValue<bool>() &&
-                    Q.IsReady())
+                if ( Q.IsReady() && IsHuman && Player.Distance(target) <= Q.Range && Config.Item("UseQCombo").GetValue<bool>())
                 {
                     var prediction = Q.GetPrediction(target);
                     if (prediction.Hitchance >= QHitChanceCombo())
                         Q.Cast(prediction.CastPosition);
 
                 }
-                if (IsHuman && Player.Distance(target) <= W.Range && Config.Item("UseWCombo").GetValue<bool>() &&
-                    W.IsReady())
+                if ( W.IsReady() && IsHuman && Player.Distance(target) <= W.Range && Config.Item("UseWCombo").GetValue<bool>())
                 {
                     W.Cast(target);
                 }
 
-                if (IsHuman && Config.Item("UseRCombo").GetValue<bool>() && Player.Distance(target) <= 625 &&
-                    R.IsReady())
+                if (R.IsReady() && IsHuman && Config.Item("UseRCombo").GetValue<bool>() && Player.Distance(target) <= 625)
                 {
                     if (IsHuman)
                     {
@@ -451,15 +448,15 @@ namespace D_Nidalee
 
                     if (IsCougar)
                     {
-                        if (Config.Item("UseWComboCougar").GetValue<bool>() && Player.Distance(target) <= WC.Range)
+                        if (WC.IsReady() && Config.Item("UseWComboCougar").GetValue<bool>() && Player.Distance(target) <= WC.Range)
                         {
                             WC.Cast(target);
                         }
-                        if (Config.Item("UseEComboCougar").GetValue<bool>() && Player.Distance(target) <= EC.Range)
+                        if (EC.IsReady() && Config.Item("UseEComboCougar").GetValue<bool>() && Player.Distance(target) <= EC.Range)
                         {
                             EC.Cast(target);
                         }
-                        if (Config.Item("UseQComboCougar").GetValue<bool>() && Player.Distance(target) <= QC.Range)
+                        if (QC.IsReady() && Config.Item("UseQComboCougar").GetValue<bool>() && Player.Distance(target) <= QC.Range)
                         {
                             Orbwalker.SetAttack(true);
                             QC.Cast();
@@ -471,22 +468,22 @@ namespace D_Nidalee
 
                 if (IsCougar && Player.Distance(target) < 625)
                 {
-                    if (IsHuman)
+                    if (IsHuman && R.IsReady())
                     {
                         R.Cast();
                     }
 
                     if (IsCougar)
                     {
-                        if (Config.Item("UseWComboCougar").GetValue<bool>() && Player.Distance(target) <= WC.Range)
+                        if (WC.IsReady() && Config.Item("UseWComboCougar").GetValue<bool>() && Player.Distance(target) <= WC.Range)
                         {
                             WC.Cast(target);
                         }
-                        if (Config.Item("UseEComboCougar").GetValue<bool>() && Player.Distance(target) <= EC.Range)
+                        if (EC.IsReady() && Config.Item("UseEComboCougar").GetValue<bool>() && Player.Distance(target) <= EC.Range)
                         {
                             EC.Cast(target);
                         }
-                        if (Config.Item("UseQComboCougar").GetValue<bool>() && Player.Distance(target) <= QC.Range)
+                        if (QC.IsReady() && Config.Item("UseQComboCougar").GetValue<bool>() && Player.Distance(target) <= QC.Range)
                         {
                             Orbwalker.SetAttack(true);
                             QC.Cast();
@@ -495,11 +492,11 @@ namespace D_Nidalee
                     }
                 }
 
-                if (IsCougar && Config.Item("UseRCombo").GetValue<bool>() && Player.Distance(target) > WC.Range)
+                if (R.IsReady() && IsCougar && Config.Item("UseRCombo").GetValue<bool>() && Player.Distance(target) > WC.Range)
                 {
                     R.Cast();
                 }
-                if (IsCougar && Player.Distance(target) > EC.Range && Config.Item("UseRCombo").GetValue<bool>())
+                if (R.IsReady() && IsCougar && Player.Distance(target) > EC.Range && Config.Item("UseRCombo").GetValue<bool>())
                 {
                     R.Cast();
                 }
@@ -604,8 +601,7 @@ namespace D_Nidalee
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
             if (target != null)
             {
-                if (IsHuman && Player.Distance(target) <= Q.Range && Config.Item("UseQHarass").GetValue<bool>() &&
-                    Q.IsReady())
+                if (Q.IsReady() && IsHuman && Player.Distance(target) <= Q.Range && Config.Item("UseQHarass").GetValue<bool>())
                 {
                     var prediction = Q.GetPrediction(target);
                     if (prediction.Hitchance >= QHitChanceHarass())
@@ -613,8 +609,7 @@ namespace D_Nidalee
 
                 }
 
-                if (IsHuman && Player.Distance(target) <= W.Range && Config.Item("UseWHarass").GetValue<bool>() &&
-                    W.IsReady())
+                if (W.IsReady() && IsHuman && Player.Distance(target) <= W.Range && Config.Item("UseWHarass").GetValue<bool>())
                 {
                     W.Cast(target);
                 }
@@ -646,7 +641,7 @@ namespace D_Nidalee
 
                 else if (R.IsReady() && Config.Item("farm_R").GetValue<KeyBind>().Active)
                     R.Cast();
-                else if (!Config.Item("farm_R").GetValue<KeyBind>().Active && E.IsReady() &&
+                else if (E.IsReady() && !Config.Item("farm_R").GetValue<KeyBind>().Active &&
                          Config.Item("farm_E1").GetValue<bool>() &&
                          (100*(Player.Mana/Player.MaxMana)) > Config.Item("Lane").GetValue<Slider>().Value)
                     E.CastOnUnit(Player);
@@ -661,7 +656,7 @@ namespace D_Nidalee
 
                 if (Player.HasBuff("Recall")) return;
 
-                if (Player.Health <= (Player.MaxHealth*(Config.Item("HPercent").GetValue<Slider>().Value)/100))
+                if (E.IsReady() && Player.Health <= (Player.MaxHealth*(Config.Item("HPercent").GetValue<Slider>().Value)/100))
                 {
                     Player.Spellbook.CastSpell(SpellSlot.E, Player);
                 }
@@ -677,7 +672,7 @@ namespace D_Nidalee
             var useQ = Config.Item("UseQLH").GetValue<bool>();
             foreach (var minion in allMinions)
             {
-                if (IsHuman && useQ && Q.IsReady() && Player.Distance(minion) < Q.Range &&
+                if (Q.IsReady() && IsHuman && useQ && Player.Distance(minion) < Q.Range &&
                     minion.Health <= 0.95*Player.GetSpellDamage(minion, SpellSlot.Q))
                 {
                     Q.Cast(minion);
@@ -690,9 +685,9 @@ namespace D_Nidalee
             foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsAlly && !hero.IsMe))
             {
                 if (Player.HasBuff("Recall") || hero.HasBuff("Recall")) return;
-                if (Config.Item("AllyUseAutoE").GetValue<bool>() &&
+                if (E.IsReady() && Config.Item("AllyUseAutoE").GetValue<bool>() &&
                     (hero.Health/hero.MaxHealth)*100 <= Config.Item("AllyHPercent").GetValue<Slider>().Value &&
-                    E.IsReady() && Utility.CountEnemysInRange(1200) > 0 &&
+                    Utility.CountEnemysInRange(1200) > 0 &&
                     hero.Distance(Player.ServerPosition) <= E.Range)
                 {
                     E.Cast(hero);
@@ -720,8 +715,7 @@ namespace D_Nidalee
             {
                 if (target.Health <= QHDmg)
                 {
-                    if (Q.WillHit(target, target.ServerPosition))
-                        Q.Cast(target);
+                   Q.Cast(target);
                 }
             }
         }
