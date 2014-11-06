@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security.AccessControl;
 
 using LeagueSharp;
 using LeagueSharp.Common;
+using LX_Orbwalker;
 using SharpDX;
 using Color = System.Drawing.Color;
 
@@ -14,7 +16,7 @@ namespace D_Diana
     {
         private const string ChampionName = "Diana";
 
-        private static Orbwalking.Orbwalker _orbwalker;
+       // private static Orbwalking.Orbwalker _orbwalker;
 
         private static Spell _q, _w, _e, R;
 
@@ -29,13 +31,12 @@ namespace D_Diana
         private static Obj_AI_Hero _player;
 
         private static SpellDataInst _smiteSlot;
-
         private static readonly List<Spell> SpellList = new List<Spell>();
 
         private static SpellSlot _igniteSlot;
 
         private static Items.Item _tiamat, _hydra, _blade, _bilge, _rand, _lotis, _zhonya;
-        
+        public static Obj_AI_Hero SelectedTarget = null;
         static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -73,17 +74,22 @@ namespace D_Diana
             //D Diana
             _config = new Menu("D-Diana", "D-Diana", true);
 
-            //TargetSelector
+            //Target selector
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
             SimpleTs.AddToMenu(targetSelectorMenu);
             _config.AddSubMenu(targetSelectorMenu);
 
             //Orbwalker
-            _config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
-            _orbwalker = new Orbwalking.Orbwalker(_config.SubMenu("Orbwalking"));
+           // _config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
+           // _orbwalker = new Orbwalking.Orbwalker(_config.SubMenu("Orbwalking"));
+            var orbwalkerMenu = new Menu("My Orbwalker", "my_Orbwalker");
+            LXOrbwalker.AddToMenu(orbwalkerMenu);
+            _config.AddSubMenu(orbwalkerMenu);
 
             //Combo
             _config.AddSubMenu(new Menu("Combo", "Combo"));
+            _config.SubMenu("Combo").AddItem(new MenuItem("tsModes", "TS Modes").SetValue(new StringList(new[] { "Orbwalker/LessCast", "Low HP%", "NearMouse", "CurrentHP" }, 0)));
+            _config.SubMenu("Combo").AddItem(new MenuItem("selected", "Focus Selected Target").SetValue(true));
             _config.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E")).SetValue(true);
@@ -187,18 +193,6 @@ namespace D_Diana
             _config.SubMenu("Ks").AddItem(new MenuItem("TargetRange", "R use if range >").SetValue(new Slider(400, 200, 600)));
             _config.SubMenu("Ks").AddItem(new MenuItem("UseIgnite", "Use Ignite")).SetValue(true);
 
-            //Drawings
-            _config.AddSubMenu(new Menu("Drawings", "Drawings"));
-            _config.SubMenu("Drawings").AddItem(new MenuItem("DrawQ", "Draw Q")).SetValue(true);
-            _config.SubMenu("Drawings").AddItem(new MenuItem("DrawW", "Draw W")).SetValue(true);
-            _config.SubMenu("Drawings").AddItem(new MenuItem("DrawE", "Draw E")).SetValue(true);
-            _config.SubMenu("Drawings").AddItem(new MenuItem("DrawR", "Draw R")).SetValue(true);
-            _config.SubMenu("Drawings").AddItem(new MenuItem("Drawsmite", "Draw smite")).SetValue(true);
-            _config.SubMenu("Drawings").AddItem(new MenuItem("ShowPassive", "Show Passive")).SetValue(true);
-            _config.SubMenu("Drawings").AddItem(new MenuItem("CircleLag", "Lag Free Circles").SetValue(true));
-            _config.SubMenu("Drawings").AddItem(new MenuItem("CircleQuality", "Circles Quality").SetValue(new Slider(100, 100, 10)));
-            _config.SubMenu("Drawings").AddItem(new MenuItem("CircleThickness", "Circles Thickness").SetValue(new Slider(1, 10, 1)));
-
             //Damage after combo:
             MenuItem dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
             Utility.HpBarDamageIndicator.DamageToUnit = ComboDamage;
@@ -208,6 +202,20 @@ namespace D_Diana
             {
                 Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
             };
+            //Drawings
+            _config.AddSubMenu(new Menu("Drawings", "Drawings"));
+            _config.SubMenu("Drawings").AddItem(new MenuItem("DrawQ", "Draw Q")).SetValue(true);
+            _config.SubMenu("Drawings").AddItem(new MenuItem("DrawW", "Draw W")).SetValue(true);
+            _config.SubMenu("Drawings").AddItem(new MenuItem("DrawE", "Draw E")).SetValue(true);
+            _config.SubMenu("Drawings").AddItem(new MenuItem("DrawR", "Draw R")).SetValue(true);
+            _config.SubMenu("Drawings").AddItem(dmgAfterComboItem);
+            _config.SubMenu("Drawings").AddItem(new MenuItem("Drawsmite", "Draw smite")).SetValue(true);
+            _config.SubMenu("Drawings").AddItem(new MenuItem("ShowPassive", "Show Passive")).SetValue(true);
+            _config.SubMenu("Drawings").AddItem(new MenuItem("CircleLag", "Lag Free Circles").SetValue(true));
+            _config.SubMenu("Drawings").AddItem(new MenuItem("CircleQuality", "Circles Quality").SetValue(new Slider(100, 100, 10)));
+            _config.SubMenu("Drawings").AddItem(new MenuItem("CircleThickness", "Circles Thickness").SetValue(new Slider(1, 10, 1)));
+
+          
 
             _config.AddToMainMenu();
 
@@ -216,6 +224,15 @@ namespace D_Diana
             GameObject.OnCreate += OnCreate;
             GameObject.OnDelete += OnDelete;
             Game.PrintChat("<font color='#881df2'>Diana By Diabaths With Misaya Combo by xSalice </font>Loaded!");
+            //credits to eXit_ / ikkeflikkeri
+            WebClient wc = new WebClient();
+            wc.Proxy = null;
+
+            wc.DownloadString("http://league.square7.ch/put.php?name=D-" + ChampionName);                                                                               // +1 in Counter (Every Start / Reload) 
+            string amount = wc.DownloadString("http://league.square7.ch/get.php?name=D-" + ChampionName);                                                               // Get the Counter Data
+            int intamount = Convert.ToInt32(amount);                                                                                                                    // remove unneeded line from webhost
+            Game.PrintChat("<font color='#881df2'>D-" + ChampionName + "</font> has been started <font color='#881df2'>" + intamount + "</font> Times.");               // Post Counter Data
+     
             // Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPossibleToInterrupt;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
@@ -225,7 +242,8 @@ namespace D_Diana
         {
             _player = ObjectManager.Player;
 
-            _orbwalker.SetAttack(true);
+            //_orbwalker.SetAttack(true);
+            LXOrbwalker.SetAttack(true);
             if (_config.Item("Usesmite").GetValue<KeyBind>().Active)
             {
                 Smiteuse();
@@ -297,7 +315,7 @@ namespace D_Diana
         //misaya combo by xSalice
         private static void Misaya()
         {
-            var target = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
+            Obj_AI_Hero target = getTarget();
             if (target != null)
             {
                 if (_player.Distance(target) <= _dfg.Range && _config.Item("UseItems").GetValue<bool>() && _dfg.IsReady() && target.Health <= ComboDamage(target))
@@ -337,33 +355,59 @@ namespace D_Diana
             }
         }
 
-        /*  public static void misaya2()
-          {
-              var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-              if (target != null)
-              {
-                  if (Player.Distance(target) <= DFG.Range && _config.Item("UseItems").GetValue<bool>() && DFG.IsReady() && target.Health <= ComboDamage(target))
-                  {
-                      DFG.Cast(target);
-                  }
+        private static Obj_AI_Hero getTarget()
+        {
+            int tsMode = _config.Item("tsModes").GetValue<StringList>().SelectedIndex;
+            var focusSelected = _config.Item("selected").GetValue<bool>();
+            if (focusSelected && SelectedTarget != null)
+            {
+                if (_player.Distance(SelectedTarget) < 1600 && !SelectedTarget.IsDead && SelectedTarget.IsVisible &&
+                SelectedTarget.IsEnemy)
+                {
 
-                  if (Player.Distance(target) <= R.Range && _config.Item("UseRCombo").GetValue<bool>() && R.IsReady() && Q.IsReady())
-                  {
-                      R.Cast(target, true);
-                      Q.Cast(target);
-                      return;
-                  }
-                  if (Player.Distance(target) <= W.Range && _config.Item("UseWCombo").GetValue<bool>() && W.IsReady() && !Q.IsReady())
-                  {
-                      W.Cast();
-                  }
-                  if (Player.Distance(target) <= E.Range && Player.Distance(target) >= W.Range && _config.Item("UseECombo").GetValue<bool>() && E.IsReady() && !W.IsReady())
-                  {
-                      E.Cast();
-                  }
-              
+                    Game.PrintChat("focusing selected target");
+                    LXOrbwalker.ForcedTarget = SelectedTarget;
+                    return SelectedTarget;
                 }
-          }*/
+                SelectedTarget = null;
+            }
+            Obj_AI_Hero getTar = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
+            if (tsMode == 0)
+                return getTar;
+            foreach (
+            Obj_AI_Hero target in
+            ObjectManager.Get<Obj_AI_Hero>()
+            .Where(
+            x =>
+            _player.Distance(x) < _q.Range && x.IsValidTarget(_q.Range) && !x.IsDead && x.IsEnemy &&
+            x.IsVisible))
+            {
+                if (tsMode == 1)
+                {
+                    float tar1hp = target.Health / target.MaxHealth * 100;
+                    float tar2hp = getTar.Health / getTar.MaxHealth * 100;
+                    if (tar1hp < tar2hp)
+                        getTar = target;
+                }
+                if (tsMode == 2)
+                {
+                    if (target.Distance(Game.CursorPos) < getTar.Distance(Game.CursorPos))
+                        getTar = target;
+                }
+                if (tsMode == 3)
+                {
+                    if (target.Health < getTar.Health)
+                        getTar = target;
+                }
+            }
+            if (getTar != null)
+            {
+                LXOrbwalker.ForcedTarget = getTar;
+                Game.PrintChat("Focus Mode on: " + getTar.BaseSkinName);
+                return getTar;
+            }
+            return null;
+        }
         private static void UseItemes(Obj_AI_Hero target)
         {
             var iBilge = _config.Item("Bilge").GetValue<bool>();

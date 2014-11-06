@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -53,7 +54,7 @@ namespace D_Elise
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
         }
 
-        static void Game_OnGameLoad(EventArgs args)
+        private static void Game_OnGameLoad(EventArgs args)
         {
 
             _player = ObjectManager.Player;
@@ -77,7 +78,7 @@ namespace D_Elise
             _rand = new Items.Item(3143, 490f);
             _lotis = new Items.Item(3190, 590f);
             _zhonya = new Items.Item(3157, 10);
-           
+
 
             _igniteSlot = _player.GetSpellSlot("SummonerDot");
             _smiteSlot = _player.SummonerSpellbook.GetSpell(_player.GetSpellSlot("summonersmite"));
@@ -104,16 +105,21 @@ namespace D_Elise
             _config.SubMenu("Combo").AddItem(new MenuItem("UseSpiderQ", "Spider Q")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseSpiderW", "Spider W")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseSpiderE", "Spider E")).SetValue(true);
-            _config.SubMenu("Combo").AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
+            _config.SubMenu("Combo")
+                .AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
 
             //Harass
             _config.AddSubMenu(new Menu("Harass", "Harass"));
             _config.SubMenu("Harass").AddItem(new MenuItem("UseQHarass", "Human Q")).SetValue(true);
             _config.SubMenu("Harass").AddItem(new MenuItem("UseWHarass", "Human W")).SetValue(true);
-            _config.SubMenu("Harass").AddItem(new MenuItem("Harrasmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
-            _config.SubMenu("Harass").AddItem(new MenuItem("ActiveHarass", "Harass key").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
+            _config.SubMenu("Harass")
+                .AddItem(new MenuItem("Harrasmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+            _config.SubMenu("Harass")
+                .AddItem(
+                    new MenuItem("ActiveHarass", "Harass key").SetValue(new KeyBind("C".ToCharArray()[0],
+                        KeyBindType.Press)));
 
-            
+
             _config.AddSubMenu(new Menu("items", "items"));
             _config.SubMenu("items").AddSubMenu(new Menu("Offensive", "Offensive"));
             _config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Tiamat", "Use Tiamat")).SetValue(true);
@@ -148,9 +154,9 @@ namespace D_Elise
                 .SubMenu("Deffensive")
                 .AddItem(new MenuItem("lotisminhp", "Solari if Ally Hp<").SetValue(new Slider(35, 1, 100)));
             _config.SubMenu("items")
-              .SubMenu("Deffensive")
-              .AddItem(new MenuItem("Zhonyas", "Use Zhonya's"))
-              .SetValue(true);
+                .SubMenu("Deffensive")
+                .AddItem(new MenuItem("Zhonyas", "Use Zhonya's"))
+                .SetValue(true);
             _config.SubMenu("items")
                 .SubMenu("Deffensive")
                 .AddItem(new MenuItem("Zhonyashp", "Use Zhonya's if HP%<").SetValue(new Slider(20, 1, 100)));
@@ -167,20 +173,34 @@ namespace D_Elise
             _config.SubMenu("Farm").AddItem(new MenuItem("HumanWFarm", "Human W")).SetValue(true);
             _config.SubMenu("Farm").AddItem(new MenuItem("SpiderQFarm", "Spider Q")).SetValue(false);
             _config.SubMenu("Farm").AddItem(new MenuItem("SpiderWFarm", "Spider W")).SetValue(true);
-            _config.SubMenu("Farm").AddItem(new MenuItem("Farm_R", "Auto Switch(toggle)").SetValue(new KeyBind("G".ToCharArray()[0], KeyBindType.Toggle)));
-            _config.SubMenu("Farm").AddItem(new MenuItem("ActiveFreeze", "Freeze Lane").SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
-            _config.SubMenu("Farm").AddItem(new MenuItem("ClearActive", "Clear Lane").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
+            _config.SubMenu("Farm")
+                .AddItem(
+                    new MenuItem("Farm_R", "Auto Switch(toggle)").SetValue(new KeyBind("G".ToCharArray()[0],
+                        KeyBindType.Toggle)));
+            _config.SubMenu("Farm")
+                .AddItem(
+                    new MenuItem("ActiveFreeze", "Freeze Lane").SetValue(new KeyBind("X".ToCharArray()[0],
+                        KeyBindType.Press)));
+            _config.SubMenu("Farm")
+                .AddItem(
+                    new MenuItem("ClearActive", "Clear Lane").SetValue(new KeyBind("V".ToCharArray()[0],
+                        KeyBindType.Press)));
             _config.SubMenu("Farm").AddItem(new MenuItem("Lanemana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
 
             //Farm
             _config.AddSubMenu(new Menu("Jungle", "Jungle"));
-            _config.SubMenu("Jungle").AddItem(new MenuItem("Usesmite", "Use Smite").SetValue(new KeyBind("L".ToCharArray()[0], KeyBindType.Toggle)));
+            _config.SubMenu("Jungle")
+                .AddItem(
+                    new MenuItem("Usesmite", "Use Smite").SetValue(new KeyBind("L".ToCharArray()[0], KeyBindType.Toggle)));
             _config.SubMenu("Jungle").AddItem(new MenuItem("HumanQFarmJ", "Human Q")).SetValue(true);
             _config.SubMenu("Jungle").AddItem(new MenuItem("HumanWFarmJ", "Human W")).SetValue(true);
             _config.SubMenu("Jungle").AddItem(new MenuItem("SpiderQFarmJ", "Spider Q")).SetValue(false);
             _config.SubMenu("Jungle").AddItem(new MenuItem("SpiderWFarmJ", "Spider W")).SetValue(true);
-            _config.SubMenu("Jungle").AddItem(new MenuItem("ActiveJungle", "Jungle").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
-            _config.SubMenu("Jungle").AddItem(new MenuItem("Junglemana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+            _config.SubMenu("Jungle")
+                .AddItem(
+                    new MenuItem("ActiveJungle", "Jungle").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
+            _config.SubMenu("Jungle")
+                .AddItem(new MenuItem("Junglemana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
 
             //misc
             _config.AddSubMenu(new Menu("Misc", "Misc"));
@@ -189,10 +209,13 @@ namespace D_Elise
             _config.SubMenu("Misc").AddItem(new MenuItem("Humangapcloser", "HumanE to GapCloser")).SetValue(true);
             _config.SubMenu("Misc").AddItem(new MenuItem("UseEInt", "HumanE to Interrupt")).SetValue(true);
             _config.SubMenu("Misc").AddItem(new MenuItem("smite", "Smite Minion in HumanE path").SetValue(true));
-            _config.SubMenu("Misc").AddItem(new MenuItem("autoE", "HUmanE with VeryHigh Chance").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
             _config.SubMenu("Misc")
-                                   .AddItem(new MenuItem("Echange", "E Hit").SetValue(
-                                    new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                .AddItem(
+                    new MenuItem("autoE", "HUmanE with VeryHigh Chance").SetValue(new KeyBind("T".ToCharArray()[0],
+                        KeyBindType.Press)));
+            _config.SubMenu("Misc")
+                .AddItem(new MenuItem("Echange", "E Hit").SetValue(
+                    new StringList(new[] {"Low", "Medium", "High", "Very High"})));
 
 
             //Kill Steal
@@ -213,8 +236,10 @@ namespace D_Elise
             _config.SubMenu("Drawings").AddItem(new MenuItem("SpiderDrawE", "Spider E")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("Drawsmite", "Draw Smite")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("CircleLag", "Lag Free Circles").SetValue(true));
-            _config.SubMenu("Drawings").AddItem(new MenuItem("CircleQuality", "Circles Quality").SetValue(new Slider(100, 100, 10)));
-            _config.SubMenu("Drawings").AddItem(new MenuItem("CircleThickness", "Circles Thickness").SetValue(new Slider(1, 10, 1)));
+            _config.SubMenu("Drawings")
+                .AddItem(new MenuItem("CircleQuality", "Circles Quality").SetValue(new Slider(100, 100, 10)));
+            _config.SubMenu("Drawings")
+                .AddItem(new MenuItem("CircleThickness", "Circles Thickness").SetValue(new Slider(1, 10, 1)));
 
             _config.AddToMainMenu();
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
@@ -224,9 +249,18 @@ namespace D_Elise
             Drawing.OnDraw += Drawing_OnDraw;
             Game.PrintChat("<font color='#881df2'>D-Elise by Diabaths</font> Loaded.");
 
+            //credits to eXit_ / ikkeflikkeri
+            WebClient wc = new WebClient();
+            wc.Proxy = null;
+
+            wc.DownloadString("http://league.square7.ch/put.php?name=D-" + ChampionName);
+                // +1 in Counter (Every Start / Reload) 
+            string amount = wc.DownloadString("http://league.square7.ch/get.php?name=D-" + ChampionName);
+                // Get the Counter Data
+            int intamount = Convert.ToInt32(amount); // remove unneeded line from webhost
+            Game.PrintChat("<font color='#881df2'>D-" + ChampionName + "</font> has been started <font color='#881df2'>" +
+                           intamount + "</font> Times."); // Post Counter Data
         }
-
-
 
         private static void Game_OnGameUpdate(EventArgs args)
         {

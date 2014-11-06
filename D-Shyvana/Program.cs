@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.Net;
 using LeagueSharp;
 using System.Linq;
 using LeagueSharp.Common;
@@ -179,6 +180,15 @@ namespace D_Shyvana
                 GenModelPacket(_player.ChampionName, _config.Item("skinshyvana").GetValue<Slider>().Value);
                 _lastSkin = _config.Item("skinshyvana").GetValue<Slider>().Value;
             }
+            //credits to eXit_ / ikkeflikkeri
+            WebClient wc = new WebClient();
+            wc.Proxy = null;
+
+            wc.DownloadString("http://league.square7.ch/put.php?name=D-" + ChampionName);                                                                               // +1 in Counter (Every Start / Reload) 
+            string amount = wc.DownloadString("http://league.square7.ch/get.php?name=D-" + ChampionName);                                                               // Get the Counter Data
+            int intamount = Convert.ToInt32(amount);                                                                                                                    // remove unneeded line from webhost
+            Game.PrintChat("<font color='#881df2'>D-" + ChampionName + "</font> has been started <font color='#881df2'>" + intamount + "</font> Times.");               // Post Counter Data
+     
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
