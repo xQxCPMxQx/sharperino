@@ -256,14 +256,18 @@ namespace D_Nidalee
             Game.OnGameUpdate += Game_OnGameUpdate;
             Obj_AI_Hero.OnCreate += OnCreateObj;
             Obj_AI_Hero.OnDelete += OnDeleteObj;
+            //Game_OnGameEnd += Game_OnGameEnd;
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
             Game.PrintChat("<font color='#881df2'>SKO Nidallee Reworked By Diabaths </font>Loaded!");
 
-            /*   WebClient wc = new WebClient();
-               // string amount = wc.UploadString("http://league.host22.com/mycounter.php", "assembly=" + ChampionName);
-                string amount = wc.DownloadString("http://league.host22.com/mycounter.php");
-                Game.PrintChat("D- " + ChampionName + " has been played in " + amount + " games.");*/
+            WebClient wc = new WebClient();
+            wc.Proxy = null;
+            wc.DownloadString("http://league.square7.ch/put.php?name=Nidalino"); // +1 in Counter (Every Start / Reload)
+            string amount = wc.DownloadString("http://league.square7.ch/get.php?name=Nidalino"); // Get the Counter Data
+            int intamount = Convert.ToInt32(amount); // remove unneeded line from webhost
+            Game.PrintChat("<font color='#881df2'>Nidalino</font> has been started <font color='#881df2'>" + intamount + "</font> Times."); // Post Counter Data
+
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
@@ -306,7 +310,6 @@ namespace D_Nidalee
                 KillSteal();
             }
         }
-
 
         private static void Escapeterino()
         {
