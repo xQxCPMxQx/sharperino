@@ -158,6 +158,7 @@ namespace D_Corki
                 GenModelPacket(_player.ChampionName, _config.Item("skinCorki").GetValue<Slider>().Value);
                 _lastSkin = _config.Item("skinCorki").GetValue<Slider>().Value;
             }
+            //credits to eXit_ / ikkeflikkeri
             WebClient wc = new WebClient();
             wc.Proxy=null;
 
