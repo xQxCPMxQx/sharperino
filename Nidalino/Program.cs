@@ -184,10 +184,15 @@ namespace D_Nidalee
                         new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             Config.SubMenu("Harass")
                 .AddItem(
+                    new MenuItem("harasstoggle", "AutoHarass (toggle)").SetValue(new KeyBind("G".ToCharArray()[0],
+                        KeyBindType.Toggle)));
+            Config.SubMenu("Harass")
+               .AddItem(new MenuItem("Harrasmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+            Config.SubMenu("Harass")
+                .AddItem(
                     new MenuItem("ActiveHarass", "Harass key").SetValue(new KeyBind("X".ToCharArray()[0],
                         KeyBindType.Press)));
-            Config.SubMenu("Harass")
-                .AddItem(new MenuItem("Harrasmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+           
 
             Config.AddSubMenu(new Menu("Farm", "Farm"));
             Config.SubMenu("Farm").AddSubMenu(new Menu("LastHit", "LastHit"));
@@ -296,8 +301,8 @@ namespace D_Nidalee
             {
                 Combo();
             }
-            if (Config.Item("ActiveHarass").GetValue<KeyBind>().Active && Config.Item("UseQHarass").GetValue<bool>() &&
-                Q.IsReady() && (100*(Player.Mana/Player.MaxMana)) > Config.Item("Harrasmana").GetValue<Slider>().Value)
+            if ((Config.Item("ActiveHarass").GetValue<KeyBind>().Active || Config.Item("harasstoggle").GetValue<KeyBind>().Active)   &&
+                (100*(Player.Mana/Player.MaxMana)) > Config.Item("Harrasmana").GetValue<Slider>().Value)
             {
                 Harass();
             }
