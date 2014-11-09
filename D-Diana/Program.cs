@@ -365,7 +365,7 @@ namespace D_Diana
                 SelectedTarget.IsEnemy)
                 {
 
-                    Game.PrintChat("focusing selected target");
+                   // Game.PrintChat("focusing selected target");
                     LXOrbwalker.ForcedTarget = SelectedTarget;
                     return SelectedTarget;
                 }
@@ -403,7 +403,7 @@ namespace D_Diana
             if (getTar != null)
             {
                 LXOrbwalker.ForcedTarget = getTar;
-                Game.PrintChat("Focus Mode on: " + getTar.BaseSkinName);
+               // Game.PrintChat("Focus Mode on: " + getTar.BaseSkinName);
                 return getTar;
             }
             return null;
