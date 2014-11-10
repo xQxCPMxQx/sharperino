@@ -40,7 +40,7 @@ namespace D_Graves
             _e = new Spell(SpellSlot.E, 425f);
             _r = new Spell(SpellSlot.R, 1200f);
 
-            _q.SetSkillshot(0.26f, 5f * 2 * (float)Math.PI / 180, 1950, false, SkillshotType.SkillshotCone);
+            _q.SetSkillshot(0.26f, 5f*2*(float) Math.PI/180, 1950, false, SkillshotType.SkillshotCone);
             _w.SetSkillshot(0.30f, 250f, 1650f, false, SkillshotType.SkillshotCircle);
             _r.SetSkillshot(0.22f, 150f, 2100, true, SkillshotType.SkillshotLine);
 
@@ -123,44 +123,44 @@ namespace D_Graves
                 .SubMenu("Combo")
                 .AddItem(
                     new MenuItem("Qchange", "Q Hit").SetValue(
-                        new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                        new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance")
                 .SubMenu("Combo")
                 .AddItem(
                     new MenuItem("Wchange", "W Hit").SetValue(
-                        new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                        new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance")
                 .SubMenu("Combo")
                 .AddItem(
                     new MenuItem("Rchange", "R Hit").SetValue(
-                        new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                        new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance").AddSubMenu(new Menu("Harass", "Harass"));
             _config.SubMenu("HitChance")
                 .SubMenu("Harass")
                 .AddItem(
                     new MenuItem("Qchangeharass", "Q Hit").SetValue(
-                        new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                        new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance")
                 .SubMenu("Harass")
                 .AddItem(
                     new MenuItem("Wchangeharass", "W Hit").SetValue(
-                        new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                        new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance").AddSubMenu(new Menu("KillSteal", "KillSteal"));
             _config.SubMenu("HitChance")
                 .SubMenu("KillSteal")
                 .AddItem(
                     new MenuItem("Qchangekill", "Q Hit").SetValue(
-                        new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                        new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance")
                 .SubMenu("KillSteal")
                 .AddItem(
                     new MenuItem("Wchangekill", "W Hit").SetValue(
-                        new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                        new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance")
                 .SubMenu("KillSteal")
                 .AddItem(
                     new MenuItem("Rchangekill", "R Hit").SetValue(
-                        new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                        new StringList(new[] {"Low", "Medium", "High", "Very High"})));
 
             //Drawings
             _config.AddSubMenu(new Menu("Drawings", "Drawings"));
@@ -179,6 +179,7 @@ namespace D_Graves
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
+            Orbwalking.AfterAttack += Orbwalking_AfterAttack;
             if (_config.Item("skinG").GetValue<bool>())
             {
                 GenModelPacket(_player.ChampionName, _config.Item("skinGraves").GetValue<Slider>().Value);
@@ -188,11 +189,13 @@ namespace D_Graves
             WebClient wc = new WebClient();
             wc.Proxy = null;
 
-            wc.DownloadString("http://league.square7.ch/put.php?name=D-" + ChampionName);                                                                               // +1 in Counter (Every Start / Reload) 
-            string amount = wc.DownloadString("http://league.square7.ch/get.php?name=D-" + ChampionName);                                                               // Get the Counter Data
-            int intamount = Convert.ToInt32(amount);                                                                                                                    // remove unneeded line from webhost
-            Game.PrintChat("<font color='#881df2'>D-" + ChampionName + "</font> has been started <font color='#881df2'>" + intamount + "</font> Times.");               // Post Counter Data
-     
+            wc.DownloadString("http://league.square7.ch/put.php?name=D-" + ChampionName);
+            // +1 in Counter (Every Start / Reload) 
+            string amount = wc.DownloadString("http://league.square7.ch/get.php?name=D-" + ChampionName);
+            // Get the Counter Data
+            int intamount = Convert.ToInt32(amount); // remove unneeded line from webhost
+            Game.PrintChat("<font color='#881df2'>D-" + ChampionName + "</font> has been started <font color='#881df2'>" +
+                           intamount + "</font> Times.");// Post Counter Data
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
@@ -319,6 +322,28 @@ namespace D_Graves
                     _config.Item("MinTargets").GetValue<Slider>().Value
                     && _r.GetPrediction(t).Hitchance >= Rchange())
                     _r.Cast(t, Packets(), true);
+            }
+        }
+        
+        private static void Orbwalking_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        {
+            var useQ = _config.Item("UseQC").GetValue<bool>();
+            var useW = _config.Item("UseWC").GetValue<bool>();
+            var combo = _config.Item("ActiveCombo").GetValue<KeyBind>().Active;
+            if (combo && unit.IsMe && (target is Obj_AI_Hero))
+            {
+                if (useQ && _q.IsReady())
+                {
+                    var t = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
+                    if (t != null && _player.Distance(t) < _q.Range - 30 && _q.GetPrediction(t).Hitchance >= Qchange())
+                        _q.Cast(t, Packets(), true);
+                }
+                if (useW && _w.IsReady())
+                {
+                    var t = SimpleTs.GetTarget(_w.Range, SimpleTs.DamageType.Magical);
+                    if (t != null && _player.Distance(t) < _w.Range && _w.GetPrediction(t).Hitchance >= Wchange())
+                        _w.Cast(t, Packets(), true);
+                }
             }
         }
 

@@ -153,6 +153,7 @@ namespace D_Corki
             Game.PrintChat("<font color='#881df2'>D-Corki by Diabaths</font> Loaded.");
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
+            Orbwalking.AfterAttack += Orbwalking_AfterAttack;
             if (_config.Item("skinC").GetValue<bool>())
             {
                 GenModelPacket(_player.ChampionName, _config.Item("skinCorki").GetValue<Slider>().Value);
@@ -277,6 +278,33 @@ namespace D_Corki
             {
                 var t = SimpleTs.GetTarget(_r.Range, SimpleTs.DamageType.Magical);
                 if (t != null && _player.Distance(t) < _r.Range && _r.GetPrediction(t).Hitchance >= Rchangehar())
+                    _r.Cast(t, Packets(), true);
+            }
+        }
+
+        public static void Orbwalking_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        {
+            if ((!_config.Item("ActiveCombo").GetValue<KeyBind>().Active) || !unit.IsMe || (!(target is Obj_AI_Hero)))
+                return;
+            var useQ = _config.Item("UseQC").GetValue<bool>();
+            var useE = _config.Item("UseEC").GetValue<bool>();
+            var useR = _config.Item("UseRC").GetValue<bool>();
+            if (useQ && _q.IsReady())
+            {
+                var t = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
+                if (t != null && _player.Distance(t) < _q.Range && _q.GetPrediction(t).Hitchance >= Qchangecombo())
+                    _q.Cast(t, Packets(), true);
+            }
+            if (useE && _e.IsReady())
+            {
+                var t = SimpleTs.GetTarget(_e.Range, SimpleTs.DamageType.Magical);
+                if (t != null && _player.Distance(t) < _e.Range && _e.GetPrediction(t).Hitchance >= Echangecombo())
+                    _e.Cast(t, Packets(), true);
+            }
+            if (useR && _r.IsReady())
+            {
+                var t = SimpleTs.GetTarget(_r.Range, SimpleTs.DamageType.Magical);
+                if (t != null && _player.Distance(t) < _r.Range && _r.GetPrediction(t).Hitchance >= Rchangecombo())
                     _r.Cast(t, Packets(), true);
             }
         }

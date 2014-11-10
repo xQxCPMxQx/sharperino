@@ -128,6 +128,7 @@ namespace D_MissF
             Game.OnGameSendPacket += GameOnOnGameSendPacket;
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
+            Orbwalking.AfterAttack += Orbwalking_AfterAttack;
             if (_config.Item("skinMF").GetValue<bool>())
             {
                 GenModelPacket(_player.ChampionName, _config.Item("skinMiss").GetValue<Slider>().Value);
@@ -269,7 +270,24 @@ namespace D_MissF
                 _timeTick = Environment.TickCount;
             }
         }
+        private static void Orbwalking_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        {
+            var useQ = _config.Item("UseQC").GetValue<bool>();
+            var useW = _config.Item("UseWC").GetValue<bool>();
+            var combo = _config.Item("ActiveCombo").GetValue<KeyBind>().Active;
+            if (combo && unit.IsMe && (target is Obj_AI_Hero))
+            {
+                if (useQ && _q.IsReady())
+                    CastQEnemy();
 
+                if (useW && _w.IsReady())
+                {
+                    var t = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
+                    if (t != null)
+                        _w.Cast();
+                }
+            }
+        }
         private static void Harass()
         {
             var eTarget = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Physical);
