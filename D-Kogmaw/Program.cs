@@ -41,11 +41,12 @@ namespace D_Kogmaw
             Skins.Add("Deep Sea Kog'Maw");
             Skins.Add("Jurassic Kog'Maw");
         }
-        static void Game_OnGameLoad(EventArgs args)
+
+        private static void Game_OnGameLoad(EventArgs args)
         {
             _player = ObjectManager.Player;
             if (ObjectManager.Player.BaseSkinName != ChampionName) return;
-            
+
             _q = new Spell(SpellSlot.Q, 1200f);
             _w = new Spell(SpellSlot.W, float.MaxValue);
             _e = new Spell(SpellSlot.E, 1360f);
@@ -72,8 +73,10 @@ namespace D_Kogmaw
             if (Skins.Count > 0)
             {
                 _config.AddSubMenu(new Menu("Skin Changer", "Skin Changer"));
-                _config.SubMenu("Skin Changer").AddItem(new MenuItem("Skin_enabled", "Enable skin changer").SetValue(false));
-                _config.SubMenu("Skin Changer").AddItem(new MenuItem("Skin_select", "Skins").SetValue(new StringList(Skins.ToArray())));
+                _config.SubMenu("Skin Changer")
+                    .AddItem(new MenuItem("Skin_enabled", "Enable skin changer").SetValue(false));
+                _config.SubMenu("Skin Changer")
+                    .AddItem(new MenuItem("Skin_select", "Skins").SetValue(new StringList(Skins.ToArray())));
                 _champSkin = _config.Item("Skin_select").GetValue<StringList>().SelectedIndex;
             }
 
@@ -84,7 +87,8 @@ namespace D_Kogmaw
             _config.SubMenu("Combo").AddItem(new MenuItem("UseEC", "Use E")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseRC", "Use R")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("RlimC", "R Limit").SetValue(new Slider(3, 1, 5)));
-            _config.SubMenu("Combo").AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
+            _config.SubMenu("Combo")
+                .AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
 
             //Harass
             _config.AddSubMenu(new Menu("Harass", "Harass"));
@@ -93,32 +97,59 @@ namespace D_Kogmaw
             _config.SubMenu("Harass").AddItem(new MenuItem("UseEH", "Use E")).SetValue(true);
             _config.SubMenu("Harass").AddItem(new MenuItem("UseRH", "Use R")).SetValue(true);
             _config.SubMenu("Harass").AddItem(new MenuItem("RlimH", "R Limit").SetValue(new Slider(1, 1, 5)));
-            _config.SubMenu("Harass").AddItem(new MenuItem("harasstoggle", "AutoHarass (toggle)").SetValue(new KeyBind("G".ToCharArray()[0], KeyBindType.Toggle)));
-            _config.SubMenu("Harass").AddItem(new MenuItem("Harrasmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
-            _config.SubMenu("Harass").AddItem(new MenuItem("ActiveHarass", "Harass!").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
+            _config.SubMenu("Harass")
+                .AddItem(
+                    new MenuItem("harasstoggle", "AutoHarass (toggle)").SetValue(new KeyBind("G".ToCharArray()[0],
+                        KeyBindType.Toggle)));
+            _config.SubMenu("Harass")
+                .AddItem(new MenuItem("Harrasmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+            _config.SubMenu("Harass")
+                .AddItem(
+                    new MenuItem("ActiveHarass", "Harass!").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
 
             //Farm
             _config.AddSubMenu(new Menu("Farm", "Farm"));
             _config.SubMenu("Farm").AddSubMenu(new Menu("Lasthit", "Lasthit"));
             _config.SubMenu("Farm").SubMenu("Lasthit").AddItem(new MenuItem("UseQLH", "Q LastHit")).SetValue(true);
             _config.SubMenu("Farm").SubMenu("Lasthit").AddItem(new MenuItem("UseELH", "E LastHit")).SetValue(true);
-            _config.SubMenu("Farm").SubMenu("Lasthit").AddItem(new MenuItem("Lastmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
-            _config.SubMenu("Farm").SubMenu("Lasthit").AddItem(new MenuItem("ActiveLast", "LastHit").SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
+            _config.SubMenu("Farm")
+                .SubMenu("Lasthit")
+                .AddItem(new MenuItem("Lastmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+            _config.SubMenu("Farm")
+                .SubMenu("Lasthit")
+                .AddItem(
+                    new MenuItem("ActiveLast", "LastHit").SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
             _config.SubMenu("Farm").AddSubMenu(new Menu("Laneclear", "Laneclear"));
             _config.SubMenu("Farm").SubMenu("Laneclear").AddItem(new MenuItem("UseQL", "Q LaneClear")).SetValue(true);
             _config.SubMenu("Farm").SubMenu("Laneclear").AddItem(new MenuItem("UseEL", "E LaneClear")).SetValue(true);
             _config.SubMenu("Farm").SubMenu("Laneclear").AddItem(new MenuItem("UseRL", "R LaneClear")).SetValue(true);
-            _config.SubMenu("Farm").SubMenu("Laneclear").AddItem(new MenuItem("RlimL", "R Max Stuck").SetValue(new Slider(1, 1, 5)));
-            _config.SubMenu("Farm").SubMenu("Laneclear").AddItem(new MenuItem("Lanemana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
-            _config.SubMenu("Farm").SubMenu("Laneclear").AddItem(new MenuItem("ActiveLane", "Lane Clear").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
+            _config.SubMenu("Farm")
+                .SubMenu("Laneclear")
+                .AddItem(new MenuItem("RlimL", "R Max Stuck").SetValue(new Slider(1, 1, 5)));
+            _config.SubMenu("Farm")
+                .SubMenu("Laneclear")
+                .AddItem(new MenuItem("Lanemana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+            _config.SubMenu("Farm")
+                .SubMenu("Laneclear")
+                .AddItem(
+                    new MenuItem("ActiveLane", "Lane Clear").SetValue(new KeyBind("V".ToCharArray()[0],
+                        KeyBindType.Press)));
             _config.SubMenu("Farm").AddSubMenu(new Menu("Jungleclear", "Jungleclear"));
             _config.SubMenu("Farm").SubMenu("Jungleclear").AddItem(new MenuItem("UseQJ", "Q Jungle")).SetValue(true);
             _config.SubMenu("Farm").SubMenu("Jungleclear").AddItem(new MenuItem("UseEJ", "E Jungle")).SetValue(true);
             _config.SubMenu("Farm").SubMenu("Jungleclear").AddItem(new MenuItem("UseRJ", "R Jungle")).SetValue(true);
-            _config.SubMenu("Farm").SubMenu("Jungleclear").AddItem(new MenuItem("RlimJ", "R Max Stuck").SetValue(new Slider(1, 1, 5)));
-            _config.SubMenu("Farm").SubMenu("Jungleclear").AddItem(new MenuItem("junglemana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
-            _config.SubMenu("Farm").SubMenu("Jungleclear").AddItem(new MenuItem("Activejungle", "Jungle Clear").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
-             
+            _config.SubMenu("Farm")
+                .SubMenu("Jungleclear")
+                .AddItem(new MenuItem("RlimJ", "R Max Stuck").SetValue(new Slider(1, 1, 5)));
+            _config.SubMenu("Farm")
+                .SubMenu("Jungleclear")
+                .AddItem(new MenuItem("junglemana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+            _config.SubMenu("Farm")
+                .SubMenu("Jungleclear")
+                .AddItem(
+                    new MenuItem("Activejungle", "Jungle Clear").SetValue(new KeyBind("V".ToCharArray()[0],
+                        KeyBindType.Press)));
+
             //Misc
             _config.AddSubMenu(new Menu("Misc", "Misc"));
             _config.SubMenu("Misc").AddItem(new MenuItem("UseRM", "Use R KillSteal")).SetValue(true);
@@ -132,8 +163,10 @@ namespace D_Kogmaw
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawE", "Draw E")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawR", "Draw R")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("CircleLag", "Lag Free Circles").SetValue(true));
-            _config.SubMenu("Drawings").AddItem(new MenuItem("CircleQuality", "Circles Quality").SetValue(new Slider(100, 100, 10)));
-            _config.SubMenu("Drawings").AddItem(new MenuItem("CircleThickness", "Circles Thickness").SetValue(new Slider(1, 10, 1)));
+            _config.SubMenu("Drawings")
+                .AddItem(new MenuItem("CircleQuality", "Circles Quality").SetValue(new Slider(100, 100, 10)));
+            _config.SubMenu("Drawings")
+                .AddItem(new MenuItem("CircleThickness", "Circles Thickness").SetValue(new Slider(1, 10, 1)));
 
             _config.AddToMainMenu();
             Game.PrintChat("<font color='#881df2'>D-Kogmaw by Diabaths</font> Loaded.");
@@ -146,12 +179,13 @@ namespace D_Kogmaw
             WebClient wc = new WebClient();
             wc.Proxy = null;
 
-            wc.DownloadString("http://league.square7.ch/put.php?name=D-" + ChampionName);                                                                               // +1 in Counter (Every Start / Reload) 
-            string amount = wc.DownloadString("http://league.square7.ch/get.php?name=D-" + ChampionName);                                                               // Get the Counter Data
-            int intamount = Convert.ToInt32(amount);                                                                                                                    // remove unneeded line from webhost
-            Game.PrintChat("<font color='#881df2'>D-" + ChampionName + "</font> has been started <font color='#881df2'>" + intamount + "</font> Times.");               // Post Counter Data
-       
-
+            wc.DownloadString("http://league.square7.ch/put.php?name=D-" + ChampionName);
+                // +1 in Counter (Every Start / Reload) 
+            string amount = wc.DownloadString("http://league.square7.ch/get.php?name=D-" + ChampionName);
+                // Get the Counter Data
+            int intamount = Convert.ToInt32(amount); // remove unneeded line from webhost
+            Game.PrintChat("<font color='#881df2'>D-" + ChampionName + "</font> has been started <font color='#881df2'>" +
+                           intamount + "</font> Times."); // Post Counter Data
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
@@ -256,6 +290,7 @@ namespace D_Kogmaw
                   _r.Cast(predictionr.CastPosition, Packets());
             }
         }
+
         private static void Orbwalking_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
         {
             var useQ = _config.Item("UseQC").GetValue<bool>();
@@ -263,30 +298,29 @@ namespace D_Kogmaw
             var useE = _config.Item("UseEC").GetValue<bool>();
             var useR = _config.Item("UseRC").GetValue<bool>();
             var combo = _config.Item("ActiveCombo").GetValue<KeyBind>().Active;
-             var rLim = _config.Item("RlimC").GetValue<Slider>().Value;
-           if (combo && unit.IsMe && (target is Obj_AI_Hero))
+            var rLim = _config.Item("RlimC").GetValue<Slider>().Value;
+            if (combo && unit.IsMe && (target is Obj_AI_Hero))
             {
                 if (useW && _w.IsReady())
+                {
                     _w.CastOnUnit(ObjectManager.Player);
+                }
                 if (useQ && _q.IsReady())
                 {
-                    var t = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
-                    var prediction = _q.GetPrediction(t);
-                    if (t != null && _player.Distance(t) < _q.Range && prediction.Hitchance >= HitChance.Medium)
+                    var prediction = _q.GetPrediction(target);
+                    if (_player.Distance(target) < _q.Range && prediction.Hitchance >= HitChance.Medium)
                         _q.Cast(prediction.CastPosition, Packets());
                 }
                 if (useE && _e.IsReady())
                 {
-                    var t = SimpleTs.GetTarget(_e.Range, SimpleTs.DamageType.Magical);
-                    var predictione = _e.GetPrediction(t);
-                    if (t != null && _player.Distance(t) < _e.Range && predictione.Hitchance >= HitChance.Medium)
+                    var predictione = _e.GetPrediction(target);
+                    if (_player.Distance(target) < _e.Range && predictione.Hitchance >= HitChance.Medium)
                         _e.Cast(predictione.CastPosition, Packets());
                 }
                 if (useR && _r.IsReady() && GetBuffStacks() < rLim)
                 {
-                    var t = SimpleTs.GetTarget(_r.Range, SimpleTs.DamageType.Magical);
-                    var predictionr = _r.GetPrediction(t);
-                    if (t != null && _player.Distance(t) < _r.Range && predictionr.Hitchance >= HitChance.Medium)
+                    var predictionr = _r.GetPrediction(target);
+                    if (_player.Distance(target) < _r.Range && predictionr.Hitchance >= HitChance.Medium)
                         _r.Cast(predictionr.CastPosition, Packets());
                 }
             }
