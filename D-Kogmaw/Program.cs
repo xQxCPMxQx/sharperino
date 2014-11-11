@@ -156,6 +156,25 @@ namespace D_Kogmaw
             _config.SubMenu("Misc").AddItem(new MenuItem("usePackets", "Usepackes")).SetValue(true);
             _config.SubMenu("Misc").AddItem(new MenuItem("Gap_E", "GapClosers E")).SetValue(true);
 
+            //HitChance
+            _config.AddSubMenu(new Menu("HitChance", "HitChance"));
+
+            _config.SubMenu("HitChance").AddSubMenu(new Menu("Harass", "Harass"));
+            _config.SubMenu("HitChance").SubMenu("Harass").AddItem(new MenuItem("QchangeHar", "Q Hit").SetValue(
+                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+            _config.SubMenu("HitChance").SubMenu("Harass").AddItem(new MenuItem("EchangeHar", "E Hit").SetValue(
+                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+            _config.SubMenu("HitChance").SubMenu("Harass").AddItem(new MenuItem("RchangeHar", "R Hit").SetValue(
+                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+            _config.SubMenu("HitChance").AddSubMenu(new Menu("Combo", "Combo"));
+            _config.SubMenu("HitChance").SubMenu("Combo").AddItem(new MenuItem("Qchange", "Q Hit").SetValue(
+                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+            _config.SubMenu("HitChance").SubMenu("Combo").AddItem(new MenuItem("Echange", "E Hit").SetValue(
+                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+            _config.SubMenu("HitChance").SubMenu("Combo").AddItem(new MenuItem("Rchange", "R Hit").SetValue(
+                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+           
+
             //Drawings
             _config.AddSubMenu(new Menu("Drawings", "Drawings"));
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawQ", "Draw Q")).SetValue(true);
@@ -272,21 +291,21 @@ namespace D_Kogmaw
             {
                 var t = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
                 var prediction = _q.GetPrediction(t);
-                if (t != null && _player.Distance(t) < _q.Range && prediction.Hitchance >= HitChance.Medium)
+                if (t != null && _player.Distance(t) < _q.Range && prediction.Hitchance >= Qchangecombo())
                    _q.Cast(prediction.CastPosition, Packets());
             }
             if (useE && _e.IsReady())
             {
                 var t = SimpleTs.GetTarget(_e.Range, SimpleTs.DamageType.Magical);
                 var predictione = _e.GetPrediction(t);
-                if (t != null && _player.Distance(t) < _e.Range && predictione.Hitchance >= HitChance.Medium)
+                if (t != null && _player.Distance(t) < _e.Range && predictione.Hitchance >= Echangecombo())
                     _e.Cast(predictione.CastPosition, Packets());
             }
             if (useR && _r.IsReady() && GetBuffStacks() < rLim)
             {
                 var t = SimpleTs.GetTarget(_r.Range, SimpleTs.DamageType.Magical);
                 var predictionr = _r.GetPrediction(t);
-                if (t != null && _player.Distance(t) < _r.Range && predictionr.Hitchance >= HitChance.Medium)
+                if (t != null && _player.Distance(t) < _r.Range && predictionr.Hitchance >= Rchangecombo())
                   _r.Cast(predictionr.CastPosition, Packets());
             }
         }
@@ -344,21 +363,21 @@ namespace D_Kogmaw
             if (useQ && _q.IsReady())
             {
                 var t = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
-                if (t != null && _player.Distance(t) < _q.Range && _q.GetPrediction(t).Hitchance >= HitChance.High)
+                if (t != null && _player.Distance(t) < _q.Range && _q.GetPrediction(t).Hitchance >= Qchangehar())
                     _q.Cast(t, Packets());
             }
 
             if (useE && _e.IsReady())
             {
                 var t = SimpleTs.GetTarget(_e.Range, SimpleTs.DamageType.Magical);
-                if (t != null && _player.Distance(t) < _e.Range && _e.GetPrediction(t).Hitchance >= HitChance.High)
+                if (t != null && _player.Distance(t) < _e.Range && _e.GetPrediction(t).Hitchance >= Echangehar())
                     _e.Cast(t, Packets(), true);
             }
 
             if (useR && _r.IsReady() && GetBuffStacks() < rLimH)
             {
                 var t = SimpleTs.GetTarget(_r.Range, SimpleTs.DamageType.Magical);
-                if (t != null && _player.Distance(t) < _r.Range && _r.GetPrediction(t).Hitchance >= HitChance.High)
+                if (t != null && _player.Distance(t) < _r.Range && _r.GetPrediction(t).Hitchance >= Rchangehar())
                     _r.Cast(t, Packets(), true);
             }
         }
@@ -479,7 +498,106 @@ MinionTypes.All);
             }
         }
 
-    
+        private static HitChance Qchangecombo()
+        {
+            switch (_config.Item("Qchange").GetValue<StringList>().SelectedIndex)
+            {
+                case 0:
+                    return HitChance.Low;
+                case 1:
+                    return HitChance.Medium;
+                case 2:
+                    return HitChance.High;
+                case 3:
+                    return HitChance.VeryHigh;
+                default:
+                    return HitChance.High;
+            }
+        }
+
+        private static HitChance Echangecombo()
+        {
+            switch (_config.Item("Echange").GetValue<StringList>().SelectedIndex)
+            {
+                case 0:
+                    return HitChance.Low;
+                case 1:
+                    return HitChance.Medium;
+                case 2:
+                    return HitChance.High;
+                case 3:
+                    return HitChance.VeryHigh;
+                default:
+                    return HitChance.High;
+            }
+        }
+
+        private static HitChance Rchangecombo()
+        {
+            switch (_config.Item("Rchange").GetValue<StringList>().SelectedIndex)
+            {
+                case 0:
+                    return HitChance.Low;
+                case 1:
+                    return HitChance.Medium;
+                case 2:
+                    return HitChance.High;
+                case 3:
+                    return HitChance.VeryHigh;
+                default:
+                    return HitChance.High;
+            }
+        }
+        private static HitChance Qchangehar()
+        {
+            switch (_config.Item("QchangeHar").GetValue<StringList>().SelectedIndex)
+            {
+                case 0:
+                    return HitChance.Low;
+                case 1:
+                    return HitChance.Medium;
+                case 2:
+                    return HitChance.High;
+                case 3:
+                    return HitChance.VeryHigh;
+                default:
+                    return HitChance.High;
+            }
+        }
+
+        private static HitChance Echangehar()
+        {
+            switch (_config.Item("EchangeHar").GetValue<StringList>().SelectedIndex)
+            {
+                case 0:
+                    return HitChance.Low;
+                case 1:
+                    return HitChance.Medium;
+                case 2:
+                    return HitChance.High;
+                case 3:
+                    return HitChance.VeryHigh;
+                default:
+                    return HitChance.High;
+            }
+        }
+
+        private static HitChance Rchangehar()
+        {
+            switch (_config.Item("RchangeHar").GetValue<StringList>().SelectedIndex)
+            {
+                case 0:
+                    return HitChance.Low;
+                case 1:
+                    return HitChance.Medium;
+                case 2:
+                    return HitChance.High;
+                case 3:
+                    return HitChance.VeryHigh;
+                default:
+                    return HitChance.High;
+            }
+        }
         private static bool Packets()
         {
             return _config.Item("usePackets").GetValue<bool>();

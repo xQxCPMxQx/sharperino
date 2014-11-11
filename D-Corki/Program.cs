@@ -112,7 +112,7 @@ namespace D_Corki
             _config.SubMenu("Misc").AddItem(new MenuItem("skinCorki", "Skin Changer").SetValue(new Slider(4, 1, 7)));
             _config.SubMenu("Misc").AddItem(new MenuItem("usePackets", "Usepackes")).SetValue(true);
 
-            //Misc
+            //HitChance
             _config.AddSubMenu(new Menu("HitChance", "HitChance"));
 
             _config.SubMenu("HitChance").AddSubMenu(new Menu("Harass", "Harass"));
