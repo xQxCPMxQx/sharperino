@@ -24,6 +24,10 @@ namespace D_Kogmaw
 
         private static bool _initialSkin = true;
 
+        private static SpellSlot _igniteSlot;
+
+        private static Items.Item _youmuu, _zhonya, _dfg, _blade, _bilge;
+
         private static readonly List<string> Skins = new List<string>();
 
         static void Main(string[] args)
@@ -56,6 +60,11 @@ namespace D_Kogmaw
             _e.SetSkillshot(0.25f, 120f, 1400f, false, SkillshotType.SkillshotLine);
             _r.SetSkillshot(1.2f, 120f, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
+            _dfg = new Items.Item(3128, 750f);
+            _zhonya = new Items.Item(3157, 10);
+            _youmuu = new Items.Item(3142, 10);
+            _igniteSlot = _player.GetSpellSlot("SummonerDot");
+
             CreateSkins();
 
             //D Kogmaw
@@ -86,9 +95,37 @@ namespace D_Kogmaw
             _config.SubMenu("Combo").AddItem(new MenuItem("UseWC", "Use W")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseEC", "Use E")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseRC", "Use R")).SetValue(true);
+            _config.SubMenu("Combo").AddItem(new MenuItem("UseIgnitecombo", "Use Ignite(rush for it)")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("RlimC", "R Limit").SetValue(new Slider(3, 1, 5)));
             _config.SubMenu("Combo")
                 .AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
+           
+            _config.AddSubMenu(new Menu("items", "items"));
+            _config.SubMenu("items").AddSubMenu(new Menu("Offensive", "Offensive"));
+            _config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Youmuu", "Use Youmuu's")).SetValue(true);
+            _config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Bilge", "Use Bilge")).SetValue(true);
+            _config.SubMenu("items")
+                .SubMenu("Offensive")
+                .AddItem(new MenuItem("BilgeEnemyhp", "If Enemy Hp <").SetValue(new Slider(85, 1, 100)));
+            _config.SubMenu("items")
+                .SubMenu("Offensive")
+                .AddItem(new MenuItem("Bilgemyhp", "Or your Hp < ").SetValue(new Slider(85, 1, 100)));
+            _config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Blade", "Use Blade")).SetValue(true);
+            _config.SubMenu("items")
+                .SubMenu("Offensive")
+                .AddItem(new MenuItem("BladeEnemyhp", "If Enemy Hp <").SetValue(new Slider(85, 1, 100)));
+            _config.SubMenu("items")
+                .SubMenu("Offensive")
+                .AddItem(new MenuItem("Blademyhp", "Or Your  Hp <").SetValue(new Slider(85, 1, 100)));
+            _config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("usedfg", "Use DFG")).SetValue(true);
+            _config.SubMenu("items").AddSubMenu(new Menu("Deffensive", "Deffensive"));
+            _config.SubMenu("items")
+                .SubMenu("Deffensive")
+                .AddItem(new MenuItem("Zhonyas", "Use Zhonya's"))
+                .SetValue(true);
+            _config.SubMenu("items")
+                .SubMenu("Deffensive")
+                .AddItem(new MenuItem("Zhonyashp", "Use Zhonya's if HP%<").SetValue(new Slider(20, 1, 100)));
 
             //Harass
             _config.AddSubMenu(new Menu("Harass", "Harass"));
@@ -153,6 +190,7 @@ namespace D_Kogmaw
             //Misc
             _config.AddSubMenu(new Menu("Misc", "Misc"));
             _config.SubMenu("Misc").AddItem(new MenuItem("UseRM", "Use R KillSteal")).SetValue(true);
+            _config.SubMenu("Misc").AddItem(new MenuItem("useigniteks", "Use Ignite KillSteal")).SetValue(true);
             _config.SubMenu("Misc").AddItem(new MenuItem("usePackets", "Usepackes")).SetValue(true);
             _config.SubMenu("Misc").AddItem(new MenuItem("Gap_E", "GapClosers E")).SetValue(true);
 
@@ -256,6 +294,33 @@ namespace D_Kogmaw
             }
         }
 
+        private static float ComboDamage(Obj_AI_Hero hero)
+        {
+            var dmg = 0d;
+
+            if (_q.IsReady())
+                dmg += _player.GetSpellDamage(hero, SpellSlot.Q);
+            if (_w.IsReady())
+                dmg += _player.GetSpellDamage(hero, SpellSlot.W);
+            if (_e.IsReady())
+                dmg += _player.GetSpellDamage(hero, SpellSlot.E);
+            if (_r.IsReady())
+                dmg += _player.GetSpellDamage(hero, SpellSlot.R);
+            if (Items.HasItem(3153) && Items.CanUseItem(3153))
+                dmg += _player.GetItemDamage(hero, Damage.DamageItems.Botrk);
+            if (Items.HasItem(3128))
+            {
+                dmg += _player.GetItemDamage(hero, Damage.DamageItems.Dfg);
+                dmg = dmg*1.2;
+            }
+            if (ObjectManager.Player.GetSpellSlot("SummonerIgnite") != SpellSlot.Unknown)
+            {
+                dmg += _player.GetSummonerSpellDamage(hero, Damage.SummonerSpell.Ignite);
+            }
+            dmg += _player.GetAutoAttackDamage(hero, true)*3;
+            return (float) dmg;
+        }
+
         //By Trelli
         private static void GenerateSkinPacket(string currentChampion, int skinNumber)
         {
@@ -278,7 +343,21 @@ namespace D_Kogmaw
             var useW = _config.Item("UseWC").GetValue<bool>();
             var useE = _config.Item("UseEC").GetValue<bool>();
             var useR = _config.Item("UseRC").GetValue<bool>();
+            var ignitecombo = _config.Item("UseIgnitecombo").GetValue<bool>();
             var rLim = _config.Item("RlimC").GetValue<Slider>().Value;
+            if (_player.Distance(eTarget) <= _dfg.Range && _config.Item("Usedfg").GetValue<bool>() &&
+                    _dfg.IsReady() && eTarget.Health <= ComboDamage(eTarget))
+            {
+                _dfg.Cast(eTarget);
+            }
+            if (_igniteSlot != SpellSlot.Unknown && ignitecombo &&
+                _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
+            {
+                if (eTarget.Health <= ComboDamage(eTarget))
+                {
+                    _player.SummonerSpellbook.CastSpell(_igniteSlot, eTarget);
+                }
+            }
             if (useW && _w.IsReady() && eTarget.Distance(_player.Position) < _e.Range)
             {
                 foreach (
@@ -308,8 +387,47 @@ namespace D_Kogmaw
                 if (t != null && _player.Distance(t) < _r.Range && predictionr.Hitchance >= Rchangecombo())
                   _r.Cast(predictionr.CastPosition, Packets());
             }
+            UseItemes(eTarget);
         }
 
+        private static void UseItemes(Obj_AI_Hero target)
+        {
+            var iBilge = _config.Item("Bilge").GetValue<bool>();
+            var iBilgeEnemyhp = target.Health <=
+                                (target.MaxHealth*(_config.Item("BilgeEnemyhp").GetValue<Slider>().Value)/100);
+            var iBilgemyhp = _player.Health <=
+                             (_player.MaxHealth*(_config.Item("Bilgemyhp").GetValue<Slider>().Value)/100);
+            var iBlade = _config.Item("Blade").GetValue<bool>();
+            var iBladeEnemyhp = target.Health <=
+                                (target.MaxHealth*(_config.Item("BladeEnemyhp").GetValue<Slider>().Value)/100);
+            var iBlademyhp = _player.Health <=
+                             (_player.MaxHealth*(_config.Item("Blademyhp").GetValue<Slider>().Value)/100);
+            var iZhonyas = _config.Item("Zhonyas").GetValue<bool>();
+            var iZhonyashp = _player.Health <=
+                             (_player.MaxHealth*(_config.Item("Zhonyashp").GetValue<Slider>().Value)/100);
+            var iYoumuu = _config.Item("Youmuu").GetValue<bool>();
+
+            if (_player.Distance(target) <= 450 && iBilge && (iBilgeEnemyhp || iBilgemyhp) && _bilge.IsReady())
+            {
+                _bilge.Cast(target);
+
+            }
+            if (_player.Distance(target) <= 450 && iBlade && (iBladeEnemyhp || iBlademyhp) && _blade.IsReady())
+            {
+                _blade.Cast(target);
+
+            }
+            if (iZhonyas && iZhonyashp && Utility.CountEnemysInRange(1000) >= 1)
+            {
+                _zhonya.Cast(_player);
+
+            }
+            if (_player.Distance(target) <= 450 && iYoumuu && _youmuu.IsReady())
+            {
+                _youmuu.Cast();
+            }
+        }
+        
         private static void Orbwalking_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
         {
             var useQ = _config.Item("UseQC").GetValue<bool>();
@@ -604,6 +722,16 @@ MinionTypes.All);
         }
         private static void KillSteal()
         {
+            var target = SimpleTs.GetTarget(_e.Range, SimpleTs.DamageType.Magical);
+            var igniteDmg = _player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
+            if (target != null && _config.Item("useigniteks").GetValue<bool>() && _igniteSlot != SpellSlot.Unknown &&
+                _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
+            {
+                if (igniteDmg > target.Health)
+                {
+                    _player.SummonerSpellbook.CastSpell(_igniteSlot, target);
+                }
+            }
             if (_r.IsReady() && _config.Item("UseRM").GetValue<bool>())
                 foreach (
                     var hero in
