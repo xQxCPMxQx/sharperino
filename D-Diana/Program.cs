@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Security.AccessControl;
-
 using LeagueSharp;
 using LeagueSharp.Common;
-using SharpDX;
 using Color = System.Drawing.Color;
 
 namespace D_Diana

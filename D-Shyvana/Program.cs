@@ -5,13 +5,13 @@ using System.Net;
 using LeagueSharp;
 using System.Linq;
 using LeagueSharp.Common;
-using LX_Orbwalker;
 #endregion
 
 namespace D_Shyvana
 {
     class Program
     {
+        private static Orbwalking.Orbwalker _orbwalker;
 
         private const string ChampionName = "Shyvana";
 
@@ -65,10 +65,9 @@ namespace D_Shyvana
             SimpleTs.AddToMenu(targetSelectorMenu);
             _config.AddSubMenu(targetSelectorMenu);
 
-
-            var orbwalkerMenu = new Menu("LX-Orbwalker", "LX-Orbwalker");
-            LXOrbwalker.AddToMenu(orbwalkerMenu);
-            _config.AddSubMenu(orbwalkerMenu);
+            //Orbwalker
+            _config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
+            _orbwalker = new Orbwalking.Orbwalker(_config.SubMenu("Orbwalking"));
 
             //Combo
             _config.AddSubMenu(new Menu("Combo", "Combo"));
@@ -228,7 +227,7 @@ namespace D_Shyvana
             _player = ObjectManager.Player;
 
 
-            LXOrbwalker.SetAttack(true);
+            _orbwalker.SetAttack(true);
 
             KillSteal();
         }
