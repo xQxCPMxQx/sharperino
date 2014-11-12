@@ -63,6 +63,8 @@ namespace D_Kogmaw
             _dfg = new Items.Item(3128, 750f);
             _zhonya = new Items.Item(3157, 10);
             _youmuu = new Items.Item(3142, 10);
+            _bilge = new Items.Item(3144, 475f);
+            _blade = new Items.Item(3153, 475f);
             _igniteSlot = _player.GetSpellSlot("SummonerDot");
 
             CreateSkins();
