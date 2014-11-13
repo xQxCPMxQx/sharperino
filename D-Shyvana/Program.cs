@@ -127,7 +127,10 @@ namespace D_Shyvana
             _config.SubMenu("Farm").SubMenu("LaneClear").AddItem(new MenuItem("ActiveLane", "LaneClear!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
 
             _config.SubMenu("Farm").AddSubMenu(new Menu("JungleClear", "JungleClear"));
-            _config.SubMenu("Farm").SubMenu("LaneClear").AddItem(new MenuItem("UseItemsjungle", "Use Items")).SetValue(true)
+            _config.SubMenu("Farm")
+                .SubMenu("LaneClear")
+                .AddItem(new MenuItem("UseItemsjungle", "Use Items"))
+                .SetValue(true);
             _config.SubMenu("Farm").SubMenu("JungleClear").AddItem(new MenuItem("UseQJ", "Q Jungle")).SetValue(true);
             _config.SubMenu("Farm").SubMenu("JungleClear").AddItem(new MenuItem("UseWJ", "W Jungle")).SetValue(true);
             _config.SubMenu("Farm").SubMenu("JungleClear").AddItem(new MenuItem("UseEJ", "E Jungle")).SetValue(true);
