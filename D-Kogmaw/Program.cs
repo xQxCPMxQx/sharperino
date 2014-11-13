@@ -30,11 +30,12 @@ namespace D_Kogmaw
 
         private static readonly List<string> Skins = new List<string>();
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
         }
-       static void CreateSkins()
+
+        private static void CreateSkins()
         {
             Skins.Add("Kog'Maw");
             Skins.Add("Caterpillar Kog'Maw");
@@ -60,7 +61,10 @@ namespace D_Kogmaw
             _e.SetSkillshot(0.25f, 120f, 1400f, false, SkillshotType.SkillshotLine);
             _r.SetSkillshot(1.2f, 120f, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
-            _dfg = new Items.Item(3128, 750f);
+            _dfg = Utility.Map.GetMap()._MapType == Utility.Map.MapType.TwistedTreeline ||
+                   Utility.Map.GetMap()._MapType == Utility.Map.MapType.CrystalScar
+                ? new Items.Item(3188, 750)
+                : new Items.Item(3128, 750);
             _zhonya = new Items.Item(3157, 10);
             _youmuu = new Items.Item(3142, 10);
             _bilge = new Items.Item(3144, 475f);
@@ -101,7 +105,7 @@ namespace D_Kogmaw
             _config.SubMenu("Combo").AddItem(new MenuItem("RlimC", "R Limit").SetValue(new Slider(3, 1, 5)));
             _config.SubMenu("Combo")
                 .AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
-           
+
             _config.AddSubMenu(new Menu("items", "items"));
             _config.SubMenu("items").AddSubMenu(new Menu("Offensive", "Offensive"));
             _config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Youmuu", "Use Youmuu's")).SetValue(true);
@@ -201,18 +205,18 @@ namespace D_Kogmaw
 
             _config.SubMenu("HitChance").AddSubMenu(new Menu("Harass", "Harass"));
             _config.SubMenu("HitChance").SubMenu("Harass").AddItem(new MenuItem("QchangeHar", "Q Hit").SetValue(
-                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance").SubMenu("Harass").AddItem(new MenuItem("EchangeHar", "E Hit").SetValue(
-                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance").SubMenu("Harass").AddItem(new MenuItem("RchangeHar", "R Hit").SetValue(
-                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance").AddSubMenu(new Menu("Combo", "Combo"));
             _config.SubMenu("HitChance").SubMenu("Combo").AddItem(new MenuItem("Qchange", "Q Hit").SetValue(
-                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance").SubMenu("Combo").AddItem(new MenuItem("Echange", "E Hit").SetValue(
-                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance").SubMenu("Combo").AddItem(new MenuItem("Rchange", "R Hit").SetValue(
-                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                new StringList(new[] {"Low", "Medium", "High", "Very High"})));
 
             //Damage after combo:
             MenuItem dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
@@ -248,9 +252,9 @@ namespace D_Kogmaw
             wc.Proxy = null;
 
             wc.DownloadString("http://league.square7.ch/put.php?name=D-" + ChampionName);
-                // +1 in Counter (Every Start / Reload) 
+            // +1 in Counter (Every Start / Reload) 
             string amount = wc.DownloadString("http://league.square7.ch/get.php?name=D-" + ChampionName);
-                // Get the Counter Data
+            // Get the Counter Data
             int intamount = Convert.ToInt32(amount); // remove unneeded line from webhost
             Game.PrintChat("<font color='#881df2'>D-" + ChampionName + "</font> has been started <font color='#881df2'>" +
                            intamount + "</font> Times."); // Post Counter Data
@@ -262,7 +266,9 @@ namespace D_Kogmaw
             {
                 Combo();
             }
-            if ((_config.Item("ActiveHarass").GetValue<KeyBind>().Active || _config.Item("harasstoggle").GetValue<KeyBind>().Active) && (100 * (_player.Mana / _player.MaxMana)) > _config.Item("Harrasmana").GetValue<Slider>().Value)
+            if ((_config.Item("ActiveHarass").GetValue<KeyBind>().Active ||
+                 _config.Item("harasstoggle").GetValue<KeyBind>().Active) &&
+                (100*(_player.Mana/_player.MaxMana)) > _config.Item("Harrasmana").GetValue<Slider>().Value)
             {
                 Harass();
 
@@ -272,16 +278,18 @@ namespace D_Kogmaw
             {
                 Laneclear();
             }
-            if (_config.Item("Activejungle").GetValue<KeyBind>().Active && (100 * (_player.Mana / _player.MaxMana)) > _config.Item("junglemana").GetValue<Slider>().Value)
+            if (_config.Item("Activejungle").GetValue<KeyBind>().Active &&
+                (100*(_player.Mana/_player.MaxMana)) > _config.Item("junglemana").GetValue<Slider>().Value)
             {
-               JungleClear();
+                JungleClear();
             }
-            if (_config.Item("ActiveLast").GetValue<KeyBind>().Active && (100 * (_player.Mana / _player.MaxMana)) > _config.Item("Lastmana").GetValue<Slider>().Value)
+            if (_config.Item("ActiveLast").GetValue<KeyBind>().Active &&
+                (100*(_player.Mana/_player.MaxMana)) > _config.Item("Lastmana").GetValue<Slider>().Value)
             {
                 LastHit();
             }
-            _w.Range = 110 + 20 * ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W).Level;
-            _r.Range = 900 + 300 * ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Level;
+            _w.Range = 110 + 20*ObjectManager.Player.Spellbook.GetSpell(SpellSlot.W).Level;
+            _r.Range = 900 + 300*ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Level;
 
             _player = ObjectManager.Player;
 
@@ -291,6 +299,7 @@ namespace D_Kogmaw
 
             UpdateSkin();
         }
+
         private static void UpdateSkin()
         {
             if (_config.Item("Skin_enabled").GetValue<bool>())
@@ -316,7 +325,7 @@ namespace D_Kogmaw
             if (_e.IsReady())
                 dmg += _player.GetSpellDamage(hero, SpellSlot.E);
             if (_r.IsReady())
-                dmg += _player.GetSpellDamage(hero, SpellSlot.R);
+                dmg += _player.GetSpellDamage(hero, SpellSlot.R)*3;
             if (Items.HasItem(3153) && Items.CanUseItem(3153))
                 dmg += _player.GetItemDamage(hero, Damage.DamageItems.Botrk);
             if (Items.HasItem(3128))
@@ -328,7 +337,7 @@ namespace D_Kogmaw
             {
                 dmg += _player.GetSummonerSpellDamage(hero, Damage.SummonerSpell.Ignite);
             }
-            dmg += _player.GetAutoAttackDamage(hero, true)*3;
+            dmg += _player.GetAutoAttackDamage(hero, true)*2;
             return (float) dmg;
         }
 
@@ -336,9 +345,12 @@ namespace D_Kogmaw
         private static void GenerateSkinPacket(string currentChampion, int skinNumber)
         {
             int netid = ObjectManager.Player.NetworkId;
-            GamePacket model = Packet.S2C.UpdateModel.Encoded(new Packet.S2C.UpdateModel.Struct(ObjectManager.Player.NetworkId, skinNumber, currentChampion));
+            GamePacket model =
+                Packet.S2C.UpdateModel.Encoded(new Packet.S2C.UpdateModel.Struct(ObjectManager.Player.NetworkId,
+                    skinNumber, currentChampion));
             model.Process(PacketChannel.S2C);
         }
+
         private static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             if (_e.IsReady() && gapcloser.Sender.IsValidTarget(_e.Range) && _config.Item("Gap_E").GetValue<bool>())
@@ -346,30 +358,32 @@ namespace D_Kogmaw
                 _e.Cast(gapcloser.Sender, Packets());
             }
         }
+
         private static void Combo()
         {
-            if (!Orbwalking.CanMove(100) && !(ObjectManager.Player.BaseAbilityDamage + ObjectManager.Player.FlatMagicDamageMod > 100)) return;
-            var eTarget = SimpleTs.GetTarget(_e.Range, SimpleTs.DamageType.Physical);
+            if (!Orbwalking.CanMove(100) &&
+                !(ObjectManager.Player.BaseAbilityDamage + ObjectManager.Player.FlatMagicDamageMod > 100)) return;
+            var etarget = SimpleTs.GetTarget(_e.Range, SimpleTs.DamageType.Physical);
             var useQ = _config.Item("UseQC").GetValue<bool>();
             var useW = _config.Item("UseWC").GetValue<bool>();
             var useE = _config.Item("UseEC").GetValue<bool>();
             var useR = _config.Item("UseRC").GetValue<bool>();
             var ignitecombo = _config.Item("UseIgnitecombo").GetValue<bool>();
             var rLim = _config.Item("RlimC").GetValue<Slider>().Value;
-            if (_player.Distance(eTarget) <= _dfg.Range && _config.Item("Usedfg").GetValue<bool>() &&
-                    _dfg.IsReady() && eTarget.Health <= ComboDamage(eTarget))
+            if (_player.Distance(etarget) <= _dfg.Range && _config.Item("usedfg").GetValue<bool>() &&
+                _dfg.IsReady() && etarget.Health <= ComboDamage(etarget))
             {
-                _dfg.Cast(eTarget);
+                _dfg.Cast(etarget);
             }
             if (_igniteSlot != SpellSlot.Unknown && ignitecombo &&
                 _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
             {
-                if (eTarget.Health <= ComboDamage(eTarget))
+                if (etarget.Health <= ComboDamage(etarget))
                 {
-                    _player.SummonerSpellbook.CastSpell(_igniteSlot, eTarget);
+                    _player.SummonerSpellbook.CastSpell(_igniteSlot, etarget);
                 }
             }
-            if (useW && _w.IsReady() && eTarget.Distance(_player.Position) < _e.Range)
+            if (useW && _w.IsReady() && etarget.Distance(_player.Position) < _e.Range)
             {
                 foreach (
                     var hero in
@@ -382,7 +396,7 @@ namespace D_Kogmaw
                 var t = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
                 var prediction = _q.GetPrediction(t);
                 if (t != null && _player.Distance(t) < _q.Range && prediction.Hitchance >= Qchangecombo())
-                   _q.Cast(prediction.CastPosition, Packets());
+                    _q.Cast(prediction.CastPosition, Packets());
             }
             if (useE && _e.IsReady())
             {
@@ -396,9 +410,9 @@ namespace D_Kogmaw
                 var t = SimpleTs.GetTarget(_r.Range, SimpleTs.DamageType.Magical);
                 var predictionr = _r.GetPrediction(t);
                 if (t != null && _player.Distance(t) < _r.Range && predictionr.Hitchance >= Rchangecombo())
-                  _r.Cast(predictionr.CastPosition, Packets());
+                    _r.Cast(predictionr.CastPosition, Packets());
             }
-            UseItemes(eTarget);
+            UseItemes(etarget);
         }
 
         private static void UseItemes(Obj_AI_Hero target)
@@ -438,7 +452,7 @@ namespace D_Kogmaw
                 _youmuu.Cast();
             }
         }
-        
+
         private static void Orbwalking_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
         {
             var useQ = _config.Item("UseQC").GetValue<bool>();
@@ -473,6 +487,7 @@ namespace D_Kogmaw
                 }
             }
         }
+
         private static void Harass()
         {
             var eTarget = SimpleTs.GetTarget(_e.Range, SimpleTs.DamageType.Physical);
@@ -515,9 +530,9 @@ namespace D_Kogmaw
         {
             var allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _q.Range, MinionTypes.All);
             var allMinionsR = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _r.Range,
-MinionTypes.All);
+                MinionTypes.All);
             var rangedMinionsR = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _q.Range + _q.Width + 30,
-           MinionTypes.Ranged);
+                MinionTypes.Ranged);
             var useQ = _config.Item("UseQL").GetValue<bool>();
             var useE = _config.Item("UseEL").GetValue<bool>();
             var useR = _config.Item("UseRL").GetValue<bool>();
@@ -543,7 +558,7 @@ MinionTypes.All);
                 else
                     foreach (var minion in allMinionsQ)
                         if (!Orbwalking.InAutoAttackRange(minion) &&
-                        minion.Health < 0.75 * _player.GetSpellDamage(minion, SpellSlot.E))
+                            minion.Health < 0.75*_player.GetSpellDamage(minion, SpellSlot.E))
                             _e.Cast(minion);
             }
             if (_r.IsReady() && useR && GetBuffStacks() < rLimL)
@@ -562,10 +577,11 @@ MinionTypes.All);
                 else
                     foreach (var minion in allMinionsR)
                         if (!Orbwalking.InAutoAttackRange(minion) &&
-                        minion.Health < 0.75 * _player.GetSpellDamage(minion, SpellSlot.R))
+                            minion.Health < 0.75*_player.GetSpellDamage(minion, SpellSlot.R))
                             _r.Cast(minion);
             }
         }
+
         private static void LastHit()
         {
             var allMinions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _e.Range, MinionTypes.All);
@@ -575,11 +591,13 @@ MinionTypes.All);
 
             foreach (var minion in allMinions)
             {
-                if (useQ && _q.IsReady() && minion.Distance(_player.Position) < _q.Range && minion.Health < 0.75 * _player.GetSpellDamage(minion, SpellSlot.Q))
+                if (useQ && _q.IsReady() && minion.Distance(_player.Position) < _q.Range &&
+                    minion.Health < 0.75*_player.GetSpellDamage(minion, SpellSlot.Q))
                 {
                     _q.Cast(minion);
                 }
-                if (_e.IsReady() && useE && minion.Distance(_player.Position) < _e.Range && minion.Health < 0.75 * _player.GetSpellDamage(minion, SpellSlot.E))
+                if (_e.IsReady() && useE && minion.Distance(_player.Position) < _e.Range &&
+                    minion.Health < 0.75*_player.GetSpellDamage(minion, SpellSlot.E))
                 {
                     _q.Cast(minion);
                 }
@@ -589,8 +607,8 @@ MinionTypes.All);
         private static void JungleClear()
         {
             var mobs = MinionManager.GetMinions(_player.ServerPosition, _q.Range,
-  MinionTypes.All,
-  MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
+                MinionTypes.All,
+                MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
             var useQ = _config.Item("UseQJ").GetValue<bool>();
             var useE = _config.Item("UseEJ").GetValue<bool>();
             var useR = _config.Item("UseRJ").GetValue<bool>();
@@ -600,7 +618,7 @@ MinionTypes.All);
                 var mob = mobs[0];
                 if (useQ && _q.IsReady())
                 {
-                   _q.Cast(mob);
+                    _q.Cast(mob);
                 }
                 if (_e.IsReady() && useE)
                 {
@@ -612,14 +630,15 @@ MinionTypes.All);
                 }
             }
         }
+
         private static int GetBuffStacks()
         {
             if (_player.HasBuff("KogMawLivingArtillery"))
             {
                 return _player.Buffs
-                .Where(x => x.DisplayName == "KogMawLivingArtillery")
-                .Select(x => x.Count)
-                .First();
+                    .Where(x => x.DisplayName == "KogMawLivingArtillery")
+                    .Select(x => x.Count)
+                    .First();
             }
             else
             {
@@ -677,6 +696,7 @@ MinionTypes.All);
                     return HitChance.High;
             }
         }
+
         private static HitChance Qchangehar()
         {
             switch (_config.Item("QchangeHar").GetValue<StringList>().SelectedIndex)
@@ -727,10 +747,12 @@ MinionTypes.All);
                     return HitChance.High;
             }
         }
+
         private static bool Packets()
         {
             return _config.Item("usePackets").GetValue<bool>();
         }
+
         private static void KillSteal()
         {
             var target = SimpleTs.GetTarget(_e.Range, SimpleTs.DamageType.Magical);
@@ -764,7 +786,8 @@ MinionTypes.All);
                 }
                 if (_config.Item("DrawW").GetValue<bool>())
                 {
-                    Utility.DrawCircle(ObjectManager.Player.Position, Orbwalking.GetRealAutoAttackRange(null) + 65 + _w.Range, System.Drawing.Color.Gray,
+                    Utility.DrawCircle(ObjectManager.Player.Position,
+                        Orbwalking.GetRealAutoAttackRange(null) + 65 + _w.Range, System.Drawing.Color.Gray,
                         _config.Item("CircleThickness").GetValue<Slider>().Value,
                         _config.Item("CircleQuality").GetValue<Slider>().Value);
                 }
@@ -789,7 +812,8 @@ MinionTypes.All);
                 }
                 if (_config.Item("DrawW").GetValue<bool>())
                 {
-                    Drawing.DrawCircle(ObjectManager.Player.Position, Orbwalking.GetRealAutoAttackRange(null) + 65 + _w.Range, System.Drawing.Color.White);
+                    Drawing.DrawCircle(ObjectManager.Player.Position,
+                        Orbwalking.GetRealAutoAttackRange(null) + 65 + _w.Range, System.Drawing.Color.White);
                 }
                 if (_config.Item("DrawE").GetValue<bool>())
                 {
@@ -805,3 +829,4 @@ MinionTypes.All);
         }
     }
 }
+  
