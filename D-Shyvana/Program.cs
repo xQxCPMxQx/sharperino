@@ -113,20 +113,27 @@ namespace D_Shyvana
 
             //LaneClear
             _config.AddSubMenu(new Menu("Farm", "Farm"));
-            _config.SubMenu("Farm").AddItem(new MenuItem("UseItemslane", "Use Items in LaneClear")).SetValue(true);
-            _config.SubMenu("Farm").AddItem(new MenuItem("UseQL", "Q LaneClear")).SetValue(true);
-            _config.SubMenu("Farm").AddItem(new MenuItem("UseWL", "W LaneClear")).SetValue(true);
-            _config.SubMenu("Farm").AddItem(new MenuItem("UseEL", "E LaneClear")).SetValue(true);
-            _config.SubMenu("Farm").AddItem(new MenuItem("UseQLH", "Q LastHit")).SetValue(true);
-            _config.SubMenu("Farm").AddItem(new MenuItem("UseWLH", "W LastHit")).SetValue(true);
-            _config.SubMenu("Farm").AddItem(new MenuItem("UseELH", "E LastHit")).SetValue(true);
-            _config.SubMenu("Farm").AddItem(new MenuItem("UseQJ", "Q Jungle")).SetValue(true);
-            _config.SubMenu("Farm").AddItem(new MenuItem("UseWJ", "W Jungle")).SetValue(true);
-            _config.SubMenu("Farm").AddItem(new MenuItem("UseEJ", "E Jungle")).SetValue(true);
-            _config.SubMenu("Farm").AddItem(new MenuItem("Usesmite", "Use Smite(toggle)").SetValue(new KeyBind("H".ToCharArray()[0],
+            _config.SubMenu("Farm").AddSubMenu(new Menu("LastHit", "LastHit"));
+            _config.SubMenu("Farm").SubMenu("LastHit").AddItem(new MenuItem("UseQLH", "Q LastHit")).SetValue(true);
+            _config.SubMenu("Farm").SubMenu("LastHit").AddItem(new MenuItem("UseWLH", "W LastHit")).SetValue(true);
+            _config.SubMenu("Farm").SubMenu("LastHit").AddItem(new MenuItem("UseELH", "E LastHit")).SetValue(true);
+            _config.SubMenu("Farm").SubMenu("LastHit").AddItem(new MenuItem("ActiveLast", "LastHit!").SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
+
+            _config.SubMenu("Farm").AddSubMenu(new Menu("LaneClear", "LaneClear"));
+            _config.SubMenu("Farm").SubMenu("LaneClear").AddItem(new MenuItem("UseItemslane", "Use Items")).SetValue(true);
+            _config.SubMenu("Farm").SubMenu("LaneClear").AddItem(new MenuItem("UseQL", "Q LaneClear")).SetValue(true);
+            _config.SubMenu("Farm").SubMenu("LaneClear").AddItem(new MenuItem("UseWL", "W LaneClear")).SetValue(true);
+            _config.SubMenu("Farm").SubMenu("LaneClear").AddItem(new MenuItem("UseEL", "E LaneClear")).SetValue(true);
+            _config.SubMenu("Farm").SubMenu("LaneClear").AddItem(new MenuItem("ActiveLane", "LaneClear!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
+
+            _config.SubMenu("Farm").AddSubMenu(new Menu("JungleClear", "JungleClear"));
+            _config.SubMenu("Farm").SubMenu("LaneClear").AddItem(new MenuItem("UseItemsjungle", "Use Items")).SetValue(true)
+            _config.SubMenu("Farm").SubMenu("JungleClear").AddItem(new MenuItem("UseQJ", "Q Jungle")).SetValue(true);
+            _config.SubMenu("Farm").SubMenu("JungleClear").AddItem(new MenuItem("UseWJ", "W Jungle")).SetValue(true);
+            _config.SubMenu("Farm").SubMenu("JungleClear").AddItem(new MenuItem("UseEJ", "E Jungle")).SetValue(true);
+            _config.SubMenu("Farm").SubMenu("JungleClear").AddItem(new MenuItem("Usesmite", "Use Smite(toggle)").SetValue(new KeyBind("H".ToCharArray()[0],
                     KeyBindType.Toggle)));
-            _config.SubMenu("Farm").AddItem(new MenuItem("ActiveLast", "LastHit!").SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
-            _config.SubMenu("Farm").AddItem(new MenuItem("ActiveLane", "LaneClear/Jungle!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
+            _config.SubMenu("Farm").SubMenu("JungleClear").AddItem(new MenuItem("ActiveLane", "JungleClear!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
 
             //Forest
             _config.AddSubMenu(new Menu("Forest Gump", "Forest Gump"));
@@ -155,8 +162,7 @@ namespace D_Shyvana
             _config.SubMenu("HitChance")
                                .AddItem(new MenuItem("Rchange", "R Hit").SetValue(
                                 new StringList(new[] { "Low", "Medium", "High", "Very High" })));
-
-
+            
             //Drawings
             _config.AddSubMenu(new Menu("Drawings", "Drawings"));
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawQ", "Draw Q")).SetValue(true);
@@ -174,11 +180,13 @@ namespace D_Shyvana
             Drawing.OnDraw += Drawing_OnDraw;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
+
             if (_config.Item("skinshy").GetValue<bool>())
             {
                 GenModelPacket(_player.ChampionName, _config.Item("skinshyvana").GetValue<Slider>().Value);
                 _lastSkin = _config.Item("skinshyvana").GetValue<Slider>().Value;
             }
+
             //credits to eXit_ / ikkeflikkeri
             WebClient wc = new WebClient();
             wc.Proxy = null;
@@ -210,7 +218,6 @@ namespace D_Shyvana
             {
                 Laneclear();
                 JungleClear();
-
             }
             if (_config.Item("ActiveLast").GetValue<KeyBind>().Active)
             {
@@ -225,7 +232,6 @@ namespace D_Shyvana
                 Smiteuse();
             }
             _player = ObjectManager.Player;
-
 
             _orbwalker.SetAttack(true);
 
@@ -445,7 +451,7 @@ namespace D_Shyvana
             var mobs = MinionManager.GetMinions(_player.ServerPosition, _w.Range,
                 MinionTypes.All,
                 MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
-            var UseItemsJ = _config.Item("UseItemslane").GetValue<bool>();
+            var useItemsJ = _config.Item("UseItemsjungle").GetValue<bool>();
             var useQ = _config.Item("UseQJ").GetValue<bool>();
             var useW = _config.Item("UseWJ").GetValue<bool>();
             var useE = _config.Item("UseEJ").GetValue<bool>();
@@ -465,11 +471,11 @@ namespace D_Shyvana
                     _e.Cast(mob, Packets());
                 }
             }
-            if (UseItemsJ && _tiamat.IsReady() && mobs.Count > 0)
+            if (useItemsJ && _tiamat.IsReady() && mobs.Count > 0)
             {
                 _tiamat.Cast();
             }
-            if (UseItemsJ && _hydra.IsReady() && mobs.Count > 0)
+            if (useItemsJ && _hydra.IsReady() && mobs.Count > 0)
             {
                 _hydra.Cast();
             }
@@ -607,7 +613,6 @@ namespace D_Shyvana
 
         private static void Forest()
         {
-
             var target = SimpleTs.GetTarget(_r.Range, SimpleTs.DamageType.Magical);
 
             if (_config.Item("UseRF").GetValue<bool>() && _r.IsReady() && target != null)
@@ -650,7 +655,6 @@ namespace D_Shyvana
                 int smiteDmg = GetSmiteDmg();
                 foreach (Obj_AI_Base minion in minions)
                 {
-
                     Boolean b;
                     if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
                     {
@@ -669,6 +673,7 @@ namespace D_Shyvana
                 }
             }
         }
+
         private static void Drawing_OnDraw(EventArgs args)
         {
             if (_config.Item("Drawsmite").GetValue<bool>())
@@ -728,7 +733,6 @@ namespace D_Shyvana
                 {
                     Drawing.DrawCircle(ObjectManager.Player.Position, _r.Range, System.Drawing.Color.White);
                 }
-
             }
         }
     }
