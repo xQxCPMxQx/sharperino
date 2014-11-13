@@ -617,7 +617,7 @@ namespace D_Shyvana
         private static void Forest()
         {
             var target = SimpleTs.GetTarget(_r.Range, SimpleTs.DamageType.Magical);
-
+            _player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
             if (_config.Item("UseRF").GetValue<bool>() && _r.IsReady() && target != null)
             {
                 _r.Cast(Game.CursorPos, Packets());
