@@ -458,7 +458,7 @@ namespace D_Shyvana
                 }
                 if (_w.IsReady() && useW)
                 {
-                    _w.Cast(mob, Packets());
+                    _w.Cast();
                 }
                 if (_e.IsReady() && useE)
                 {
