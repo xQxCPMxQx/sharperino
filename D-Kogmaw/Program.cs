@@ -52,14 +52,14 @@ namespace D_Kogmaw
             _player = ObjectManager.Player;
             if (ObjectManager.Player.BaseSkinName != ChampionName) return;
 
-            _q = new Spell(SpellSlot.Q, 1200f);
+            _q = new Spell(SpellSlot.Q, 1100f);
             _w = new Spell(SpellSlot.W, float.MaxValue);
-            _e = new Spell(SpellSlot.E, 1360f);
+            _e = new Spell(SpellSlot.E, 1300f);
             _r = new Spell(SpellSlot.R, float.MaxValue);
 
             _q.SetSkillshot(0.25f, 70f, 1650f, true, SkillshotType.SkillshotLine);
             _e.SetSkillshot(0.25f, 120f, 1400f, false, SkillshotType.SkillshotLine);
-            _r.SetSkillshot(1.2f, 120f, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            _r.SetSkillshot(1.3f, 120f, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
             _dfg = Utility.Map.GetMap()._MapType == Utility.Map.MapType.TwistedTreeline ||
                    Utility.Map.GetMap()._MapType == Utility.Map.MapType.CrystalScar
@@ -139,13 +139,13 @@ namespace D_Kogmaw
             _config.SubMenu("Harass").AddItem(new MenuItem("UseWH", "Use W")).SetValue(true);
             _config.SubMenu("Harass").AddItem(new MenuItem("UseEH", "Use E")).SetValue(true);
             _config.SubMenu("Harass").AddItem(new MenuItem("UseRH", "Use R")).SetValue(true);
-            _config.SubMenu("Harass").AddItem(new MenuItem("RlimH", "R Limit").SetValue(new Slider(1, 1, 5)));
+            _config.SubMenu("Harass").AddItem(new MenuItem("RlimH", "R Limit").SetValue(new Slider(2, 1, 5)));
             _config.SubMenu("Harass")
                 .AddItem(
                     new MenuItem("harasstoggle", "AutoHarass (toggle)").SetValue(new KeyBind("G".ToCharArray()[0],
                         KeyBindType.Toggle)));
             _config.SubMenu("Harass")
-                .AddItem(new MenuItem("Harrasmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+                .AddItem(new MenuItem("Harrasmana", "Minimum Mana").SetValue(new Slider(65, 1, 100)));
             _config.SubMenu("Harass")
                 .AddItem(
                     new MenuItem("ActiveHarass", "Harass!").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
@@ -157,7 +157,7 @@ namespace D_Kogmaw
             _config.SubMenu("Farm").SubMenu("Lasthit").AddItem(new MenuItem("UseELH", "E LastHit")).SetValue(true);
             _config.SubMenu("Farm")
                 .SubMenu("Lasthit")
-                .AddItem(new MenuItem("Lastmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+                .AddItem(new MenuItem("Lastmana", "Minimum Mana").SetValue(new Slider(65, 1, 100)));
             _config.SubMenu("Farm")
                 .SubMenu("Lasthit")
                 .AddItem(
@@ -171,7 +171,7 @@ namespace D_Kogmaw
                 .AddItem(new MenuItem("RlimL", "R Max Stuck").SetValue(new Slider(1, 1, 5)));
             _config.SubMenu("Farm")
                 .SubMenu("Laneclear")
-                .AddItem(new MenuItem("Lanemana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+                .AddItem(new MenuItem("Lanemana", "Minimum Mana").SetValue(new Slider(65, 1, 100)));
             _config.SubMenu("Farm")
                 .SubMenu("Laneclear")
                 .AddItem(
@@ -179,11 +179,12 @@ namespace D_Kogmaw
                         KeyBindType.Press)));
             _config.SubMenu("Farm").AddSubMenu(new Menu("Jungleclear", "Jungleclear"));
             _config.SubMenu("Farm").SubMenu("Jungleclear").AddItem(new MenuItem("UseQJ", "Q Jungle")).SetValue(true);
+            _config.SubMenu("Farm").SubMenu("Jungleclear").AddItem(new MenuItem("UseWJ", "W Jungle")).SetValue(true);
             _config.SubMenu("Farm").SubMenu("Jungleclear").AddItem(new MenuItem("UseEJ", "E Jungle")).SetValue(true);
             _config.SubMenu("Farm").SubMenu("Jungleclear").AddItem(new MenuItem("UseRJ", "R Jungle")).SetValue(true);
             _config.SubMenu("Farm")
                 .SubMenu("Jungleclear")
-                .AddItem(new MenuItem("RlimJ", "R Max Stuck").SetValue(new Slider(1, 1, 5)));
+                .AddItem(new MenuItem("RlimJ", "R Max Stuck").SetValue(new Slider(2, 1, 5)));
             _config.SubMenu("Farm")
                 .SubMenu("Jungleclear")
                 .AddItem(new MenuItem("junglemana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
@@ -610,6 +611,7 @@ namespace D_Kogmaw
                 MinionTypes.All,
                 MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
             var useQ = _config.Item("UseQJ").GetValue<bool>();
+            var useW = _config.Item("UseWJ").GetValue<bool>();
             var useE = _config.Item("UseEJ").GetValue<bool>();
             var useR = _config.Item("UseRJ").GetValue<bool>();
             var rLimJ = _config.Item("RlimJ").GetValue<Slider>().Value;
@@ -619,6 +621,10 @@ namespace D_Kogmaw
                 if (useQ && _q.IsReady())
                 {
                     _q.Cast(mob);
+                }
+                if (useW && _w.IsReady() && mob.Distance(_player.Position) < _q.Range)
+                {
+                    _w.Cast();
                 }
                 if (_e.IsReady() && useE)
                 {
