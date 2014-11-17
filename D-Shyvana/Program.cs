@@ -392,7 +392,7 @@ namespace D_Shyvana
                 else
                     foreach (var minion in allMinionsW)
                         if (!Orbwalking.InAutoAttackRange(minion) &&
-                            minion.Health < 0.75 * _player.GetSpellDamage(minion, SpellSlot.W))
+                            minion.Health < 0.75*_player.GetSpellDamage(minion, SpellSlot.W))
                             _w.Cast();
             }
             if (_e.IsReady() && useEl)
@@ -411,17 +411,19 @@ namespace D_Shyvana
                 else
                     foreach (var minion in allMinionsE)
                         if (!Orbwalking.InAutoAttackRange(minion) &&
-                            minion.Health < 0.75 * _player.GetSpellDamage(minion, SpellSlot.E))
+                            minion.Health < 0.75*_player.GetSpellDamage(minion, SpellSlot.E))
                             _e.Cast(minion);
             }
-
-            if (useItemsl && _tiamat.IsReady() && allMinionsW.Count > 0)
+            foreach (var minion in allMinionsE)
             {
-                _tiamat.Cast();
-            }
-            if (useItemsl && _hydra.IsReady() && allMinionsW.Count > 0)
-            {
-                _hydra.Cast();
+                if (useItemsl && _tiamat.IsReady() && _player.Distance(minion) < _tiamat.Range)
+                {
+                    _tiamat.Cast();
+                }
+                if (useItemsl && _hydra.IsReady() && _player.Distance(minion) < _hydra.Range)
+                {
+                    _hydra.Cast();
+                }
             }
         }
 
@@ -473,16 +475,16 @@ namespace D_Shyvana
                 {
                     _e.Cast(mob, Packets());
                 }
-            }
-            if (useItemsJ && _tiamat.IsReady() && mobs.Count > 0)
-            {
-                _tiamat.Cast();
-            }
-            if (useItemsJ && _hydra.IsReady() && mobs.Count > 0)
-            {
-                _hydra.Cast();
-            }
 
+                if (useItemsJ && _tiamat.IsReady() && _player.Distance(mob) < _tiamat.Range)
+                {
+                    _tiamat.Cast();
+                }
+                if (useItemsJ && _hydra.IsReady() && _player.Distance(mob) < _tiamat.Range)
+                {
+                    _hydra.Cast();
+                }
+            }
         }
 
         private static HitChance Echange()
