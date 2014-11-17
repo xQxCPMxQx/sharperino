@@ -56,7 +56,7 @@ namespace D_Kogmaw
             _w = new Spell(SpellSlot.W, float.MaxValue);
             _e = new Spell(SpellSlot.E, 1300f);
             _r = new Spell(SpellSlot.R, float.MaxValue);
-
+           
             _q.SetSkillshot(0.25f, 70f, 1650f, true, SkillshotType.SkillshotLine);
             _e.SetSkillshot(0.25f, 120f, 1400f, false, SkillshotType.SkillshotLine);
             _r.SetSkillshot(1.3f, 120f, float.MaxValue, false, SkillshotType.SkillshotCircle);

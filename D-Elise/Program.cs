@@ -347,12 +347,12 @@ namespace D_Elise
                 _blade.Cast(target);
 
             }
-            if (Utility.CountEnemysInRange(350) >= 1 && iTiamat && _tiamat.IsReady())
+            if (iTiamat && _tiamat.IsReady() && target.IsValidTarget(_tiamat.Range))
             {
                 _tiamat.Cast();
 
             }
-            if (Utility.CountEnemysInRange(350) >= 1 && iHydra && _hydra.IsReady())
+            if (iHydra && _hydra.IsReady() && target.IsValidTarget(_hydra.Range))
             {
                 _hydra.Cast();
 
