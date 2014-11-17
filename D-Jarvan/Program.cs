@@ -727,7 +727,7 @@ namespace D_Jarvan
             }
             else
             {
-                jungleMinions = new string[] { "AncientGolem", "LizardElder", "Worm", "Dragon" };
+                jungleMinions = new string[] { "AncientGolem", "LizardElder", "Worm", "Dragon", "SRU_Blue", "SRU_Red", "SRU_Dragon", "SRU_Baron" };
             }
 
             var minions = MinionManager.GetMinions(_player.Position, 1000, MinionTypes.All, MinionTeam.Neutral);
@@ -745,7 +745,7 @@ namespace D_Jarvan
                     }
                     else
                     {
-                        b = minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name));
+                        b = minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name) && !jungleMinions.Any(name => minion.Name.Contains("Mini")));
                     }
 
                     if (b)
