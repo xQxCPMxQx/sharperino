@@ -198,7 +198,9 @@ namespace D_Shyvana
             string amount = wc.DownloadString("http://league.square7.ch/get.php?name=D-" + ChampionName);                                                               // Get the Counter Data
             int intamount = Convert.ToInt32(amount);                                                                                                                    // remove unneeded line from webhost
             Game.PrintChat("<font color='#881df2'>D-" + ChampionName + "</font> has been started <font color='#881df2'>" + intamount + "</font> Times.");               // Post Counter Data
-     
+            Game.PrintChat(
+                      "<font color='#FF0000'>If You like my work and want to support, and keep it always up to date plz donate via paypal in </font> <font color='#FF9900'>ssssssssssmith@hotmail.com</font> (10) S");
+
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
@@ -651,7 +653,7 @@ namespace D_Shyvana
             }
             else
             {
-                jungleMinions = new string[] { "AncientGolem", "LizardElder", "Worm", "Dragon" };
+                jungleMinions = new string[] { "AncientGolem", "LizardElder", "Worm", "Dragon", "SRU_Blue", "SRU_Red", "SRU_Dragon", "SRU_Baron" };
             }
 
             var minions = MinionManager.GetMinions(_player.Position, 1000, MinionTypes.All, MinionTeam.Neutral);
@@ -660,6 +662,7 @@ namespace D_Shyvana
                 int smiteDmg = GetSmiteDmg();
                 foreach (Obj_AI_Base minion in minions)
                 {
+
                     Boolean b;
                     if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
                     {
@@ -668,7 +671,8 @@ namespace D_Shyvana
                     }
                     else
                     {
-                        b = minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name));
+                        b = minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name)) &&
+                            !jungleMinions.Any(name => minion.Name.Contains("Mini"));
                     }
 
                     if (b)
@@ -678,7 +682,6 @@ namespace D_Shyvana
                 }
             }
         }
-
         private static void Drawing_OnDraw(EventArgs args)
         {
             if (_config.Item("Drawsmite").GetValue<bool>())

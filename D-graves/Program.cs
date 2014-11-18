@@ -40,7 +40,7 @@ namespace D_Graves
             _e = new Spell(SpellSlot.E, 425f);
             _r = new Spell(SpellSlot.R, 1200f);
 
-            _q.SetSkillshot(0.26f, 5f*2*(float) Math.PI/180, 1950, false, SkillshotType.SkillshotCone);
+            _q.SetSkillshot(0.26f, 10f*2*(float) Math.PI/180, 1950, false, SkillshotType.SkillshotCone);
             _w.SetSkillshot(0.30f, 250f, 1650f, false, SkillshotType.SkillshotCircle);
             _r.SetSkillshot(0.22f, 150f, 2100, true, SkillshotType.SkillshotLine);
 
@@ -196,6 +196,8 @@ namespace D_Graves
             int intamount = Convert.ToInt32(amount); // remove unneeded line from webhost
             Game.PrintChat("<font color='#881df2'>D-" + ChampionName + "</font> has been started <font color='#881df2'>" +
                            intamount + "</font> Times.");// Post Counter Data
+            Game.PrintChat("<font color='#FF0000'>If You like my work and want to support, and keep it always up to date plz donate via paypal in </font> <font color='#FF9900'>ssssssssssmith@hotmail.com</font> (10) S");
+        
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
@@ -281,7 +283,7 @@ namespace D_Graves
             if (useQ && _q.IsReady())
             {
                 var t = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
-                if (t != null && _player.Distance(t) < _q.Range - 30 && _q.GetPrediction(t).Hitchance >= Qchange())
+                if (t != null && _player.Distance(t) < _q.Range - 70 && _q.GetPrediction(t).Hitchance >= Qchange())
                     _q.Cast(t, Packets(), true);
             }
             if (useW && _w.IsReady())
@@ -335,7 +337,7 @@ namespace D_Graves
                 if (useQ && _q.IsReady())
                 {
                     var t = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
-                    if (t != null && _player.Distance(t) < _q.Range - 30 && _q.GetPrediction(t).Hitchance >= Qchange())
+                    if (t != null && _player.Distance(t) < _q.Range - 70 && _q.GetPrediction(t).Hitchance >= Qchange())
                         _q.Cast(t, Packets(), true);
                 }
                 if (useW && _w.IsReady())
@@ -355,7 +357,7 @@ namespace D_Graves
             if (useQ && _q.IsReady())
             {
                 var t = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
-                if (t != null && _player.Distance(t) < _q.Range - 30 && _q.GetPrediction(t).Hitchance >= Qchangeharass())
+                if (t != null && _player.Distance(t) < _q.Range - 70 && _q.GetPrediction(t).Hitchance >= Qchangeharass())
                     _q.Cast(t, Packets(), true);
             }
             if (useW && _w.IsReady())

@@ -136,7 +136,8 @@ namespace D_Kayle
             _config.SubMenu("Misc").AddItem(new MenuItem("usePackets", "Usepackes")).SetValue(true);
             _config.SubMenu("Misc").AddItem(new MenuItem("skinKa", "Use Custom Skin").SetValue(false));
             _config.SubMenu("Misc").AddItem(new MenuItem("skinKayle", "Skin Changer").SetValue(new Slider(4, 1, 8)));
-            _config.SubMenu("Misc").AddItem(new MenuItem("GapCloserE", "Use E to GapCloser").SetValue(new Slider(4, 1, 8)));
+            _config.SubMenu("Misc")
+                .AddItem(new MenuItem("GapCloserE", "Use E to GapCloser").SetValue(new Slider(4, 1, 8)));
             _config.SubMenu("Misc")
                 .AddItem(
                     new MenuItem("Escape", "Escapes key").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
@@ -159,7 +160,7 @@ namespace D_Kayle
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
-            
+
             Game.PrintChat("<font color='#881df2'>D-Kayle By Diabaths </font>Loaded!");
             if (_config.Item("skinKa").GetValue<bool>())
             {
@@ -170,15 +171,16 @@ namespace D_Kayle
             WebClient wc = new WebClient();
             wc.Proxy = null;
 
-            wc.DownloadString("http://league.square7.ch/put.php?name=D-" + ChampionName);                                                                               // +1 in Counter (Every Start / Reload) 
-            string amount = wc.DownloadString("http://league.square7.ch/get.php?name=D-" + ChampionName);                                                               // Get the Counter Data
-            int intamount = Convert.ToInt32(amount);                                                                                                                    // remove unneeded line from webhost
-            Game.PrintChat("<font color='#881df2'>D-" + ChampionName + "</font> has been started <font color='#881df2'>" + intamount + "</font> Times.");               // Post Counter Data
-    
-          
+            wc.DownloadString("http://league.square7.ch/put.php?name=D-" + ChampionName);
+                // +1 in Counter (Every Start / Reload) 
+            string amount = wc.DownloadString("http://league.square7.ch/get.php?name=D-" + ChampionName);
+                // Get the Counter Data
+            int intamount = Convert.ToInt32(amount); // remove unneeded line from webhost
+            Game.PrintChat("<font color='#881df2'>D-" + ChampionName + "</font> has been started <font color='#881df2'>" +
+                           intamount + "</font> Times."); // Post Counter Data
+            Game.PrintChat(
+                "<font color='#FF0000'>If You like my work and want to support, and keep it always up to date plz donate via paypal in </font> <font color='#FF9900'>ssssssssssmith@hotmail.com</font> (10) S");
         }
-
-
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
