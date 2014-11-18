@@ -276,7 +276,7 @@ namespace D_Jarvan
             string amount = wc.DownloadString("http://league.square7.ch/get.php?name=D-" + ChampionName);                                                               // Get the Counter Data
             int intamount = Convert.ToInt32(amount);                                                                                                                    // remove unneeded line from webhost
             Game.PrintChat("<font color='#881df2'>D-" + ChampionName + "</font> has been started <font color='#881df2'>" + intamount + "</font> Times.");               // Post Counter Data
-        
+            Game.PrintChat("<font color='#FF0000'>If You like my work and want to support, and keep it always up to date plz donate via paypal in </font> <font color='#FF9900'>ssssssssssmith@hotmail.com</font> (10) S");
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
@@ -424,7 +424,7 @@ namespace D_Jarvan
             {
                 //xsalice Code
                 var vec = t.ServerPosition - _player.ServerPosition;
-                var castBehind = _e.GetPrediction(t).CastPosition + Vector3.Normalize(vec)*75;
+                var castBehind = _e.GetPrediction(t).CastPosition + Vector3.Normalize(vec) * 100;
                 _e.Cast(castBehind, Packets());
             }
             else
@@ -534,17 +534,19 @@ namespace D_Jarvan
             _player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
             var flashDista = _config.Item("FlashDista").GetValue<Slider>().Value;
             var manacheck = _player.Mana > _player.Spellbook.GetSpell(SpellSlot.Q).ManaCost + _player.Spellbook.GetSpell(SpellSlot.E).ManaCost;
-            var t = SimpleTs.GetTarget(_q.Range + 1000, SimpleTs.DamageType.Magical);
+            var t = SimpleTs.GetTarget(_q.Range + 800, SimpleTs.DamageType.Magical);
             if (_flashSlot != SpellSlot.Unknown && _player.SummonerSpellbook.CanUseSpell(_flashSlot) == SpellState.Ready)
             {
-                if (_e.IsReady() && _q.IsReady() && manacheck)
+                if (_e.IsReady() && _q.IsReady() && manacheck && t != null && _player.Distance(t) > _q.Range)
                 {
-                    if (t != null && _player.Distance(t) > _q.Range)
-                        _e.Cast(Game.CursorPos);
-                    _q.Cast(Game.CursorPos);
+                    _e.Cast(Game.CursorPos, Packets());
+                }
+                if (_epos != default(Vector3) && _q.InRange(_epos))
+                {
+                    _q.Cast(_epos, Packets());
                 }
 
-                if (t.IsValidTarget(flashDista))
+                if (t.IsValidTarget(flashDista) && !_q.IsReady())
                 {
                     _player.SummonerSpellbook.CastSpell(_flashSlot, t.ServerPosition);
                 }
@@ -717,7 +719,7 @@ namespace D_Jarvan
             float[] dmgs = { 370 + 20 * level, 330 + 30 * level, 240 + 40 * level, 100 + 50 * level };
             return (int)dmgs[index];
         }
-
+        //New map Monsters Name By SKO
         private static void Smiteuse()
         {
             string[] jungleMinions;
