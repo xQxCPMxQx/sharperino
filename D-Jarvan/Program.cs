@@ -6,6 +6,7 @@ using LeagueSharp.Common;
 using SharpDX;
 
 //gg
+
 namespace D_Jarvan
 {
     internal class Program
@@ -33,6 +34,7 @@ namespace D_Jarvan
         private static SpellSlot _flashSlot;
 
         private static Vector3 _epos = default(Vector3);
+
         private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -95,12 +97,13 @@ namespace D_Jarvan
                 .AddItem(
                     new MenuItem("ActiveComboEQR", "ComboEQ-R!").SetValue(new KeyBind("T".ToCharArray()[0],
                         KeyBindType.Press)));
-             _config.SubMenu("Combo")
+            _config.SubMenu("Combo")
                 .AddItem(
                     new MenuItem("ComboeqFlash", "ComboEQ- Flash!").SetValue(new KeyBind("H".ToCharArray()[0],
                         KeyBindType.Press)));
-             _config.SubMenu("Combo").AddItem(new MenuItem("FlashDista", "Flash Distance").SetValue(new Slider(700, 700, 1000)));
-            
+            _config.SubMenu("Combo")
+                .AddItem(new MenuItem("FlashDista", "Flash Distance").SetValue(new Slider(700, 700, 1000)));
+
             //Items public static Int32 Tiamat = 3077, Hydra = 3074, Blade = 3153, Bilge = 3144, Rand = 3143, lotis = 3190;
             _config.AddSubMenu(new Menu("items", "items"));
             _config.SubMenu("items").AddSubMenu(new Menu("Offensive", "Offensive"));
@@ -201,15 +204,14 @@ namespace D_Jarvan
                 .SubMenu("Jungle")
                 .AddItem(new MenuItem("UseItemsjungle", "Use Items in jungle"))
                 .SetValue(true);
-            _config.SubMenu("Farm")
-                .SubMenu("Jungle")
-                .AddItem(new MenuItem("Usesmite", "Use Smite(toggle)").SetValue(new KeyBind("H".ToCharArray()[0],
-                    KeyBindType.Toggle)));
+
             _config.SubMenu("Farm").SubMenu("Jungle").AddItem(new MenuItem("UseQJ", "Q Jungle")).SetValue(true);
             _config.SubMenu("Farm").SubMenu("Jungle").AddItem(new MenuItem("UseEJ", "E Jungle")).SetValue(true);
             _config.SubMenu("Farm").SubMenu("Jungle").AddItem(new MenuItem("UseWJ", "W Jungle")).SetValue(true);
             _config.SubMenu("Farm").SubMenu("Jungle").AddItem(new MenuItem(" UseEQJ", "EQ In Jungle")).SetValue(true);
-            _config.SubMenu("Farm").SubMenu("Jungle").AddItem(new MenuItem("UseWJHP", "use W if Hp% <").SetValue(new Slider(35, 1, 100)));
+            _config.SubMenu("Farm")
+                .SubMenu("Jungle")
+                .AddItem(new MenuItem("UseWJHP", "use W if Hp% <").SetValue(new Slider(35, 1, 100)));
             _config.SubMenu("Farm")
                 .SubMenu("Jungle")
                 .AddItem(new MenuItem("junglemana", "Minimum Mana% >").SetValue(new Slider(35, 1, 100)));
@@ -217,6 +219,17 @@ namespace D_Jarvan
                 .SubMenu("Jungle")
                 .AddItem(
                     new MenuItem("Activejungle", "Jungle!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
+
+            //Smite 
+            _config.AddSubMenu(new Menu("Smite", "Smite"));
+            _config.SubMenu("Smite")
+                .AddItem(
+                    new MenuItem("Usesmite", "Use Smite(toggle)").SetValue(new KeyBind("H".ToCharArray()[0],
+                        KeyBindType.Toggle)));
+            _config.SubMenu("Smite")
+                .AddItem(new MenuItem("manaJ", "Smite Blue Early if MP% <").SetValue(new Slider(35, 1, 100)));
+            _config.SubMenu("Smite")
+                .AddItem(new MenuItem("healthJ", "Smite Red Early if HP% <").SetValue(new Slider(35, 1, 100)));
 
             //Forest
             _config.AddSubMenu(new Menu("Forest Gump", "Forest Gump"));
@@ -272,11 +285,15 @@ namespace D_Jarvan
             WebClient wc = new WebClient();
             wc.Proxy = null;
 
-            wc.DownloadString("http://league.square7.ch/put.php?name=D-" + ChampionName);                                                                               // +1 in Counter (Every Start / Reload) 
-            string amount = wc.DownloadString("http://league.square7.ch/get.php?name=D-" + ChampionName);                                                               // Get the Counter Data
-            int intamount = Convert.ToInt32(amount);                                                                                                                    // remove unneeded line from webhost
-            Game.PrintChat("<font color='#881df2'>D-" + ChampionName + "</font> has been started <font color='#881df2'>" + intamount + "</font> Times.");               // Post Counter Data
-            Game.PrintChat("<font color='#FF0000'>If You like my work and want to support, and keep it always up to date plz donate via paypal in </font> <font color='#FF9900'>ssssssssssmith@hotmail.com</font> (10) S");
+            wc.DownloadString("http://league.square7.ch/put.php?name=D-" + ChampionName);
+            // +1 in Counter (Every Start / Reload) 
+            string amount = wc.DownloadString("http://league.square7.ch/get.php?name=D-" + ChampionName);
+            // Get the Counter Data
+            int intamount = Convert.ToInt32(amount); // remove unneeded line from webhost
+            Game.PrintChat("<font color='#881df2'>D-" + ChampionName + "</font> has been started <font color='#881df2'>" +
+                           intamount + "</font> Times."); // Post Counter Data
+            Game.PrintChat(
+                "<font color='#FF0000'>If You like my work and want to support, and keep it always up to date plz donate via paypal in </font> <font color='#FF9900'>ssssssssssmith@hotmail.com</font> (10) S");
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
@@ -296,23 +313,23 @@ namespace D_Jarvan
             }
             if ((_config.Item("ActiveHarass").GetValue<KeyBind>().Active ||
                  _config.Item("harasstoggle").GetValue<KeyBind>().Active) &&
-                (100 * (_player.Mana / _player.MaxMana)) > _config.Item("harassmana").GetValue<Slider>().Value)
+                (100*(_player.Mana/_player.MaxMana)) > _config.Item("harassmana").GetValue<Slider>().Value)
             {
                 Harass();
 
             }
             if (_config.Item("Activelane").GetValue<KeyBind>().Active &&
-                (100 * (_player.Mana / _player.MaxMana)) > _config.Item("lanemana").GetValue<Slider>().Value)
+                (100*(_player.Mana/_player.MaxMana)) > _config.Item("lanemana").GetValue<Slider>().Value)
             {
                 Laneclear();
             }
             if (_config.Item("Activejungle").GetValue<KeyBind>().Active &&
-                (100 * (_player.Mana / _player.MaxMana)) > _config.Item("junglemana").GetValue<Slider>().Value)
+                (100*(_player.Mana/_player.MaxMana)) > _config.Item("junglemana").GetValue<Slider>().Value)
             {
                 JungleClear();
             }
             if (_config.Item("ActiveLast").GetValue<KeyBind>().Active &&
-                (100 * (_player.Mana / _player.MaxMana)) > _config.Item("lastmana").GetValue<Slider>().Value)
+                (100*(_player.Mana/_player.MaxMana)) > _config.Item("lastmana").GetValue<Slider>().Value)
             {
                 LastHit();
             }
@@ -328,7 +345,7 @@ namespace D_Jarvan
             {
                 ComboeqFlash();
             }
-            
+
             _player = ObjectManager.Player;
 
             _orbwalker.SetAttack(true);
@@ -336,6 +353,7 @@ namespace D_Jarvan
             KillSteal();
 
         }
+
         private static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             if (_w.IsReady() && gapcloser.Sender.IsValidTarget(_w.Range) && _config.Item("Gap_W").GetValue<bool>())
@@ -358,7 +376,7 @@ namespace D_Jarvan
                 }
             }
         }
-        
+
         private static void GenModelPacket(string champ, int skinId)
         {
             Packet.S2C.UpdateModel.Encoded(new Packet.S2C.UpdateModel.Struct(_player.NetworkId, skinId, champ))
@@ -374,7 +392,7 @@ namespace D_Jarvan
         {
             var damage = 0d;
             if (_igniteSlot != SpellSlot.Unknown &&
-               _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
+                _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
                 damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
             if (Items.HasItem(3077) && Items.CanUseItem(3077))
                 damage += _player.GetItemDamage(enemy, Damage.DamageItems.Tiamat);
@@ -385,15 +403,15 @@ namespace D_Jarvan
             if (Items.HasItem(3144) && Items.CanUseItem(3144))
                 damage += _player.GetItemDamage(enemy, Damage.DamageItems.Bilgewater);
             if (_q.IsReady())
-                damage += _player.GetSpellDamage(enemy, SpellSlot.Q) * 2 * 1.2;
+                damage += _player.GetSpellDamage(enemy, SpellSlot.Q)*2*1.2;
             if (_e.IsReady())
                 damage += _player.GetSpellDamage(enemy, SpellSlot.E);
             if (_r.IsReady())
                 damage += _player.GetSpellDamage(enemy, SpellSlot.R);
 
-            damage += _player.GetAutoAttackDamage(enemy, true) * 1.1;
+            damage += _player.GetAutoAttackDamage(enemy, true)*1.1;
             damage += _player.GetAutoAttackDamage(enemy, true);
-            return (float)damage;
+            return (float) damage;
         }
 
         private static void Combo()
@@ -424,12 +442,13 @@ namespace D_Jarvan
             {
                 //xsalice Code
                 var vec = t.ServerPosition - _player.ServerPosition;
-                var castBehind = _e.GetPrediction(t).CastPosition + Vector3.Normalize(vec) * 100;
+                var castBehind = _e.GetPrediction(t).CastPosition + Vector3.Normalize(vec)*100;
                 _e.Cast(castBehind, Packets());
             }
-            if (useQ && t.Distance(_player.Position) < _q.Range && _q.IsReady() && _epos != default(Vector3) && t.IsValidTarget(200, true, _epos))
+            if (useQ && t.Distance(_player.Position) < _q.Range && _q.IsReady() && _epos != default(Vector3) &&
+                t.IsValidTarget(200, true, _epos))
             {
-               _q.Cast(_epos, Packets());
+                _q.Cast(_epos, Packets());
             }
 
             if (useW && _w.IsReady())
@@ -449,7 +468,7 @@ namespace D_Jarvan
                     _r.Cast(t, Packets(), true);
             }
             UseItemes(t);
-            }
+        }
 
         private static void ComboEqr()
         {
@@ -493,7 +512,7 @@ namespace D_Jarvan
             var useQ = _config.Item("UseQH").GetValue<bool>();
             var useE = _config.Item("UseEH").GetValue<bool>();
             var useEq = _config.Item("UseEQH").GetValue<bool>();
-            var useEqhp = (100 * (_player.Health / _player.MaxHealth)) > _config.Item("UseEQHHP").GetValue<Slider>().Value;
+            var useEqhp = (100*(_player.Health/_player.MaxHealth)) > _config.Item("UseEQHHP").GetValue<Slider>().Value;
             var useItemsH = _config.Item("UseItemsharass").GetValue<bool>();
             if (useEqhp && useEq && _q.IsReady() && _e.IsReady())
             {
@@ -529,7 +548,9 @@ namespace D_Jarvan
         {
             _player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
             var flashDista = _config.Item("FlashDista").GetValue<Slider>().Value;
-            var manacheck = _player.Mana > _player.Spellbook.GetSpell(SpellSlot.Q).ManaCost + _player.Spellbook.GetSpell(SpellSlot.E).ManaCost;
+            var manacheck = _player.Mana >
+                            _player.Spellbook.GetSpell(SpellSlot.Q).ManaCost +
+                            _player.Spellbook.GetSpell(SpellSlot.E).ManaCost;
             var t = SimpleTs.GetTarget(_q.Range + 800, SimpleTs.DamageType.Magical);
             if (_flashSlot != SpellSlot.Unknown && _player.SummonerSpellbook.CanUseSpell(_flashSlot) == SpellState.Ready)
             {
@@ -549,6 +570,7 @@ namespace D_Jarvan
             }
             UseItemes(t);
         }
+
         private static void Laneclear()
         {
             var allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _q.Range, MinionTypes.All);
@@ -562,7 +584,7 @@ namespace D_Jarvan
             var useQl = _config.Item("UseQL").GetValue<bool>();
             var useEl = _config.Item("UseEL").GetValue<bool>();
             var useWl = _config.Item("UseWL").GetValue<bool>();
-            var usewhp = (100 * (_player.Health / _player.MaxHealth)) < _config.Item("UseWLHP").GetValue<Slider>().Value;
+            var usewhp = (100*(_player.Health/_player.MaxHealth)) < _config.Item("UseWLHP").GetValue<Slider>().Value;
 
             if (_q.IsReady() && useQl)
             {
@@ -580,7 +602,7 @@ namespace D_Jarvan
                 else
                     foreach (var minion in allMinionsQ)
                         if (!Orbwalking.InAutoAttackRange(minion) &&
-                            minion.Health < 0.75 * _player.GetSpellDamage(minion, SpellSlot.Q))
+                            minion.Health < 0.75*_player.GetSpellDamage(minion, SpellSlot.Q))
                             _q.Cast(minion);
             }
 
@@ -600,7 +622,7 @@ namespace D_Jarvan
                 else
                     foreach (var minion in allMinionsE)
                         if (!Orbwalking.InAutoAttackRange(minion) &&
-                            minion.Health < 0.75 * _player.GetSpellDamage(minion, SpellSlot.E))
+                            minion.Health < 0.75*_player.GetSpellDamage(minion, SpellSlot.E))
                             _e.Cast(minion);
             }
             if (usewhp && useWl && _w.IsReady() && allMinionsQ.Count > 0)
@@ -614,7 +636,7 @@ namespace D_Jarvan
                 {
                     _tiamat.Cast();
                 }
-                if (useItemsl && _hydra.IsReady()  && _player.Distance(minion) < _hydra.Range)
+                if (useItemsl && _hydra.IsReady() && _player.Distance(minion) < _hydra.Range)
                 {
                     _hydra.Cast();
                 }
@@ -627,17 +649,17 @@ namespace D_Jarvan
             var useQ = _config.Item("UseQLH").GetValue<bool>();
             var useW = _config.Item("UseWLH").GetValue<bool>();
             var useE = _config.Item("UseELH").GetValue<bool>();
-            var usewhp = (100 * (_player.Health / _player.MaxHealth)) < _config.Item("UseWLHHP").GetValue<Slider>().Value;
+            var usewhp = (100*(_player.Health/_player.MaxHealth)) < _config.Item("UseWLHHP").GetValue<Slider>().Value;
             foreach (var minion in allMinions)
             {
                 if (useQ && _q.IsReady() && _player.Distance(minion) < _q.Range &&
-                    minion.Health < 0.95 * _player.GetSpellDamage(minion, SpellSlot.Q))
+                    minion.Health < 0.95*_player.GetSpellDamage(minion, SpellSlot.Q))
                 {
                     _q.Cast(minion, Packets());
                 }
 
                 if (_e.IsReady() && useE && _player.Distance(minion) < _e.Range &&
-                    minion.Health < 0.95 * _player.GetSpellDamage(minion, SpellSlot.E))
+                    minion.Health < 0.95*_player.GetSpellDamage(minion, SpellSlot.E))
                 {
                     _e.Cast(minion, Packets());
                 }
@@ -681,7 +703,7 @@ namespace D_Jarvan
                     {
                         _q.Cast(mob, Packets());
                     }
-                     if (_e.IsReady() && useE && _player.Distance(mob) < _q.Range)
+                    if (_e.IsReady() && useE && _player.Distance(mob) < _q.Range)
                     {
                         _e.Cast(mob, Packets());
                     }
@@ -707,46 +729,54 @@ namespace D_Jarvan
             return _config.Item("usePackets").GetValue<bool>();
         }
 
-     
+
         private static int GetSmiteDmg()
         {
             int level = _player.Level;
-            int index = _player.Level / 5;
-            float[] dmgs = { 370 + 20 * level, 330 + 30 * level, 240 + 40 * level, 100 + 50 * level };
-            return (int)dmgs[index];
+            int index = _player.Level/5;
+            float[] dmgs = {370 + 20*level, 330 + 30*level, 240 + 40*level, 100 + 50*level};
+            return (int) dmgs[index];
         }
+
         //New map Monsters Name By SKO
         private static void Smiteuse()
         {
-            string[] jungleMinions;
-            if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
+            var jungleMinions = new string[]
             {
-                jungleMinions = new string[] { "TT_Spiderboss", "TT_NWraith", "TT_NGolem", "TT_NWolf" };
-            }
-            else
-            {
-                jungleMinions = new string[] { "SRU_Blue", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Red", "SRU_Krug", "SRU_Dragon", "SRU_Baron", "Sru_Crab" };
-            }
-
+                "TT_Spiderboss", "TTNGolem", "TTNWolf", "TTNWraith",
+                "SRU_Blue", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Red", "SRU_Krug", "SRU_Dragon",
+                "SRU_Baron", "Sru_Crab"
+            };
+            var junglesmite = _config.Item("Activejungle").GetValue<KeyBind>().Active;
+            var health = (100*(_player.Mana/_player.MaxMana)) < _config.Item("healthJ").GetValue<Slider>().Value;
+            var mana = (100*(_player.Mana/_player.MaxMana)) < _config.Item("manaJ").GetValue<Slider>().Value;
+            //var health = _player.Health <= (_player.MaxHealth*20/100);
+            //var mana = _player.Mana <= (_player.MaxMana*20/100);
             var minions = MinionManager.GetMinions(_player.Position, 1000, MinionTypes.All, MinionTeam.Neutral);
             if (minions.Count() > 0)
             {
                 int smiteDmg = GetSmiteDmg();
                 foreach (Obj_AI_Base minion in minions)
                 {
-
-                    Boolean b;
-                    if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
+                    if (minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name)) &&
+                        !jungleMinions.Any(name => minion.Name.Contains("Mini")) &&
+                        ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot.Slot) == SpellState.Ready)
                     {
-                        b = minion.Health <= smiteDmg &&
-                            jungleMinions.Any(name => minion.Name.Substring(0, minion.Name.Length - 5).Equals(name));
+                        _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, minion);
                     }
-                    else
+                    else if (junglesmite &&
+                             ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot.Slot) == SpellState.Ready &&
+                             mana && minion.Health >= smiteDmg &&
+                             jungleMinions.Any(name => minion.Name.StartsWith("SRU_Blue")) &&
+                             !jungleMinions.Any(name => minion.Name.Contains("Mini")))
                     {
-                        b = minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name)) && !jungleMinions.Any(name => minion.Name.Contains("Mini"));
+                        _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, minion);
                     }
-
-                    if (b)
+                    else if (junglesmite &&
+                             ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot.Slot) == SpellState.Ready &&
+                             health && minion.Health >= smiteDmg &&
+                             jungleMinions.Any(name => minion.Name.StartsWith("SRU_Red")) &&
+                             !jungleMinions.Any(name => minion.Name.Contains("Mini")))
                     {
                         _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, minion);
                     }
@@ -758,14 +788,14 @@ namespace D_Jarvan
         {
             var iBilge = _config.Item("Bilge").GetValue<bool>();
             var iBilgeEnemyhp = target.Health <=
-                                (target.MaxHealth * (_config.Item("BilgeEnemyhp").GetValue<Slider>().Value) / 100);
+                                (target.MaxHealth*(_config.Item("BilgeEnemyhp").GetValue<Slider>().Value)/100);
             var iBilgemyhp = _player.Health <=
-                             (_player.MaxHealth * (_config.Item("Bilgemyhp").GetValue<Slider>().Value) / 100);
+                             (_player.MaxHealth*(_config.Item("Bilgemyhp").GetValue<Slider>().Value)/100);
             var iBlade = _config.Item("Blade").GetValue<bool>();
             var iBladeEnemyhp = target.Health <=
-                                (target.MaxHealth * (_config.Item("BladeEnemyhp").GetValue<Slider>().Value) / 100);
+                                (target.MaxHealth*(_config.Item("BladeEnemyhp").GetValue<Slider>().Value)/100);
             var iBlademyhp = _player.Health <=
-                             (_player.MaxHealth * (_config.Item("Blademyhp").GetValue<Slider>().Value) / 100);
+                             (_player.MaxHealth*(_config.Item("Blademyhp").GetValue<Slider>().Value)/100);
             var iOmen = _config.Item("Omen").GetValue<bool>();
             var iOmenenemys = ObjectManager.Get<Obj_AI_Hero>().Count(hero => hero.IsValidTarget(450)) >=
                               _config.Item("Omenenemys").GetValue<Slider>().Value;
@@ -806,7 +836,7 @@ namespace D_Jarvan
             {
                 foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsAlly || hero.IsMe))
                 {
-                    if (hero.Health <= (hero.MaxHealth * (_config.Item("lotisminhp").GetValue<Slider>().Value) / 100) &&
+                    if (hero.Health <= (hero.MaxHealth*(_config.Item("lotisminhp").GetValue<Slider>().Value)/100) &&
                         hero.Distance(_player.ServerPosition) <= _lotis.Range && _lotis.IsReady())
                         _lotis.Cast();
                 }
@@ -818,7 +848,7 @@ namespace D_Jarvan
             var target = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
             var igniteDmg = _player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
             if (target != null && _config.Item("UseIgnitekill").GetValue<bool>() && _igniteSlot != SpellSlot.Unknown &&
-            _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
+                _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
             {
                 if (igniteDmg > target.Health)
                 {
@@ -844,7 +874,9 @@ namespace D_Jarvan
 
         private static void Forest()
         {
-            var manacheck = _player.Mana > _player.Spellbook.GetSpell(SpellSlot.Q).ManaCost + _player.Spellbook.GetSpell(SpellSlot.E).ManaCost;
+            var manacheck = _player.Mana >
+                            _player.Spellbook.GetSpell(SpellSlot.Q).ManaCost +
+                            _player.Spellbook.GetSpell(SpellSlot.E).ManaCost;
             _player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
             var target = SimpleTs.GetTarget(_e.Range, SimpleTs.DamageType.Magical);
 
@@ -864,15 +896,15 @@ namespace D_Jarvan
         private static void OnCreateObj(GameObject sender, EventArgs args)
         {
             if (!(sender is Obj_GeneralParticleEmmiter)) return;
-            var obj = (Obj_GeneralParticleEmmiter)sender;
+            var obj = (Obj_GeneralParticleEmmiter) sender;
             if (sender.Name == "JarvanDemacianStandard_buf_green.troy")
             {
                 _epos = sender.Position;
             }
             if (obj != null && obj.IsMe && obj.Name == "JarvanCataclysm_tar")
 
-            //debug
-            //if (unit == ObjectManager.Player.Name)
+                //debug
+                //if (unit == ObjectManager.Player.Name)
             {
                 // Game.PrintChat("Spell: " + name);
                 _haveulti = true;
@@ -887,7 +919,7 @@ namespace D_Jarvan
             {
                 _epos = default(Vector3);
             }
-            var obj = (Obj_GeneralParticleEmmiter)sender;
+            var obj = (Obj_GeneralParticleEmmiter) sender;
             if (obj != null && obj.IsMe && obj.Name == "JarvanCataclysm_tar")
             {
                 _haveulti = false;
@@ -901,18 +933,19 @@ namespace D_Jarvan
             {
                 if (_config.Item("Usesmite").GetValue<KeyBind>().Active)
                 {
-                    Drawing.DrawText(Drawing.Width * 0.90f, Drawing.Height * 0.68f, System.Drawing.Color.DarkOrange,
+                    Drawing.DrawText(Drawing.Width*0.90f, Drawing.Height*0.68f, System.Drawing.Color.DarkOrange,
                         "Smite Is On");
                 }
                 else
-                    Drawing.DrawText(Drawing.Width * 0.90f, Drawing.Height * 0.68f, System.Drawing.Color.DarkRed,
+                    Drawing.DrawText(Drawing.Width*0.90f, Drawing.Height*0.68f, System.Drawing.Color.DarkRed,
                         "Smite Is Off");
             }
             if (_config.Item("CircleLag").GetValue<bool>())
             {
                 if (_config.Item("DrawEQF").GetValue<bool>())
                 {
-                    Utility.DrawCircle(ObjectManager.Player.Position, _q.Range + _config.Item("FlashDista").GetValue<Slider>().Value, System.Drawing.Color.Gray,
+                    Utility.DrawCircle(ObjectManager.Player.Position,
+                        _q.Range + _config.Item("FlashDista").GetValue<Slider>().Value, System.Drawing.Color.Gray,
                         _config.Item("CircleThickness").GetValue<Slider>().Value,
                         _config.Item("CircleQuality").GetValue<Slider>().Value);
                 }
@@ -972,12 +1005,15 @@ namespace D_Jarvan
                 }
                 if (_config.Item("DrawEQF").GetValue<bool>())
                 {
-                    Drawing.DrawCircle(ObjectManager.Player.Position, _q.Range + _config.Item("FlashDista").GetValue<Slider>().Value, System.Drawing.Color.White);
+                    Drawing.DrawCircle(ObjectManager.Player.Position,
+                        _q.Range + _config.Item("FlashDista").GetValue<Slider>().Value, System.Drawing.Color.White);
                 }
             }
         }
     }
 }
+  
+ 
 
 
 
