@@ -427,10 +427,6 @@ namespace D_Jarvan
                 var castBehind = _e.GetPrediction(t).CastPosition + Vector3.Normalize(vec) * 100;
                 _e.Cast(castBehind, Packets());
             }
-            else
-            {
-                _e.Cast(t, Packets());
-            }
             if (useQ && t.Distance(_player.Position) < _q.Range && _q.IsReady() && _epos != default(Vector3) && t.IsValidTarget(200, true, _epos))
             {
                _q.Cast(_epos, Packets());
@@ -729,7 +725,7 @@ namespace D_Jarvan
             }
             else
             {
-                jungleMinions = new string[] { "AncientGolem", "LizardElder", "Worm", "Dragon", "SRU_Blue", "SRU_Red", "SRU_Dragon", "SRU_Baron" };
+                jungleMinions = new string[] { "SRU_Blue", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Red", "SRU_Krug", "SRU_Dragon", "SRU_Baron", "Sru_Crab" };
             }
 
             var minions = MinionManager.GetMinions(_player.Position, 1000, MinionTypes.All, MinionTeam.Neutral);

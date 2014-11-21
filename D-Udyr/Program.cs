@@ -583,17 +583,17 @@ namespace D_Udyr
                     "Forest Is Off");
         }
 
+        //New map Monsters Name By SKO
         private static void Smiteuse()
         {
             string[] jungleMinions;
             if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
             {
-                jungleMinions = new string[] {"TT_Spiderboss", "TT_NWraith", "TT_NGolem", "TT_NWolf"};
+                jungleMinions = new string[] { "TT_Spiderboss", "TT_NWraith", "TT_NGolem", "TT_NWolf" };
             }
             else
             {
-                jungleMinions = new string[]
-                {"AncientGolem", "LizardElder", "Worm", "Dragon", "SRU_Blue", "SRU_Red", "SRU_Dragon", "SRU_Baron"};
+                jungleMinions = new string[] { "SRU_Blue", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Red", "SRU_Krug", "SRU_Dragon", "SRU_Baron", "Sru_Crab" };
             }
 
             var minions = MinionManager.GetMinions(_player.Position, 1000, MinionTypes.All, MinionTeam.Neutral);
@@ -611,8 +611,7 @@ namespace D_Udyr
                     }
                     else
                     {
-                        b = minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name)) &&
-                            !jungleMinions.Any(name => minion.Name.Contains("Mini"));
+                        b = minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name)) && !jungleMinions.Any(name => minion.Name.Contains("Mini"));
                     }
 
                     if (b)

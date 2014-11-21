@@ -614,6 +614,7 @@ namespace D_Elise
             return (int)dmgs[index];
         }
 
+        //New map Monsters Name By SKO
         private static void Smiteuse()
         {
             string[] jungleMinions;
@@ -623,7 +624,7 @@ namespace D_Elise
             }
             else
             {
-                jungleMinions = new string[] { "AncientGolem", "LizardElder", "Worm", "Dragon", "SRU_Blue", "SRU_Red", "SRU_Dragon", "SRU_Baron" };
+                jungleMinions = new string[] { "SRU_Blue", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Red", "SRU_Krug", "SRU_Dragon", "SRU_Baron", "Sru_Crab" };
             }
 
             var minions = MinionManager.GetMinions(_player.Position, 1000, MinionTypes.All, MinionTeam.Neutral);
@@ -641,8 +642,7 @@ namespace D_Elise
                     }
                     else
                     {
-                        b = minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name)) &&
-                            !jungleMinions.Any(name => minion.Name.Contains("Mini"));
+                        b = minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name)) && !jungleMinions.Any(name => minion.Name.Contains("Mini"));
                     }
 
                     if (b)
