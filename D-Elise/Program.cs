@@ -189,9 +189,6 @@ namespace D_Elise
 
             //Farm
             _config.AddSubMenu(new Menu("Jungle", "Jungle"));
-            _config.SubMenu("Jungle")
-                .AddItem(
-                    new MenuItem("Usesmite", "Use Smite").SetValue(new KeyBind("L".ToCharArray()[0], KeyBindType.Toggle)));
             _config.SubMenu("Jungle").AddItem(new MenuItem("HumanQFarmJ", "Human Q")).SetValue(true);
             _config.SubMenu("Jungle").AddItem(new MenuItem("HumanWFarmJ", "Human W")).SetValue(true);
             _config.SubMenu("Jungle").AddItem(new MenuItem("SpiderQFarmJ", "Spider Q")).SetValue(false);
@@ -201,6 +198,17 @@ namespace D_Elise
                     new MenuItem("ActiveJungle", "Jungle").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
             _config.SubMenu("Jungle")
                 .AddItem(new MenuItem("Junglemana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+
+            //Smite 
+            _config.AddSubMenu(new Menu("Smite", "Smite"));
+            _config.SubMenu("Smite")
+                .AddItem(
+                    new MenuItem("Usesmite", "Use Smite(toggle)").SetValue(new KeyBind("H".ToCharArray()[0],
+                        KeyBindType.Toggle)));
+            _config.SubMenu("Smite")
+                .AddItem(new MenuItem("manaJ", "Smite Blue Early if MP% <").SetValue(new Slider(35, 1, 100)));
+            _config.SubMenu("Smite")
+                .AddItem(new MenuItem("healthJ", "Smite Red Early if HP% <").SetValue(new Slider(35, 1, 100)));
 
             //misc
             _config.AddSubMenu(new Menu("Misc", "Misc"));
@@ -613,39 +621,46 @@ namespace D_Elise
             float[] dmgs = { 370 + 20 * level, 330 + 30 * level, 240 + 40 * level, 100 + 50 * level };
             return (int)dmgs[index];
         }
-
+        
         //New map Monsters Name By SKO
         private static void Smiteuse()
         {
-            string[] jungleMinions;
-            if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
+            var jungleMinions = new string[]
             {
-                jungleMinions = new string[] { "TT_Spiderboss", "TT_NWraith", "TT_NGolem", "TT_NWolf" };
-            }
-            else
-            {
-                jungleMinions = new string[] { "SRU_Blue", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Red", "SRU_Krug", "SRU_Dragon", "SRU_Baron", "Sru_Crab" };
-            }
-
+                "TT_Spiderboss", "TTNGolem", "TTNWolf", "TTNWraith",
+                "SRU_Blue", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Red", "SRU_Krug", "SRU_Dragon",
+                "SRU_Baron", "Sru_Crab"
+            };
+            var junglesmite = _config.Item("ActiveJungle").GetValue<KeyBind>().Active;
+            var health = (100*(_player.Mana/_player.MaxMana)) < _config.Item("healthJ").GetValue<Slider>().Value;
+            var mana = (100*(_player.Mana/_player.MaxMana)) < _config.Item("manaJ").GetValue<Slider>().Value;
+            //var health = _player.Health <= (_player.MaxHealth*20/100);
+            //var mana = _player.Mana <= (_player.MaxMana*20/100);
             var minions = MinionManager.GetMinions(_player.Position, 1000, MinionTypes.All, MinionTeam.Neutral);
             if (minions.Count() > 0)
             {
                 int smiteDmg = GetSmiteDmg();
                 foreach (Obj_AI_Base minion in minions)
                 {
-
-                    Boolean b;
-                    if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
+                    if (minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name)) &&
+                        !jungleMinions.Any(name => minion.Name.Contains("Mini")) &&
+                        ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot.Slot) == SpellState.Ready)
                     {
-                        b = minion.Health <= smiteDmg &&
-                            jungleMinions.Any(name => minion.Name.Substring(0, minion.Name.Length - 5).Equals(name));
+                        _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, minion);
                     }
-                    else
+                    else if (junglesmite &&
+                             ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot.Slot) == SpellState.Ready &&
+                             mana && minion.Health >= smiteDmg &&
+                             jungleMinions.Any(name => minion.Name.StartsWith("SRU_Blue")) &&
+                             !jungleMinions.Any(name => minion.Name.Contains("Mini")))
                     {
-                        b = minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name)) && !jungleMinions.Any(name => minion.Name.Contains("Mini"));
+                        _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, minion);
                     }
-
-                    if (b)
+                    else if (junglesmite &&
+                             ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot.Slot) == SpellState.Ready &&
+                             health && minion.Health >= smiteDmg &&
+                             jungleMinions.Any(name => minion.Name.StartsWith("SRU_Red")) &&
+                             !jungleMinions.Any(name => minion.Name.Contains("Mini")))
                     {
                         _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, minion);
                     }
