@@ -226,8 +226,10 @@ namespace D_Jarvan
                 .AddItem(
                     new MenuItem("Usesmite", "Use Smite(toggle)").SetValue(new KeyBind("H".ToCharArray()[0],
                         KeyBindType.Toggle)));
+            _config.SubMenu("Smite").AddItem(new MenuItem("Useblue", "Smite Blue Early ")).SetValue(true);
             _config.SubMenu("Smite")
                 .AddItem(new MenuItem("manaJ", "Smite Blue Early if MP% <").SetValue(new Slider(35, 1, 100)));
+            _config.SubMenu("Smite").AddItem(new MenuItem("Usered", "Smite Red Early ")).SetValue(true);
             _config.SubMenu("Smite")
                 .AddItem(new MenuItem("healthJ", "Smite Red Early if HP% <").SetValue(new Slider(35, 1, 100)));
 
@@ -747,9 +749,11 @@ namespace D_Jarvan
                 "SRU_Blue", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Red", "SRU_Krug", "SRU_Dragon",
                 "SRU_Baron", "Sru_Crab"
             };
-            var junglesmite = _config.Item("Activejungle").GetValue<KeyBind>().Active;
-            var health = (100*(_player.Mana/_player.MaxMana)) < _config.Item("healthJ").GetValue<Slider>().Value;
-            var mana = (100*(_player.Mana/_player.MaxMana)) < _config.Item("manaJ").GetValue<Slider>().Value;
+            var useblue = _config.Item("Useblue").GetValue<bool>();
+            var usered = _config.Item("Usered").GetValue<bool>();
+            var junglesmite = _config.Item("ActiveJungle").GetValue<KeyBind>().Active;
+            var health = (100 * (_player.Mana / _player.MaxMana)) < _config.Item("healthJ").GetValue<Slider>().Value;
+            var mana = (100 * (_player.Mana / _player.MaxMana)) < _config.Item("manaJ").GetValue<Slider>().Value;
             //var health = _player.Health <= (_player.MaxHealth*20/100);
             //var mana = _player.Mana <= (_player.MaxMana*20/100);
             var minions = MinionManager.GetMinions(_player.Position, 1000, MinionTypes.All, MinionTeam.Neutral);
@@ -764,7 +768,7 @@ namespace D_Jarvan
                     {
                         _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, minion);
                     }
-                    else if (junglesmite &&
+                    else if (junglesmite && useblue &&
                              ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot.Slot) == SpellState.Ready &&
                              mana && minion.Health >= smiteDmg &&
                              jungleMinions.Any(name => minion.Name.StartsWith("SRU_Blue")) &&
@@ -772,7 +776,7 @@ namespace D_Jarvan
                     {
                         _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, minion);
                     }
-                    else if (junglesmite &&
+                    else if (junglesmite && usered &&
                              ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot.Slot) == SpellState.Ready &&
                              health && minion.Health >= smiteDmg &&
                              jungleMinions.Any(name => minion.Name.StartsWith("SRU_Red")) &&
