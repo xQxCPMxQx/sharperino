@@ -25,6 +25,8 @@ namespace D_Graves
         private static Obj_AI_Hero _player;
 
         private static Int32 _lastSkin;
+
+        private static Items.Item _youmuu, _blade, _bilge;
         static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -44,7 +46,9 @@ namespace D_Graves
             _w.SetSkillshot(0.30f, 250f, 1650f, false, SkillshotType.SkillshotCircle);
             _r.SetSkillshot(0.22f, 150f, 2100, true, SkillshotType.SkillshotLine);
 
-
+            _youmuu = new Items.Item(3142, 10);
+            _bilge = new Items.Item(3144, 475f);
+            _blade = new Items.Item(3153, 475f);
             //D Graves
             _config = new Menu("D-Graves", "D-Graves", true);
 
@@ -105,6 +109,16 @@ namespace D_Graves
                 .AddItem(
                     new MenuItem("ActiveLane", "LaneClear!").SetValue(new KeyBind("V".ToCharArray()[0],
                         KeyBindType.Press)));
+
+            _config.AddSubMenu(new Menu("items", "items"));
+            _config.SubMenu("items").AddItem(new MenuItem("Youmuu", "Use Youmuu's")).SetValue(true);
+            _config.SubMenu("items").AddItem(new MenuItem("Bilge", "Use Bilge")).SetValue(true);
+            _config.SubMenu("items").AddItem(new MenuItem("BilgeEnemyhp", "If Enemy Hp <").SetValue(new Slider(85, 1, 100)));
+            _config.SubMenu("items").AddItem(new MenuItem("Bilgemyhp", "Or your Hp < ").SetValue(new Slider(85, 1, 100)));
+            _config.SubMenu("items").AddItem(new MenuItem("Blade", "Use Blade")).SetValue(true);
+            _config.SubMenu("items").AddItem(new MenuItem("BladeEnemyhp", "If Enemy Hp <").SetValue(new Slider(85, 1, 100)));
+            _config.SubMenu("items").AddItem(new MenuItem("Blademyhp", "Or Your  Hp <").SetValue(new Slider(85, 1, 100)));
+           
 
             //Misc
             _config.AddSubMenu(new Menu("Misc", "Misc"));
@@ -271,8 +285,10 @@ namespace D_Graves
             damage += _player.GetAutoAttackDamage(enemy, true) * _config.Item("autoattack").GetValue<Slider>().Value;
             return (float)damage;
         }
+
         private static void Combo()
         {
+            var target = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
             var useQ = _config.Item("UseQC").GetValue<bool>();
             var useW = _config.Item("UseWC").GetValue<bool>();
             var useE = _config.Item("UseEC").GetValue<bool>();
@@ -325,8 +341,9 @@ namespace D_Graves
                     && _r.GetPrediction(t).Hitchance >= Rchange())
                     _r.Cast(t, Packets(), true);
             }
+            UseItemes(target);
         }
-        
+
         private static void Orbwalking_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
         {
             var useQ = _config.Item("UseQC").GetValue<bool>();
@@ -452,7 +469,36 @@ namespace D_Graves
                 }
             }
         }
+        private static void UseItemes(Obj_AI_Hero target)
+        {
+            var iBilge = _config.Item("Bilge").GetValue<bool>();
+            var iBilgeEnemyhp = target.Health <=
+                                (target.MaxHealth * (_config.Item("BilgeEnemyhp").GetValue<Slider>().Value) / 100);
+            var iBilgemyhp = _player.Health <=
+                             (_player.MaxHealth * (_config.Item("Bilgemyhp").GetValue<Slider>().Value) / 100);
+            var iBlade = _config.Item("Blade").GetValue<bool>();
+            var iBladeEnemyhp = target.Health <=
+                                (target.MaxHealth * (_config.Item("BladeEnemyhp").GetValue<Slider>().Value) / 100);
+            var iBlademyhp = _player.Health <=
+                             (_player.MaxHealth * (_config.Item("Blademyhp").GetValue<Slider>().Value) / 100);
+            var iZhonyas = _config.Item("Zhonyas").GetValue<bool>();
+            var iYoumuu = _config.Item("Youmuu").GetValue<bool>();
 
+            if (_player.Distance(target) <= 450 && iBilge && (iBilgeEnemyhp || iBilgemyhp) && _bilge.IsReady())
+            {
+                _bilge.Cast(target);
+
+            }
+            if (_player.Distance(target) <= 450 && iBlade && (iBladeEnemyhp || iBlademyhp) && _blade.IsReady())
+            {
+                _blade.Cast(target);
+
+            }
+            if (_player.Distance(target) <= 450 && iYoumuu && _youmuu.IsReady())
+            {
+                _youmuu.Cast();
+            }
+        }
         private static HitChance Qchange()
         {
             switch (_config.Item("Qchange").GetValue<StringList>().SelectedIndex)
