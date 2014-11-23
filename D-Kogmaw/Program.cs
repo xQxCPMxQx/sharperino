@@ -26,7 +26,7 @@ namespace D_Kogmaw
 
         private static SpellSlot _igniteSlot;
 
-        private static Items.Item _youmuu, _zhonya, _dfg, _blade, _bilge;
+        private static Items.Item _youmuu, _dfg, _blade, _bilge;
 
         private static readonly List<string> Skins = new List<string>();
 
@@ -65,7 +65,7 @@ namespace D_Kogmaw
                    Utility.Map.GetMap()._MapType == Utility.Map.MapType.CrystalScar
                 ? new Items.Item(3188, 750)
                 : new Items.Item(3128, 750);
-            _zhonya = new Items.Item(3157, 10);
+            
             _youmuu = new Items.Item(3142, 10);
             _bilge = new Items.Item(3144, 475f);
             _blade = new Items.Item(3153, 475f);
@@ -107,31 +107,15 @@ namespace D_Kogmaw
                 .AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
 
             _config.AddSubMenu(new Menu("items", "items"));
-            _config.SubMenu("items").AddSubMenu(new Menu("Offensive", "Offensive"));
-            _config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Youmuu", "Use Youmuu's")).SetValue(true);
-            _config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Bilge", "Use Bilge")).SetValue(true);
-            _config.SubMenu("items")
-                .SubMenu("Offensive")
-                .AddItem(new MenuItem("BilgeEnemyhp", "If Enemy Hp <").SetValue(new Slider(85, 1, 100)));
-            _config.SubMenu("items")
-                .SubMenu("Offensive")
-                .AddItem(new MenuItem("Bilgemyhp", "Or your Hp < ").SetValue(new Slider(85, 1, 100)));
-            _config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("Blade", "Use Blade")).SetValue(true);
-            _config.SubMenu("items")
-                .SubMenu("Offensive")
-                .AddItem(new MenuItem("BladeEnemyhp", "If Enemy Hp <").SetValue(new Slider(85, 1, 100)));
-            _config.SubMenu("items")
-                .SubMenu("Offensive")
-                .AddItem(new MenuItem("Blademyhp", "Or Your  Hp <").SetValue(new Slider(85, 1, 100)));
-            _config.SubMenu("items").SubMenu("Offensive").AddItem(new MenuItem("usedfg", "Use DFG")).SetValue(true);
-            _config.SubMenu("items").AddSubMenu(new Menu("Deffensive", "Deffensive"));
-            _config.SubMenu("items")
-                .SubMenu("Deffensive")
-                .AddItem(new MenuItem("Zhonyas", "Use Zhonya's"))
-                .SetValue(true);
-            _config.SubMenu("items")
-                .SubMenu("Deffensive")
-                .AddItem(new MenuItem("Zhonyashp", "Use Zhonya's if HP%<").SetValue(new Slider(20, 1, 100)));
+            _config.SubMenu("items").AddItem(new MenuItem("Youmuu", "Use Youmuu's")).SetValue(true);
+            _config.SubMenu("items").AddItem(new MenuItem("Bilge", "Use Bilge")).SetValue(true);
+            _config.SubMenu("items").AddItem(new MenuItem("BilgeEnemyhp", "If Enemy Hp <").SetValue(new Slider(85, 1, 100)));
+            _config.SubMenu("items").AddItem(new MenuItem("Bilgemyhp", "Or your Hp < ").SetValue(new Slider(85, 1, 100)));
+            _config.SubMenu("items").AddItem(new MenuItem("Blade", "Use Blade")).SetValue(true);
+            _config.SubMenu("items").AddItem(new MenuItem("BladeEnemyhp", "If Enemy Hp <").SetValue(new Slider(85, 1, 100)));
+            _config.SubMenu("items").AddItem(new MenuItem("Blademyhp", "Or Your  Hp <").SetValue(new Slider(85, 1, 100)));
+            _config.SubMenu("items").AddItem(new MenuItem("usedfg", "Use DFG")).SetValue(true);
+           
 
             //Harass
             _config.AddSubMenu(new Menu("Harass", "Harass"));
@@ -430,9 +414,6 @@ namespace D_Kogmaw
                                 (target.MaxHealth*(_config.Item("BladeEnemyhp").GetValue<Slider>().Value)/100);
             var iBlademyhp = _player.Health <=
                              (_player.MaxHealth*(_config.Item("Blademyhp").GetValue<Slider>().Value)/100);
-            var iZhonyas = _config.Item("Zhonyas").GetValue<bool>();
-            var iZhonyashp = _player.Health <=
-                             (_player.MaxHealth*(_config.Item("Zhonyashp").GetValue<Slider>().Value)/100);
             var iYoumuu = _config.Item("Youmuu").GetValue<bool>();
 
             if (_player.Distance(target) <= 450 && iBilge && (iBilgeEnemyhp || iBilgemyhp) && _bilge.IsReady())
@@ -443,11 +424,6 @@ namespace D_Kogmaw
             if (_player.Distance(target) <= 450 && iBlade && (iBladeEnemyhp || iBlademyhp) && _blade.IsReady())
             {
                 _blade.Cast(target);
-
-            }
-            if (iZhonyas && iZhonyashp && Utility.CountEnemysInRange(1000) >= 1)
-            {
-                _zhonya.Cast(_player);
 
             }
             if (_player.Distance(target) <= 450 && iYoumuu && _youmuu.IsReady())
