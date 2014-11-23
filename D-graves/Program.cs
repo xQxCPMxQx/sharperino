@@ -251,10 +251,18 @@ namespace D_Graves
         private static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             if (_w.IsReady() && gapcloser.Sender.IsValidTarget(_w.Range) && _config.Item("Gap_E").GetValue<bool>())
-            {
-                _w.Cast(gapcloser.Sender, Packets());
-            }
+                if (gapcloser.Sender.IsMelee())
+                {
+                  //  Game.PrintChat("melee");
+                    _w.Cast(_player, Packets());
+                }
+                else
+                {
+                  //  Game.PrintChat("normal");
+                    _w.Cast(gapcloser.Sender, Packets());
+                }
         }
+
         static void GenModelPacket(string champ, int skinId)
         {
             Packet.S2C.UpdateModel.Encoded(new Packet.S2C.UpdateModel.Struct(_player.NetworkId, skinId, champ)).Process();
