@@ -522,7 +522,7 @@ namespace D_Diana
             {
                 if (_player.Distance(target) <= _q.Range && _config.Item("UseQHarass").GetValue<bool>() && _q.IsReady())
                 {
-                    _q.CastIfHitchanceEquals(target, HitChance.Medium, Packets());
+                    _q.CastIfHitchanceEquals(target, HitChance.High, Packets());
                 }
                 if (_player.Distance(target) <= 200 && _config.Item("UseWHarass").GetValue<bool>() && _w.IsReady())
                 {
