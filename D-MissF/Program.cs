@@ -22,6 +22,8 @@ namespace D_MissF
 
         private static Int32 _lastSkin = 0;
 
+        private static Items.Item _youmuu, _blade, _bilge;
+
         private static SpellSlot _igniteSlot;
         static void Main(string[] args)
         {
@@ -43,6 +45,9 @@ namespace D_MissF
             _r.SetSkillshot(0.333f, 200, float.MaxValue, false, SkillshotType.SkillshotLine);
 
             _igniteSlot = _player.GetSpellSlot("SummonerDot");
+            _youmuu = new Items.Item(3142, 10);
+            _bilge = new Items.Item(3144, 475f);
+            _blade = new Items.Item(3153, 475f);
 
             //D MissFortune
             _config = new Menu("D-MissFortune", "D-MissFortune", true);
@@ -99,6 +104,15 @@ namespace D_MissF
                 .AddItem(
                     new MenuItem("ActiveLane", "LaneClear!").SetValue(new KeyBind("V".ToCharArray()[0],
                         KeyBindType.Press)));
+
+            _config.AddSubMenu(new Menu("items", "items"));
+            _config.SubMenu("items").AddItem(new MenuItem("Youmuu", "Use Youmuu's")).SetValue(true);
+            _config.SubMenu("items").AddItem(new MenuItem("Bilge", "Use Bilge")).SetValue(true);
+            _config.SubMenu("items").AddItem(new MenuItem("BilgeEnemyhp", "If Enemy Hp <").SetValue(new Slider(85, 1, 100)));
+            _config.SubMenu("items").AddItem(new MenuItem("Bilgemyhp", "Or your Hp < ").SetValue(new Slider(85, 1, 100)));
+            _config.SubMenu("items").AddItem(new MenuItem("Blade", "Use Blade")).SetValue(true);
+            _config.SubMenu("items").AddItem(new MenuItem("BladeEnemyhp", "If Enemy Hp <").SetValue(new Slider(85, 1, 100)));
+            _config.SubMenu("items").AddItem(new MenuItem("Blademyhp", "Or Your  Hp <").SetValue(new Slider(85, 1, 100)));
 
             //Misc
             _config.AddSubMenu(new Menu("Misc", "Misc"));
@@ -181,6 +195,36 @@ namespace D_MissF
             _player = ObjectManager.Player;
 
             KillSteal();
+        }
+        private static void UseItemes(Obj_AI_Hero target)
+        {
+            var iBilge = _config.Item("Bilge").GetValue<bool>();
+            var iBilgeEnemyhp = target.Health <=
+                                (target.MaxHealth * (_config.Item("BilgeEnemyhp").GetValue<Slider>().Value) / 100);
+            var iBilgemyhp = _player.Health <=
+                             (_player.MaxHealth * (_config.Item("Bilgemyhp").GetValue<Slider>().Value) / 100);
+            var iBlade = _config.Item("Blade").GetValue<bool>();
+            var iBladeEnemyhp = target.Health <=
+                                (target.MaxHealth * (_config.Item("BladeEnemyhp").GetValue<Slider>().Value) / 100);
+            var iBlademyhp = _player.Health <=
+                             (_player.MaxHealth * (_config.Item("Blademyhp").GetValue<Slider>().Value) / 100);
+            var iZhonyas = _config.Item("Zhonyas").GetValue<bool>();
+            var iYoumuu = _config.Item("Youmuu").GetValue<bool>();
+
+            if (_player.Distance(target) <= 450 && iBilge && (iBilgeEnemyhp || iBilgemyhp) && _bilge.IsReady())
+            {
+                _bilge.Cast(target);
+
+            }
+            if (_player.Distance(target) <= 450 && iBlade && (iBladeEnemyhp || iBlademyhp) && _blade.IsReady())
+            {
+                _blade.Cast(target);
+
+            }
+            if (_player.Distance(target) <= 450 && iYoumuu && _youmuu.IsReady())
+            {
+                _youmuu.Cast();
+            }
         }
         private static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
@@ -270,6 +314,7 @@ namespace D_MissF
                 _orbwalker.SetMovement(false);
                 _timeTick = Environment.TickCount;
             }
+            UseItemes(rtarget);
         }
         private static void Orbwalking_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
         {
