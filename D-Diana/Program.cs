@@ -63,7 +63,7 @@ namespace D_Diana
             _rand = new Items.Item(3143, 490f);
             _lotis = new Items.Item(3190, 590f);
             _dfg = new Items.Item(3128, 750f);
-            
+
             _igniteSlot = _player.GetSpellSlot("SummonerDot");
             _smiteSlot = _player.SummonerSpellbook.GetSpell(_player.GetSpellSlot("summonersmite"));
 
@@ -126,7 +126,7 @@ namespace D_Diana
             _config.SubMenu("items")
                 .SubMenu("Deffensive")
                 .AddItem(new MenuItem("lotisminhp", "Solari if Ally Hp<").SetValue(new Slider(35, 1, 100)));
-         
+
             _config.AddSubMenu(new Menu("Harass", "Harass"));
             _config.SubMenu("Harass").AddItem(new MenuItem("UseQHarass", "Use Q")).SetValue(true);
             _config.SubMenu("Harass").AddItem(new MenuItem("UseWHarass", "Use W")).SetValue(true);
@@ -242,23 +242,12 @@ namespace D_Diana
             GameObject.OnCreate += OnCreate;
             GameObject.OnDelete += OnDelete;
             Game.PrintChat("<font color='#881df2'>Diana By Diabaths With Misaya Combo by xSalice </font>Loaded!");
+            Game.PrintChat(
+                "<font color='#FF0000'>If You like my work and want to support, and keep it always up to date plz donate via paypal in </font> <font color='#FF9900'>ssssssssssmith@hotmail.com</font> (10) S");
+
             // Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPossibleToInterrupt;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
-
-            //credits to eXit_ / ikkeflikkeri
-            WebClient wc = new WebClient();
-            wc.Proxy = null;
-
-            wc.DownloadString("http://league.square7.ch/put.php?name=D-" + ChampionName);
-            // +1 in Counter (Every Start / Reload)
-            string amount = wc.DownloadString("http://league.square7.ch/get.php?name=D-" + ChampionName);
-            // Get the Counter Data
-            int intamount = Convert.ToInt32(amount); // remove unneeded line from webhost
-            Game.PrintChat("<font color='#881df2'>D-" + ChampionName + "</font> has been started <font color='#881df2'>" +
-                           intamount + "</font> Times."); // Post Counter Data
-            Game.PrintChat(
-                "<font color='#FF0000'>If You like my work and want to support, and keep it always up to date plz donate via paypal in </font> <font color='#FF9900'>ssssssssssmith@hotmail.com</font> (10) S");
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
@@ -565,12 +554,16 @@ namespace D_Diana
         //New map Monsters Name By SKO
         private static void Smiteuse()
         {
-            var jungleMinions = new string[]
+            string[] jungleMinions;
+            if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
             {
-                "TT_Spiderboss", "TTNGolem", "TTNWolf", "TTNWraith",
-                "SRU_Blue", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Red", "SRU_Krug", "SRU_Dragon",
-                "SRU_Baron", "Sru_Crab"
-            };
+                jungleMinions = new string[] { "TT_Spiderboss", "TT_NWraith", "TT_NGolem", "TT_NWolf" };
+            }
+            else
+            {
+                jungleMinions = new string[] { "SRU_Blue", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Red", "SRU_Krug", "SRU_Dragon", "SRU_Baron", "Sru_Crab" };
+            }
+           
             var useblue = _config.Item("Useblue").GetValue<bool>();
             var usered = _config.Item("Usered").GetValue<bool>();
             var junglesmite = _config.Item("ActiveJungle").GetValue<KeyBind>().Active;
@@ -584,7 +577,12 @@ namespace D_Diana
                 int smiteDmg = GetSmiteDmg();
                 foreach (Obj_AI_Base minion in minions)
                 {
-                    if (minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name)) &&
+                    if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline) &&
+                        jungleMinions.Any(name => minion.Name.Substring(0, minion.Name.Length - 5).Equals(name)))
+                    {
+                        _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, minion);
+                    }
+                    else if (minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name)) &&
                         !jungleMinions.Any(name => minion.Name.Contains("Mini")) &&
                         ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot.Slot) == SpellState.Ready)
                     {

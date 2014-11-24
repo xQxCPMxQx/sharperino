@@ -187,12 +187,12 @@ namespace D_Nidalee
                     new MenuItem("harasstoggle", "AutoHarass (toggle)").SetValue(new KeyBind("G".ToCharArray()[0],
                         KeyBindType.Toggle)));
             Config.SubMenu("Harass")
-               .AddItem(new MenuItem("Harrasmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+                .AddItem(new MenuItem("Harrasmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
             Config.SubMenu("Harass")
                 .AddItem(
                     new MenuItem("ActiveHarass", "Harass key").SetValue(new KeyBind("X".ToCharArray()[0],
                         KeyBindType.Press)));
-           
+
 
             Config.AddSubMenu(new Menu("Farm", "Farm"));
             Config.SubMenu("Farm").AddSubMenu(new Menu("LastHit", "LastHit"));
@@ -265,15 +265,8 @@ namespace D_Nidalee
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
             Game.PrintChat("<font color='#881df2'>SKO Nidallee Reworked By Diabaths </font>Loaded!");
-
-            WebClient wc = new WebClient();
-            wc.Proxy = null;
-            wc.DownloadString("http://league.square7.ch/put.php?name=Nidalino"); // +1 in Counter (Every Start / Reload)
-            string amount = wc.DownloadString("http://league.square7.ch/get.php?name=Nidalino"); // Get the Counter Data
-            int intamount = Convert.ToInt32(amount); // remove unneeded line from webhost
-            Game.PrintChat("<font color='#881df2'>Nidalino</font> has been started <font color='#881df2'>" + intamount + "</font> Times."); // Post Counter Data
-            Game.PrintChat("<font color='#FF0000'>If You like my work and want to support, and keep it always up to date plz donate via paypal in </font> <font color='#FF9900'>ssssssssssmith@hotmail.com</font> (10) S");
-        
+            Game.PrintChat(
+                "<font color='#FF0000'>If You like my work and want to support, and keep it always up to date plz donate via paypal in </font> <font color='#FF9900'>ssssssssssmith@hotmail.com</font> (10) S");
         }
 
         private static void Game_OnGameUpdate(EventArgs args)

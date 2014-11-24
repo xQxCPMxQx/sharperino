@@ -253,18 +253,6 @@ namespace D_Elise
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             Game.PrintChat("<font color='#881df2'>D-Elise by Diabaths</font> Loaded.");
-
-            //credits to eXit_ / ikkeflikkeri
-            WebClient wc = new WebClient();
-            wc.Proxy = null;
-
-            wc.DownloadString("http://league.square7.ch/put.php?name=D-" + ChampionName);
-                // +1 in Counter (Every Start / Reload) 
-            string amount = wc.DownloadString("http://league.square7.ch/get.php?name=D-" + ChampionName);
-                // Get the Counter Data
-            int intamount = Convert.ToInt32(amount); // remove unneeded line from webhost
-            Game.PrintChat("<font color='#881df2'>D-" + ChampionName + "</font> has been started <font color='#881df2'>" +
-                           intamount + "</font> Times."); // Post Counter Data
             Game.PrintChat("<font color='#FF0000'>If You like my work and want to support, and keep it always up to date plz donate via paypal in </font> <font color='#FF9900'>ssssssssssmith@hotmail.com</font> (10) S");
         
         }

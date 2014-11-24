@@ -39,7 +39,7 @@ namespace D_Corki
             _r2 = new Spell(SpellSlot.R, 1500f);
 
             _q.SetSkillshot(0.3f, 250f, 1250f, false, SkillshotType.SkillshotCircle);
-            _e.SetSkillshot(0f, (float)(45 * Math.PI / 180), 1500, false, SkillshotType.SkillshotCone);
+            _e.SetSkillshot(0f, (float) (45*Math.PI/180), 1500, false, SkillshotType.SkillshotCone);
             _r.SetSkillshot(0.20f, 40f, 2000f, true, SkillshotType.SkillshotLine);
 
 
@@ -117,25 +117,25 @@ namespace D_Corki
 
             _config.SubMenu("HitChance").AddSubMenu(new Menu("Harass", "Harass"));
             _config.SubMenu("HitChance").SubMenu("Harass").AddItem(new MenuItem("QchangeHar", "Q Hit").SetValue(
-                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance").SubMenu("Harass").AddItem(new MenuItem("EchangeHar", "E Hit").SetValue(
-                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance").SubMenu("Harass").AddItem(new MenuItem("RchangeHar", "R Hit").SetValue(
-                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance").AddSubMenu(new Menu("Combo", "Combo"));
             _config.SubMenu("HitChance").SubMenu("Combo").AddItem(new MenuItem("Qchange", "Q Hit").SetValue(
-                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance").SubMenu("Combo").AddItem(new MenuItem("Echange", "E Hit").SetValue(
-                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance").SubMenu("Combo").AddItem(new MenuItem("Rchange", "R Hit").SetValue(
-                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance").AddSubMenu(new Menu("KillSteal", "KillSteal"));
             _config.SubMenu("HitChance").SubMenu("KillSteal").AddItem(new MenuItem("Qchangekil", "Q Hit").SetValue(
-                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance").SubMenu("KillSteal").AddItem(new MenuItem("Echangekil", "E Hit").SetValue(
-                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                new StringList(new[] {"Low", "Medium", "High", "Very High"})));
             _config.SubMenu("HitChance").SubMenu("KillSteal").AddItem(new MenuItem("Rchangekil", "R Hit").SetValue(
-                new StringList(new[] { "Low", "Medium", "High", "Very High" })));
+                new StringList(new[] {"Low", "Medium", "High", "Very High"})));
 
             //Drawings
             _config.AddSubMenu(new Menu("Drawings", "Drawings"));
@@ -151,6 +151,8 @@ namespace D_Corki
 
             _config.AddToMainMenu();
             Game.PrintChat("<font color='#881df2'>D-Corki by Diabaths</font> Loaded.");
+            Game.PrintChat(
+               "<font color='#FF0000'>If You like my work and want to support, and keep it always up to date plz donate via paypal in </font> <font color='#FF9900'>ssssssssssmith@hotmail.com</font> (10) S");
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             Orbwalking.AfterAttack += Orbwalking_AfterAttack;
@@ -159,16 +161,6 @@ namespace D_Corki
                 GenModelPacket(_player.ChampionName, _config.Item("skinCorki").GetValue<Slider>().Value);
                 _lastSkin = _config.Item("skinCorki").GetValue<Slider>().Value;
             }
-            //credits to eXit_ / ikkeflikkeri
-            WebClient wc = new WebClient();
-            wc.Proxy=null;
-
-            wc.DownloadString("http://league.square7.ch/put.php?name=D-" + ChampionName);                                                                               // +1 in Counter (Every Start / Reload) 
-            string amount = wc.DownloadString("http://league.square7.ch/get.php?name=D-" + ChampionName);                                                               // Get the Counter Data
-            int intamount = Convert.ToInt32(amount);                                                                                                                    // remove unneeded line from webhost
-            Game.PrintChat("<font color='#881df2'>D-" + ChampionName + "</font> has been started <font color='#881df2'>" + intamount + "</font> Times.");               // Post Counter Data
-            Game.PrintChat("<font color='#FF0000'>If You like my work and want to support, and keep it always up to date plz donate via paypal in </font> <font color='#FF9900'>ssssssssssmith@hotmail.com</font> (10) S");
-        
         }
 
         private static void Game_OnGameUpdate(EventArgs args)
