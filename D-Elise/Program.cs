@@ -45,9 +45,16 @@ namespace D_Elise
 
         private static float _spideQcd = 0, _spideWcd = 0, _spideEcd = 0;
 
-        private static SpellDataInst _smiteSlot;
+       private static Items.Item _tiamat, _hydra, _blade, _bilge, _rand, _lotis, _zhonya;
 
-        private static Items.Item _tiamat, _hydra, _blade, _bilge, _rand, _lotis, _zhonya;
+       private static SpellSlot _smiteSlot = SpellSlot.Unknown;
+
+       private static Spell _smite;
+       //Credits to Kurisu
+       private static readonly int[] SmitePurple = { 3713, 3726, 3725, 3726, 3723 };
+       private static readonly int[] SmiteGrey = { 3711, 3722, 3721, 3720, 3719 };
+       private static readonly int[] SmiteRed = { 3715, 3718, 3717, 3716, 3714 };
+       private static readonly int[] SmiteBlue = { 3706, 3710, 3709, 3708, 3707 };
 
         static void Main(string[] args)
         {
@@ -79,11 +86,9 @@ namespace D_Elise
             _lotis = new Items.Item(3190, 590f);
             _zhonya = new Items.Item(3157, 10);
 
-
+            SetSmiteSlot();
             _igniteSlot = _player.GetSpellSlot("SummonerDot");
-            _smiteSlot = _player.SummonerSpellbook.GetSpell(_player.GetSpellSlot("summonersmite"));
-
-
+           
             _config = new Menu("D-Elise", "D-Elise", true);
 
 
@@ -206,6 +211,10 @@ namespace D_Elise
             _config.SubMenu("Smite").AddItem(new MenuItem("manaJ", "Smite Blue Early if MP% <").SetValue(new Slider(35, 1, 100)));
             _config.SubMenu("Smite").AddItem(new MenuItem("Usered", "Smite Red Early ")).SetValue(true);
             _config.SubMenu("Smite").AddItem(new MenuItem("healthJ", "Smite Red Early if HP% <").SetValue(new Slider(35, 1, 100)));
+            _config.SubMenu("Smite").AddItem(new MenuItem("smitecombo", "Use Smite in target")).SetValue(true);
+            _config.Item("smitecombo").ValueChanged += Switchcombo;
+            _config.SubMenu("Smite").AddItem(new MenuItem("Smiteeee", "Smite Minion in HumanE path").SetValue(false));
+            _config.Item("Smiteeee").ValueChanged += Switchminion;
 
             //misc
             _config.AddSubMenu(new Menu("Misc", "Misc"));
@@ -213,7 +222,6 @@ namespace D_Elise
             _config.SubMenu("Misc").AddItem(new MenuItem("Spidergapcloser", "SpiderE to GapCloser")).SetValue(true);
             _config.SubMenu("Misc").AddItem(new MenuItem("Humangapcloser", "HumanE to GapCloser")).SetValue(true);
             _config.SubMenu("Misc").AddItem(new MenuItem("UseEInt", "HumanE to Interrupt")).SetValue(true);
-            _config.SubMenu("Misc").AddItem(new MenuItem("smite", "Smite Minion in HumanE path").SetValue(true));
             _config.SubMenu("Misc")
                 .AddItem(
                     new MenuItem("autoE", "HUmanE with VeryHigh Chance").SetValue(new KeyBind("T".ToCharArray()[0],
@@ -240,6 +248,7 @@ namespace D_Elise
             _config.SubMenu("Drawings").AddItem(new MenuItem("SpiderDrawQ", "Spider Q")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("SpiderDrawE", "Spider E")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("Drawsmite", "Draw Smite")).SetValue(true);
+            _config.SubMenu("Drawings").AddItem(new MenuItem("drawmode", "Draw Smite Mode")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("CircleLag", "Lag Free Circles").SetValue(true));
             _config.SubMenu("Drawings")
                 .AddItem(new MenuItem("CircleQuality", "Circles Quality").SetValue(new Slider(100, 100, 10)));
@@ -256,7 +265,17 @@ namespace D_Elise
             Game.PrintChat("<font color='#FF0000'>If You like my work and want to support, and keep it always up to date plz donate via paypal in </font> <font color='#FF9900'>ssssssssssmith@hotmail.com</font> (10) S");
         
         }
+        private static void Switchcombo(object sender, OnValueChangeEventArgs e)
+        {
+            if (e.GetNewValue<bool>())
+                _config.Item("Smiteeee").SetValue(false);
+        }
 
+        private static void Switchminion(object sender, OnValueChangeEventArgs e)
+        {
+            if (e.GetNewValue<bool>())
+                _config.Item("smitecombo").SetValue(false);
+        }
         private static void Game_OnGameUpdate(EventArgs args)
         {
             Cooldowns();
@@ -299,7 +318,18 @@ namespace D_Elise
 
             }
           }
-
+       
+        private static void Smiteontarget(Obj_AI_Hero target)
+        {
+            var usesmite = _config.Item("smitecombo").GetValue<bool>();
+            var itemscheck = SmiteBlue.Any(Items.HasItem) || SmiteRed.Any(Items.HasItem);
+            if (itemscheck && usesmite &&
+                ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot) == SpellState.Ready &&
+                target.Distance(_player.Position) < _smite.Range)
+            {
+                ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, target);
+            }
+        }
         private static void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             if (sender.IsMe)
@@ -376,15 +406,16 @@ namespace D_Elise
         private static void Combo()
         {
             var target = SimpleTs.GetTarget(_humanW.Range, SimpleTs.DamageType.Magical);
-            var sReady = (_smiteSlot != null && _smiteSlot.Slot != SpellSlot.Unknown && _smiteSlot.State == SpellState.Ready);
+            var sReady = (_smiteSlot != SpellSlot.Unknown && ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot) == SpellState.Ready);
             var qdmg = _player.GetSpellDamage(target, SpellSlot.Q);
             var wdmg = _player.GetSpellDamage(target, SpellSlot.W);
             if (target == null) return; //buffelisecocoon
+            Smiteontarget(target);
             if (_human)
             {
                 if (target.Distance(_player.Position) < _humanE.Range && _config.Item("UseHumanE").GetValue<bool>() && _humanE.IsReady())
                 {
-                    if (sReady && _config.Item("smite").GetValue<bool>() &&
+                    if (sReady && _config.Item("Smiteeee").GetValue<bool>() && 
                         _humanE.GetPrediction(target).CollisionObjects.Count == 1)
                     {
                         CheckingCollision(target);
@@ -598,7 +629,42 @@ namespace D_Elise
                 }
             }
         }
+        //Credits to Kurisu
+        private static string Smitetype()
+        {
+            if (SmiteBlue.Any(Items.HasItem))
+            {
+                return "s5_summonersmiteplayerganker";
+            }
+            if (SmiteRed.Any(Items.HasItem))
+            {
+                return "s5_summonersmiteduel";
+            }
+            if (SmiteGrey.Any(Items.HasItem))
+            {
+                return "s5_summonersmitequick";
+            }
+            if (SmitePurple.Any(Items.HasItem))
+            {
+                return "itemsmiteaoe";
+            }
+            return "summonersmite";
+        }
 
+        //Credits to metaphorce
+        private static void SetSmiteSlot()
+        {
+            foreach (
+                var spell in
+                    ObjectManager.Player.SummonerSpellbook.Spells.Where(
+                        spell => String.Equals(spell.Name, Smitetype(), StringComparison.CurrentCultureIgnoreCase)))
+            {
+                _smiteSlot = spell.Slot;
+                _smite = new Spell(_smiteSlot, 700);
+                return;
+            }
+        }
+      
         private static int GetSmiteDmg()
         {
             int level = _player.Level;
@@ -607,49 +673,60 @@ namespace D_Elise
             return (int)dmgs[index];
         }
         
+       
         //New map Monsters Name By SKO
         private static void Smiteuse()
         {
-            var jungleMinions = new string[]
-            {
-                "TT_Spiderboss", "TTNGolem", "TTNWolf", "TTNWraith",
-                "SRU_Blue", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Red", "SRU_Krug", "SRU_Dragon",
-                "SRU_Baron", "Sru_Crab"
-            };
+            var jungle = _config.Item("ActiveJungle").GetValue<KeyBind>().Active;
+            if (!jungle || ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot) != SpellState.Ready) return;
             var useblue = _config.Item("Useblue").GetValue<bool>();
             var usered = _config.Item("Usered").GetValue<bool>();
-            var junglesmite = _config.Item("ActiveJungle").GetValue<KeyBind>().Active;
-            var health = (100*(_player.Mana/_player.MaxMana)) < _config.Item("healthJ").GetValue<Slider>().Value;
-            var mana = (100*(_player.Mana/_player.MaxMana)) < _config.Item("manaJ").GetValue<Slider>().Value;
-            //var health = _player.Health <= (_player.MaxHealth*20/100);
-            //var mana = _player.Mana <= (_player.MaxMana*20/100);
+            var health = (100 * (_player.Mana / _player.MaxMana)) < _config.Item("healthJ").GetValue<Slider>().Value;
+            var mana = (100 * (_player.Mana / _player.MaxMana)) < _config.Item("manaJ").GetValue<Slider>().Value;
+            string[] jungleMinions;
+            if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
+            {
+                jungleMinions = new string[] { "TT_Spiderboss", "TT_NWraith", "TT_NGolem", "TT_NWolf" };
+            }
+            else
+            {
+                jungleMinions = new string[]
+                {
+                    "SRU_Blue", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Red", "SRU_Krug", "SRU_Dragon",
+                    "SRU_Baron", "Sru_Crab"
+                };
+            }
             var minions = MinionManager.GetMinions(_player.Position, 1000, MinionTypes.All, MinionTeam.Neutral);
             if (minions.Count() > 0)
             {
                 int smiteDmg = GetSmiteDmg();
+
                 foreach (Obj_AI_Base minion in minions)
                 {
-                    if (minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name)) &&
-                        !jungleMinions.Any(name => minion.Name.Contains("Mini")) &&
-                        ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot.Slot) == SpellState.Ready)
+                    if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline) &&
+                        minion.Health <= smiteDmg &&
+                        jungleMinions.Any(name => minion.Name.Substring(0, minion.Name.Length - 5).Equals(name)))
                     {
-                        _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, minion);
+                        ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, minion);
                     }
-                    else if (junglesmite && useblue &&
-                             ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot.Slot) == SpellState.Ready &&
-                             mana && minion.Health >= smiteDmg &&
+                    if (minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name)) &&
+                        !jungleMinions.Any(name => minion.Name.Contains("Mini")))
+                    {
+
+                        ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, minion);
+                    }
+                    else if (useblue && mana && minion.Health >= smiteDmg &&
                              jungleMinions.Any(name => minion.Name.StartsWith("SRU_Blue")) &&
                              !jungleMinions.Any(name => minion.Name.Contains("Mini")))
                     {
-                        _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, minion);
+
+                        ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, minion);
                     }
-                    else if (junglesmite && usered &&
-                             ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot.Slot) == SpellState.Ready &&
-                             health && minion.Health >= smiteDmg &&
+                    else if (usered && health && minion.Health >= smiteDmg &&
                              jungleMinions.Any(name => minion.Name.StartsWith("SRU_Red")) &&
                              !jungleMinions.Any(name => minion.Name.Contains("Mini")))
                     {
-                        _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, minion);
+                        ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, minion);
                     }
                 }
             }
@@ -754,10 +831,10 @@ namespace D_Elise
                 if (segment.IsOnSegment &&
                     target.ServerPosition.To2D().Distance(segment.SegmentPoint) <= GetHitBox(col) + 40)
                 {
-                    if (col.IsValidTarget(_smiteSlot.SData.CastRange[0]) &&
+                    if ( col.Distance(_player.Position) < _smite.Range  &&
                         col.Health < _player.GetSummonerSpellDamage(col, Damage.SummonerSpell.Smite))
                     {
-                        _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, col);
+                        _player.SummonerSpellbook.CastSpell(_smiteSlot, col);
                         return true;
                     }
                 }
@@ -820,6 +897,17 @@ namespace D_Elise
         static void Drawing_OnDraw(EventArgs args)
         {
             var elise = Drawing.WorldToScreen(_player.Position);
+            if (_config.Item("drawmode").GetValue<bool>() && _config.Item("Usesmite").GetValue<KeyBind>().Active)
+            {
+                if (_config.Item("smitecombo").GetValue<bool>())
+                {
+                    Drawing.DrawText(Drawing.Width * 0.90f, Drawing.Height * 0.66f, System.Drawing.Color.DarkOrange,
+                      "Smite Tagret");
+                }
+                else Drawing.DrawText(Drawing.Width * 0.80f, Drawing.Height * 0.66f, System.Drawing.Color.DarkRed,
+                     "Smite minion in Human E Path");
+            }
+                
             if (_config.Item("Drawsmite").GetValue<bool>())
             {
                 if (_config.Item("Usesmite").GetValue<KeyBind>().Active)
