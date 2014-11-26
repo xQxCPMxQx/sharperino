@@ -26,14 +26,19 @@ namespace D_Diana
 
         private static Obj_AI_Hero _player;
 
-        private static SpellDataInst _smiteSlot;
-
         private static readonly List<Spell> SpellList = new List<Spell>();
 
         private static SpellSlot _igniteSlot;
 
         private static Items.Item _tiamat, _hydra, _blade, _bilge, _rand, _lotis;
+        private static SpellSlot _smiteSlot = SpellSlot.Unknown;
 
+        private static Spell _smite;
+        //Credits to Kurisu
+        private static readonly int[] SmitePurple = { 3713, 3726, 3725, 3726, 3723 };
+        private static readonly int[] SmiteGrey = { 3711, 3722, 3721, 3720, 3719 };
+        private static readonly int[] SmiteRed = { 3715, 3718, 3717, 3716, 3714 };
+        private static readonly int[] SmiteBlue = { 3706, 3710, 3709, 3708, 3707 };
         private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -65,7 +70,7 @@ namespace D_Diana
             _dfg = new Items.Item(3128, 750f);
 
             _igniteSlot = _player.GetSpellSlot("SummonerDot");
-            _smiteSlot = _player.SummonerSpellbook.GetSpell(_player.GetSpellSlot("summonersmite"));
+            SetSmiteSlot();
 
             //D Diana
             _config = new Menu("D-Diana", "D-Diana", true);
@@ -87,6 +92,7 @@ namespace D_Diana
             _config.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseRSecond", "Use Second R")).SetValue(false);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseItems", "Use DFG")).SetValue(true);
+            _config.SubMenu("Combo").AddItem(new MenuItem("smitecombo", "Use Smite in target")).SetValue(true);
             _config.SubMenu("Combo")
                 .AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
             //_config.SubMenu("Combo").AddItem(new MenuItem("ActiveCombo2", "Combo2!").SetValue(new KeyBind(32, KeyBindType.Press)));
@@ -269,10 +275,6 @@ namespace D_Diana
             {
                 Misaya();
             }
-            /* if (_config.Item("ActiveCombo2").GetValue<KeyBind>().Active)
-             {
-                 misaya2();
-             }*/
             if ((_config.Item("ActiveHarass").GetValue<KeyBind>().Active ||
                  _config.Item("harasstoggle").GetValue<KeyBind>().Active) &&
                 (100 * (_player.Mana / _player.MaxMana)) > _config.Item("Harrasmana").GetValue<Slider>().Value)
@@ -324,6 +326,17 @@ namespace D_Diana
                 Game.PrintChat("Spell name: " + args.SData.Name.ToString());
             }
         }
+        private static void Smiteontarget(Obj_AI_Hero target)
+        {
+            var usesmite = _config.Item("smitecombo").GetValue<bool>();
+            var itemscheck = SmiteBlue.Any(Items.HasItem) || SmiteRed.Any(Items.HasItem);
+            if (itemscheck && usesmite &&
+                ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot) == SpellState.Ready &&
+                target.Distance(_player.Position) < _smite.Range)
+            {
+                ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, target);
+            }
+        }
 
         //misaya combo by xSalice
         private static void Misaya()
@@ -331,6 +344,7 @@ namespace D_Diana
             var target = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
             if (target != null)
             {
+                Smiteontarget(target);
                 if (_player.Distance(target) <= _dfg.Range && _config.Item("UseItems").GetValue<bool>() &&
                     _dfg.IsReady() && target.Health <= ComboDamage(target))
                 {
@@ -374,46 +388,18 @@ namespace D_Diana
             }
         }
 
-        /*  public static void misaya2()
-          {
-              var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-              if (target != null)
-              {
-                  if (Player.Distance(target) <= DFG.Range && _config.Item("UseItems").GetValue<bool>() && DFG.IsReady() && target.Health <= ComboDamage(target))
-                  {
-                      DFG.Cast(target);
-                  }
-
-                  if (Player.Distance(target) <= R.Range && _config.Item("UseRCombo").GetValue<bool>() && R.IsReady() && Q.IsReady())
-                  {
-                      R.Cast(target, true);
-                      Q.Cast(target);
-                      return;
-                  }
-                  if (Player.Distance(target) <= W.Range && _config.Item("UseWCombo").GetValue<bool>() && W.IsReady() && !Q.IsReady())
-                  {
-                      W.Cast();
-                  }
-                  if (Player.Distance(target) <= E.Range && Player.Distance(target) >= W.Range && _config.Item("UseECombo").GetValue<bool>() && E.IsReady() && !W.IsReady())
-                  {
-                      E.Cast();
-                  }
-              
-                }
-          }*/
-
         private static void UseItemes(Obj_AI_Hero target)
         {
             var iBilge = _config.Item("Bilge").GetValue<bool>();
             var iBilgeEnemyhp = target.Health <=
-                                (target.MaxHealth*(_config.Item("BilgeEnemyhp").GetValue<Slider>().Value)/100);
+                                (target.MaxHealth * (_config.Item("BilgeEnemyhp").GetValue<Slider>().Value) / 100);
             var iBilgemyhp = _player.Health <=
-                             (_player.MaxHealth*(_config.Item("Bilgemyhp").GetValue<Slider>().Value)/100);
+                             (_player.MaxHealth * (_config.Item("Bilgemyhp").GetValue<Slider>().Value) / 100);
             var iBlade = _config.Item("Blade").GetValue<bool>();
             var iBladeEnemyhp = target.Health <=
-                                (target.MaxHealth*(_config.Item("BladeEnemyhp").GetValue<Slider>().Value)/100);
+                                (target.MaxHealth * (_config.Item("BladeEnemyhp").GetValue<Slider>().Value) / 100);
             var iBlademyhp = _player.Health <=
-                             (_player.MaxHealth*(_config.Item("Blademyhp").GetValue<Slider>().Value)/100);
+                             (_player.MaxHealth * (_config.Item("Blademyhp").GetValue<Slider>().Value) / 100);
             var iOmen = _config.Item("Omen").GetValue<bool>();
             var iOmenenemys = ObjectManager.Get<Obj_AI_Hero>().Count(hero => hero.IsValidTarget(450)) >=
                               _config.Item("Omenenemys").GetValue<Slider>().Value;
@@ -454,7 +440,7 @@ namespace D_Diana
             {
                 foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsAlly || hero.IsMe))
                 {
-                    if (hero.Health <= (hero.MaxHealth*(_config.Item("lotisminhp").GetValue<Slider>().Value)/100) &&
+                    if (hero.Health <= (hero.MaxHealth * (_config.Item("lotisminhp").GetValue<Slider>().Value) / 100) &&
                         hero.Distance(_player.ServerPosition) <= _lotis.Range && _lotis.IsReady())
                         _lotis.Cast();
                 }
@@ -542,7 +528,42 @@ namespace D_Diana
                 _w.Cast();
             }
         }
+        //Credits to Kurisu
+        private static string Smitetype()
+        {
+            if (SmiteBlue.Any(Items.HasItem))
+            {
+                return "s5_summonersmiteplayerganker";
+            }
+            if (SmiteRed.Any(Items.HasItem))
+            {
+                return "s5_summonersmiteduel";
+            }
+            if (SmiteGrey.Any(Items.HasItem))
+            {
+                return "s5_summonersmitequick";
+            }
+            if (SmitePurple.Any(Items.HasItem))
+            {
+                return "itemsmiteaoe";
+            }
+            return "summonersmite";
+        }
 
+
+        //Credits to metaphorce
+        private static void SetSmiteSlot()
+        {
+            foreach (
+                var spell in
+                    ObjectManager.Player.SummonerSpellbook.Spells.Where(
+                        spell => String.Equals(spell.Name, Smitetype(), StringComparison.CurrentCultureIgnoreCase)))
+            {
+                _smiteSlot = spell.Slot;
+                _smite = new Spell(_smiteSlot, 700);
+                return;
+            }
+        }
         private static int GetSmiteDmg()
         {
             int level = _player.Level;
@@ -554,6 +575,12 @@ namespace D_Diana
         //New map Monsters Name By SKO
         private static void Smiteuse()
         {
+            var jungle = _config.Item("ActiveJungle").GetValue<KeyBind>().Active;
+            if (ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot) != SpellState.Ready) return;
+            var useblue = _config.Item("Useblue").GetValue<bool>();
+            var usered = _config.Item("Usered").GetValue<bool>();
+            var health = (100 * (_player.Mana / _player.MaxMana)) < _config.Item("healthJ").GetValue<Slider>().Value;
+            var mana = (100 * (_player.Mana / _player.MaxMana)) < _config.Item("manaJ").GetValue<Slider>().Value;
             string[] jungleMinions;
             if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline))
             {
@@ -561,53 +588,45 @@ namespace D_Diana
             }
             else
             {
-                jungleMinions = new string[] { "SRU_Blue", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Red", "SRU_Krug", "SRU_Dragon", "SRU_Baron", "Sru_Crab" };
+                jungleMinions = new string[]
+                {
+                    "SRU_Blue", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Red", "SRU_Krug", "SRU_Dragon",
+                    "SRU_BaronSpawn", "Sru_Crab"
+                };
             }
-           
-            var useblue = _config.Item("Useblue").GetValue<bool>();
-            var usered = _config.Item("Usered").GetValue<bool>();
-            var junglesmite = _config.Item("ActiveJungle").GetValue<KeyBind>().Active;
-            var health = (100 * (_player.Mana / _player.MaxMana)) < _config.Item("healthJ").GetValue<Slider>().Value;
-            var mana = (100 * (_player.Mana / _player.MaxMana)) < _config.Item("manaJ").GetValue<Slider>().Value;
-            //var health = _player.Health <= (_player.MaxHealth*20/100);
-            //var mana = _player.Mana <= (_player.MaxMana*20/100);
             var minions = MinionManager.GetMinions(_player.Position, 1000, MinionTypes.All, MinionTeam.Neutral);
             if (minions.Count() > 0)
             {
                 int smiteDmg = GetSmiteDmg();
+
                 foreach (Obj_AI_Base minion in minions)
                 {
                     if (Utility.Map.GetMap()._MapType.Equals(Utility.Map.MapType.TwistedTreeline) &&
+                        minion.Health <= smiteDmg &&
                         jungleMinions.Any(name => minion.Name.Substring(0, minion.Name.Length - 5).Equals(name)))
                     {
-                        _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, minion);
+                        ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, minion);
                     }
-                    else if (minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name)) &&
-                        !jungleMinions.Any(name => minion.Name.Contains("Mini")) &&
-                        ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot.Slot) == SpellState.Ready)
+                    if (minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name)) &&
+                        !jungleMinions.Any(name => minion.Name.Contains("Mini")))
                     {
-                        _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, minion);
+                        ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, minion);
                     }
-                    else if (junglesmite && useblue &&
-                             ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot.Slot) == SpellState.Ready &&
-                             mana && minion.Health >= smiteDmg &&
+                    else if (jungle && useblue && mana && minion.Health >= smiteDmg &&
                              jungleMinions.Any(name => minion.Name.StartsWith("SRU_Blue")) &&
                              !jungleMinions.Any(name => minion.Name.Contains("Mini")))
                     {
-                        _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, minion);
+                        ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, minion);
                     }
-                    else if (junglesmite && usered &&
-                             ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot.Slot) == SpellState.Ready &&
-                             health && minion.Health >= smiteDmg &&
+                    else if (jungle && usered && health && minion.Health >= smiteDmg &&
                              jungleMinions.Any(name => minion.Name.StartsWith("SRU_Red")) &&
                              !jungleMinions.Any(name => minion.Name.Contains("Mini")))
                     {
-                        _player.SummonerSpellbook.CastSpell(_smiteSlot.Slot, minion);
+                        ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, minion);
                     }
                 }
             }
         }
-
         private static void Tragic()
         {
             var allMinionsQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _q.Range + _q.Width + 30,
@@ -658,7 +677,6 @@ namespace D_Diana
             var mobs = MinionManager.GetMinions(_player.ServerPosition, _q.Range,
                 MinionTypes.All,
                 MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
-
             var useQ = _config.Item("UseQJungle").GetValue<bool>();
             var useW = _config.Item("UseWJungle").GetValue<bool>();
             if (mobs.Count > 0)

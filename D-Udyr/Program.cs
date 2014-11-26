@@ -632,7 +632,7 @@ namespace D_Udyr
         private static void Smiteuse()
         {
             var jungle = _config.Item("ActiveJungle").GetValue<KeyBind>().Active;
-            if (!jungle || ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot) != SpellState.Ready) return;
+            if (ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot) != SpellState.Ready) return;
             var useblue = _config.Item("Useblue").GetValue<bool>();
             var usered = _config.Item("Usered").GetValue<bool>();
             var health = (100 * (_player.Mana / _player.MaxMana)) < _config.Item("healthJ").GetValue<Slider>().Value;
@@ -647,7 +647,7 @@ namespace D_Udyr
                 jungleMinions = new string[]
                 {
                     "SRU_Blue", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Red", "SRU_Krug", "SRU_Dragon",
-                    "SRU_Baron", "Sru_Crab"
+                    "SRU_BaronSpawn", "Sru_Crab"
                 };
             }
             var minions = MinionManager.GetMinions(_player.Position, 1000, MinionTypes.All, MinionTeam.Neutral);
@@ -666,17 +666,15 @@ namespace D_Udyr
                     if (minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name)) &&
                         !jungleMinions.Any(name => minion.Name.Contains("Mini")))
                     {
-
                         ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, minion);
                     }
-                    else if (useblue && mana && minion.Health >= smiteDmg &&
+                    else if (jungle && useblue && mana && minion.Health >= smiteDmg &&
                              jungleMinions.Any(name => minion.Name.StartsWith("SRU_Blue")) &&
                              !jungleMinions.Any(name => minion.Name.Contains("Mini")))
                     {
-
                         ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, minion);
                     }
-                    else if (usered && health && minion.Health >= smiteDmg &&
+                    else if (jungle && usered && health && minion.Health >= smiteDmg &&
                              jungleMinions.Any(name => minion.Name.StartsWith("SRU_Red")) &&
                              !jungleMinions.Any(name => minion.Name.Contains("Mini")))
                     {
