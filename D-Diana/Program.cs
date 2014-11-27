@@ -21,6 +21,7 @@ namespace D_Diana
         private static bool _qcreated = false;
 
         private static Menu _config;
+
         public static Menu TargetSelectorMenu;
 
         private static Items.Item _dfg;
