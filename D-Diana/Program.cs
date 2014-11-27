@@ -270,7 +270,6 @@ namespace D_Diana
             {
                 LastHit();
             }
-
             if (_config.Item("ActiveCombo").GetValue<KeyBind>().Active)
             {
                 Misaya();
