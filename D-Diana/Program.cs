@@ -21,6 +21,7 @@ namespace D_Diana
         private static bool _qcreated = false;
 
         private static Menu _config;
+        public static Menu TargetSelectorMenu;
 
         private static Items.Item _dfg;
 
@@ -76,9 +77,9 @@ namespace D_Diana
             _config = new Menu("D-Diana", "D-Diana", true);
 
             //TargetSelector
-            var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
-            SimpleTs.AddToMenu(targetSelectorMenu);
-            _config.AddSubMenu(targetSelectorMenu);
+            TargetSelectorMenu = new Menu("Target Selector", "Target Selector");
+            SimpleTs.AddToMenu(TargetSelectorMenu);
+            _config.AddSubMenu(TargetSelectorMenu);
 
             //Orbwalker
             _config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
@@ -243,6 +244,7 @@ namespace D_Diana
 
             _config.AddToMainMenu();
 
+            new AssassinManager();
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             GameObject.OnCreate += OnCreate;
@@ -272,7 +274,29 @@ namespace D_Diana
             }
             if (_config.Item("ActiveCombo").GetValue<KeyBind>().Active)
             {
-                Misaya();
+                  int assassinRange = TargetSelectorMenu.Item("AssassinSearchRange").GetValue<Slider>().Value;
+
+                IEnumerable<Obj_AI_Hero> xEnemy = ObjectManager.Get<Obj_AI_Hero>()
+                    .Where(
+                        enemy =>
+                            enemy.Team != ObjectManager.Player.Team && !enemy.IsDead && enemy.IsVisible &&
+                            TargetSelectorMenu.Item("Assassin" + enemy.ChampionName) != null &&
+                            TargetSelectorMenu.Item("Assassin" + enemy.ChampionName).GetValue<bool>() &&
+                            ObjectManager.Player.Distance(enemy) < assassinRange);
+
+                Obj_AI_Hero[] objAiHeroes = xEnemy as Obj_AI_Hero[] ?? xEnemy.ToArray();
+
+                if (objAiHeroes.Length > 2)
+                {
+                    Game.PrintChat(objAiHeroes[0].Distance(objAiHeroes[1]).ToString());
+                }
+
+                Obj_AI_Hero t = !objAiHeroes.Any()
+                    ? SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical)
+                    : objAiHeroes[0];
+               
+                Misaya(t);
+                //Misaya();
             }
             if ((_config.Item("ActiveHarass").GetValue<KeyBind>().Active ||
                  _config.Item("harasstoggle").GetValue<KeyBind>().Active) &&
@@ -338,11 +362,12 @@ namespace D_Diana
         }
 
         //misaya combo by xSalice
-        private static void Misaya()
+        private static void Misaya(Obj_AI_Hero t)
         {
-            var target = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
-            if (target != null)
-            {
+//            var target = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
+            var target = t;
+//            if (target != null)
+//            {
                 Smiteontarget(target);
                 if (_player.Distance(target) <= _dfg.Range && _config.Item("UseItems").GetValue<bool>() &&
                     _dfg.IsReady() && target.Health <= ComboDamage(target))
@@ -384,7 +409,7 @@ namespace D_Diana
                     _r.Cast(target, Packets());
                 }
                 UseItemes(target);
-            }
+         //   }
         }
 
         private static void UseItemes(Obj_AI_Hero target)
