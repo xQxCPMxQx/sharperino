@@ -85,7 +85,7 @@ namespace D_Diana
                                               orderby h.Distance(Game.CursorPos) descending
                                               select h
                                                   into enemy
-                                                  where enemy.Distance(Game.CursorPos) < 100f
+                                                  where enemy.Distance(Game.CursorPos) <= 150f
                                                   select enemy)
                 {
                     if (objAiHero != null && objAiHero.IsVisible && !objAiHero.IsDead)
