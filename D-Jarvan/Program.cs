@@ -85,10 +85,6 @@ namespace D_Jarvan
             _config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
             _orbwalker = new Orbwalking.Orbwalker(_config.SubMenu("Orbwalking"));
 
-            //* var orbwalkerMenu = new Menu("LX-Orbwalker", "LX-Orbwalker");
-            // LXOrbwalker.AddToMenu(orbwalkerMenu);
-            //_config.AddSubMenu(orbwalkerMenu);*/
-
             //Combo
             _config.AddSubMenu(new Menu("Combo", "Combo"));
             _config.SubMenu("Combo").AddItem(new MenuItem("UseIgnite", "Use Ignite")).SetValue(true);
@@ -191,7 +187,7 @@ namespace D_Jarvan
             _config.SubMenu("Farm")
                 .SubMenu("LaneFarm")
                 .AddItem(
-                    new MenuItem("Activelane", "Jungle!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
+                    new MenuItem("Activelane", "LaneClear!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
 
             _config.SubMenu("Farm").AddSubMenu(new Menu("LastHit", "LastHit"));
             _config.SubMenu("Farm").SubMenu("LastHit").AddItem(new MenuItem("UseQLH", "Q LastHit")).SetValue(true);
@@ -477,21 +473,35 @@ namespace D_Jarvan
             }
             if (_r.IsReady() && autoR && !_haveulti)
             {
-                if (ObjectManager.Get<Obj_AI_Hero>().Count(hero => hero.IsValidTarget(_r.Range)) >=
+                if (GetNumberHitByR(t) >=
                     _config.Item("MinTargets").GetValue<Slider>().Value)
                     _r.Cast(t, Packets(), true);
             }
             UseItemes(t);
         }
-
+        private static int GetNumberHitByR(Obj_AI_Hero target)
+        {
+            int Enemys = 0;
+            foreach (Obj_AI_Hero enemys in ObjectManager.Get<Obj_AI_Hero>())
+            {
+                var pred = _r.GetPrediction(enemys, true);
+                if (pred.Hitchance >= HitChance.High && !enemys.IsMe && enemys.IsEnemy && Vector3.Distance(_player.Position, pred.UnitPosition) <= _r.Range)
+                {
+                    Enemys = Enemys + 1;
+                }
+            }
+            return Enemys;
+        }
         private static void ComboEqr()
         {
-            _player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+            
+            //_player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
             var manacheck = _player.Mana >
                             _player.Spellbook.GetSpell(SpellSlot.Q).ManaCost +
                             _player.Spellbook.GetSpell(SpellSlot.E).ManaCost +
                             _player.Spellbook.GetSpell(SpellSlot.R).ManaCost;
             var t = SimpleTs.GetTarget(_q.Range + _r.Range, SimpleTs.DamageType.Magical);
+            _player.IssueOrder(GameObjectOrder.AttackUnit, t);
             Smiteontarget(t);
             if (_e.IsReady() && _q.IsReady() && manacheck)
             {
@@ -510,7 +520,7 @@ namespace D_Jarvan
             }
             if (_r.IsReady() && !_haveulti && t != null)
             {
-                _r.CastIfHitchanceEquals(t, HitChance.Immobile, Packets());
+               _r.CastIfHitchanceEquals(t, HitChance.Immobile, Packets());
             }
             if (_w.IsReady())
             {
@@ -518,7 +528,7 @@ namespace D_Jarvan
                     _w.Cast();
             }
             UseItemes(t);
-        }
+           }
 
         private static void Harass()
         {

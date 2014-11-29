@@ -270,7 +270,7 @@ namespace D_Kayle
                     _e.Cast();
                 }
 
-                if (_config.Item("UseWCombo").GetValue<bool>() && _player.Distance(target) >= _q.Range)
+                if (_w.IsReady() && _config.Item("UseWCombo").GetValue<bool>() && _player.Distance(target) >= _q.Range)
                 {
                     _w.Cast(_player);
                 }
@@ -292,7 +292,7 @@ namespace D_Kayle
             _player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
             if (_player.Spellbook.CanUseSpell(SpellSlot.W) == SpellState.Ready && _player.IsMe)
             {
-                if (target != null && Utility.CountEnemysInRange(1200) > 0)
+                if (_w.IsReady() && target != null && Utility.CountEnemysInRange(1200) > 0)
                 {
                     _player.Spellbook.CastSpell(SpellSlot.W, _player);
                 }
@@ -309,13 +309,13 @@ namespace D_Kayle
             if (target != null)
             {
 
-                if (_config.Item("harasstoggle").GetValue<KeyBind>().Active ||
+                if (_q.IsReady() && _config.Item("harasstoggle").GetValue<KeyBind>().Active ||
                     _config.Item("UseQHarass").GetValue<bool>())
                 {
                     _q.Cast(target, Packets());
                 }
 
-                if (_config.Item("ActiveHarass").GetValue<KeyBind>().Active &&
+                if (_e.IsReady() &&  _config.Item("ActiveHarass").GetValue<KeyBind>().Active &&
                     _config.Item("UseEHarass").GetValue<bool>())
                     _e.Cast();
             }
@@ -369,7 +369,7 @@ namespace D_Kayle
                     _q.Cast(minion, Packets());
                 }
 
-                if (_w.IsReady() && useE && minion.Health < 0.75 * _player.GetSpellDamage(minion, SpellSlot.E) &&
+                if (_e.IsReady() && useE && minion.Health < 0.75 * _player.GetSpellDamage(minion, SpellSlot.E) &&
                     allMinions.Count > 2)
                 {
                     _e.Cast();
@@ -403,7 +403,7 @@ namespace D_Kayle
 
                 if (_player.HasBuff("Recall")) return;
 
-                if (_config.Item("onmeW").GetValue<bool>() &&
+                if (_config.Item("onmeW").GetValue<bool>() && _w.IsReady() &&
                     _player.Health <= (_player.MaxHealth * (_config.Item("healper").GetValue<Slider>().Value) / 100))
                 {
                     _player.Spellbook.CastSpell(SpellSlot.W, _player);
@@ -416,7 +416,7 @@ namespace D_Kayle
             foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsAlly && !hero.IsMe))
             {
                 if (_player.HasBuff("Recall") || hero.HasBuff("Recall")) return;
-                if (_config.Item("allyW").GetValue<bool>() &&
+                if (_config.Item("allyW").GetValue<bool>() && 
                     (hero.Health / hero.MaxHealth) * 100 <= _config.Item("allyhealper").GetValue<Slider>().Value &&
                     _w.IsReady() && Utility.CountEnemysInRange(1200) > 0 &&
                     hero.Distance(_player.ServerPosition) <= _w.Range)
