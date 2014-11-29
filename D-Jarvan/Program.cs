@@ -494,14 +494,19 @@ namespace D_Jarvan
         }
         private static void ComboEqr()
         {
-            
-            //_player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
             var manacheck = _player.Mana >
                             _player.Spellbook.GetSpell(SpellSlot.Q).ManaCost +
                             _player.Spellbook.GetSpell(SpellSlot.E).ManaCost +
                             _player.Spellbook.GetSpell(SpellSlot.R).ManaCost;
             var t = SimpleTs.GetTarget(_q.Range + _r.Range, SimpleTs.DamageType.Magical);
-            _player.IssueOrder(GameObjectOrder.AttackUnit, t);
+            if (t == null)
+            {
+                _player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+            }
+            else
+            {
+                _player.IssueOrder(GameObjectOrder.AttackUnit, t);
+            }
             Smiteontarget(t);
             if (_e.IsReady() && _q.IsReady() && manacheck)
             {
@@ -570,12 +575,19 @@ namespace D_Jarvan
 
         private static void ComboeqFlash()
         {
-            _player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
             var flashDista = _config.Item("FlashDista").GetValue<Slider>().Value;
             var manacheck = _player.Mana >
                             _player.Spellbook.GetSpell(SpellSlot.Q).ManaCost +
                             _player.Spellbook.GetSpell(SpellSlot.E).ManaCost;
             var t = SimpleTs.GetTarget(_q.Range + 800, SimpleTs.DamageType.Magical);
+            if (t == null)
+            {
+                _player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+            }
+            else
+            {
+                _player.IssueOrder(GameObjectOrder.AttackUnit, t);
+            }
             Smiteontarget(t);
             if (_flashSlot != SpellSlot.Unknown && _player.SummonerSpellbook.CanUseSpell(_flashSlot) == SpellState.Ready)
             {
