@@ -616,7 +616,7 @@ namespace D_Diana
                 jungleMinions = new string[]
                 {
                     "SRU_Blue", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak", "SRU_Red", "SRU_Krug", "SRU_Dragon",
-                    "SRU_BaronSpawn", "Sru_Crab"
+                    "SRU_Baron", "Sru_Crab"
                 };
             }
             var minions = MinionManager.GetMinions(_player.Position, 1000, MinionTypes.All, MinionTeam.Neutral);
