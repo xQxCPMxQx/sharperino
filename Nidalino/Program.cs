@@ -68,7 +68,7 @@ namespace D_Nidalee
             EC = new Spell(SpellSlot.E, 300f);
             R = new Spell(SpellSlot.R, 0);
 
-            Q.SetSkillshot(0.125f, 70f, 1300, true, SkillshotType.SkillshotLine);
+            Q.SetSkillshot(0.125f, 40f, 1300, true, SkillshotType.SkillshotLine);
             W.SetSkillshot(0.500f, 80f, 1450, false, SkillshotType.SkillshotCircle);
 
             SpellList.Add(Q);
