@@ -71,7 +71,6 @@ namespace D_Graves
             foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != _player.Team))
             _config.SubMenu("Combo").SubMenu("Use R").AddItem(new MenuItem("castR" + enemy.BaseSkinName, enemy.BaseSkinName).SetValue(false));
             _config.SubMenu("Combo").SubMenu("Use R").AddItem(new MenuItem("UseRrush", "Rush R if ComboDmg>=Tagret HP")).SetValue(true);
-            _config.SubMenu("Combo").SubMenu("Use R").AddItem(new MenuItem("autoattack", "Autoattack to calc. the ComboDmg").SetValue(new Slider(3, 1, 6)));
             _config.SubMenu("Combo").SubMenu("Use R").AddItem(new MenuItem("UseRC", "R if R.DMG>Targ. HP")).SetValue(true);
             _config.SubMenu("Combo").SubMenu("Use R").AddItem(new MenuItem("UseRE", "Auto R if targ>=")).SetValue(true);
             _config.SubMenu("Combo").SubMenu("Use R").AddItem(new MenuItem("MinTargets", "Ult when>=min enemy(COMBO)").SetValue(new Slider(2, 1, 5)));
@@ -281,7 +280,7 @@ namespace D_Graves
                 damage += _player.GetSpellDamage(enemy, SpellSlot.W);
             if (_r.IsReady())
                 damage += _player.GetSpellDamage(enemy, SpellSlot.R);
-            damage += _player.GetAutoAttackDamage(enemy, true) * _config.Item("autoattack").GetValue<Slider>().Value;
+            damage += _player.GetAutoAttackDamage(enemy, true) * 2;
             return (float)damage;
         }
 
