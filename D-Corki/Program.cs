@@ -56,10 +56,11 @@ namespace D_Corki
             //Combo
             _config.AddSubMenu(new Menu("Combo", "Combo"));
             _config.SubMenu("Combo").AddItem(new MenuItem("UseQC", "Use Q")).SetValue(true);
-            _config.SubMenu("Combo").AddItem(new MenuItem("UseWC", "Use W")).SetValue(true);
-            _config.SubMenu("Combo")
-                .AddItem(new MenuItem("UseWHE", "Your HP% Use W >").SetValue(new Slider(65, 1, 100)));
-            _config.SubMenu("Combo").AddItem(new MenuItem("EnemyC", "Enemy in R.Range <").SetValue(new Slider(2, 1, 5)));
+            _config.SubMenu("Combo").AddSubMenu(new Menu("Use W", "Use W"));
+            _config.SubMenu("Combo").SubMenu("Use W").AddItem(new MenuItem("UseWC", "Use W")).SetValue(true);
+            _config.SubMenu("Combo").SubMenu("Use W").AddItem(new MenuItem("diveintower", "Dive In tower with W")).SetValue(true);
+            _config.SubMenu("Combo").SubMenu("Use W").AddItem(new MenuItem("UseWHE", "Your HP% Use W >").SetValue(new Slider(65, 1, 100)));
+            _config.SubMenu("Combo").SubMenu("Use W").AddItem(new MenuItem("EnemyC", "Enemy in R.Range <").SetValue(new Slider(2, 1, 5)));
             _config.SubMenu("Combo").AddItem(new MenuItem("UseEC", "Use E")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseRC", "Use R")).SetValue(true);
             _config.SubMenu("Combo")
@@ -215,11 +216,11 @@ namespace D_Corki
 
         private static void Combo()
         {
+            var target = SimpleTs.GetTarget(_r.Range, SimpleTs.DamageType.Magical);
             var useQ = _config.Item("UseQC").GetValue<bool>();
-            var useW = _config.Item("UseWC").GetValue<bool>();
             var useE = _config.Item("UseEC").GetValue<bool>();
             var useR = _config.Item("UseRC").GetValue<bool>();
-            var usewhE = (100 * (_player.Health / _player.MaxHealth)) > _config.Item("UseWHE").GetValue<Slider>().Value;
+            
 
             if (useQ && _q.IsReady())
             {
@@ -227,13 +228,7 @@ namespace D_Corki
                 if (t != null && _player.Distance(t) < _q.Range && _q.GetPrediction(t).Hitchance >= Qchangecombo())
                     _q.Cast(t, Packets(), true);
             }
-            if (useW && _w.IsReady() && usewhE &&
-                Utility.CountEnemysInRange(1300) <= _config.Item("EnemyC").GetValue<Slider>().Value)
-            {
-                var t = SimpleTs.GetTarget(_w.Range, SimpleTs.DamageType.Magical);
-                if (t != null && _player.Distance(t) > 500)
-                    _w.Cast(t.Position, Packets());
-            }
+            Fuckingw(target);
             if (useE && _e.IsReady())
             {
                 var t = SimpleTs.GetTarget(_e.Range, SimpleTs.DamageType.Magical);
@@ -245,6 +240,20 @@ namespace D_Corki
                 var t = SimpleTs.GetTarget(_r.Range, SimpleTs.DamageType.Magical);
                 if (t != null && _player.Distance(t) < _r.Range && _r.GetPrediction(t).Hitchance >= Rchangecombo())
                     _r.Cast(t, Packets(), true);
+            }
+        }
+
+        private static void Fuckingw(Obj_AI_Hero target)
+        {
+            var useW = _config.Item("UseWC").GetValue<bool>();
+            var diveTower = _config.Item("diveintower").GetValue<bool>();
+            if (Utility.UnderTurret(target) && !diveTower) return;
+            var usewhE = (100*(_player.Health/_player.MaxHealth)) > _config.Item("UseWHE").GetValue<Slider>().Value;
+            if (useW && _w.IsReady() && usewhE && _player.Distance(target) > Orbwalking.GetRealAutoAttackRange(_player) &&
+                Utility.CountEnemysInRange(1300) <= _config.Item("EnemyC").GetValue<Slider>().Value)
+            {
+                if (target != null && _player.Distance(target) > 500)
+                    _w.Cast(target.Position, Packets());
             }
         }
 
