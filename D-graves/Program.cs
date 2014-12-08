@@ -1,7 +1,4 @@
-﻿using System.Net;
-
-#region
-
+﻿#region
 using System;
 using LeagueSharp;
 using System.Linq;
@@ -67,14 +64,25 @@ namespace D_Graves
             _config.SubMenu("Combo").AddItem(new MenuItem("UseWC", "Use W")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("UseEC", "Use E")).SetValue(true);
             _config.SubMenu("Combo").AddItem(new MenuItem("diveintower", "Dive In tower with E")).SetValue(true);
-            _config.SubMenu("Combo").AddSubMenu(new Menu("Use R", "Use R"));
-            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != _player.Team))
-            _config.SubMenu("Combo").SubMenu("Use R").AddItem(new MenuItem("castR" + enemy.BaseSkinName, enemy.BaseSkinName).SetValue(false));
-            _config.SubMenu("Combo").SubMenu("Use R").AddItem(new MenuItem("UseRrush", "Rush R if ComboDmg>=Tagret HP")).SetValue(true);
-            _config.SubMenu("Combo").SubMenu("Use R").AddItem(new MenuItem("UseRC", "R if R.DMG>Targ. HP")).SetValue(true);
-            _config.SubMenu("Combo").SubMenu("Use R").AddItem(new MenuItem("UseRE", "Auto R if targ>=")).SetValue(true);
-            _config.SubMenu("Combo").SubMenu("Use R").AddItem(new MenuItem("MinTargets", "Ult when>=min enemy(COMBO)").SetValue(new Slider(2, 1, 5)));
             _config.SubMenu("Combo").AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
+
+            //Ulti Factions
+            _config.AddSubMenu(new Menu("R Factions", "R Factions"));
+            _config.SubMenu("R Factions").AddSubMenu(new Menu("Use R combo", "Use R combo"));
+            _config.SubMenu("R Factions").SubMenu("Use R combo").AddItem(new MenuItem("UseRcombo", "Use R in Combo")).SetValue(true); 
+            _config.SubMenu("R Factions").SubMenu("Use R combo").AddItem(new MenuItem("UseRrush", "Rush R if ComboDmg>=Tagret HP")).SetValue(true);
+            _config.SubMenu("R Factions").SubMenu("Use R combo").AddItem(new MenuItem("UseRC", "Use R if R.Dmg>Targ. HP")).SetValue(true);
+            _config.SubMenu("R Factions").SubMenu("Use R combo").AddItem(new MenuItem("UseRE", "Auto R if Hit X Enemys")).SetValue(true);
+            _config.SubMenu("R Factions").SubMenu("Use R combo").AddItem(new MenuItem("MinTargets", "Auto R if Hit X Enemys").SetValue(new Slider(2, 1, 5)));
+            _config.SubMenu("R Factions").SubMenu("Use R combo").AddItem(new MenuItem("", "Use R in Targets Below"));
+            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != _player.Team))
+            _config.SubMenu("R Factions").SubMenu("Use R combo").AddItem(new MenuItem("castR" + enemy.BaseSkinName, enemy.BaseSkinName).SetValue(false));
+            _config.SubMenu("R Factions").AddSubMenu(new Menu("Use R killsteal", "Use R killsteal"));
+            _config.SubMenu("R Factions").SubMenu("Use R killsteal").AddItem(new MenuItem("UseRM", "Use R KillSteal")).SetValue(true);
+            _config.SubMenu("R Factions").SubMenu("Use R killsteal").AddItem(new MenuItem("", "Use R in Targets Below"));
+            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != _player.Team))
+            _config.SubMenu("R Factions").SubMenu("Use R killsteal").AddItem(new MenuItem("castRkill" + enemy.BaseSkinName, enemy.BaseSkinName).SetValue(false));
+           
 
             //Harass
             _config.AddSubMenu(new Menu("Harass", "Harass"));
@@ -122,10 +130,6 @@ namespace D_Graves
             _config.AddSubMenu(new Menu("Misc", "Misc"));
             _config.SubMenu("Misc").AddItem(new MenuItem("UseQM", "Use Q KillSteal")).SetValue(true);
             _config.SubMenu("Misc").AddItem(new MenuItem("UseWM", "Use W KillSteal")).SetValue(true);
-            _config.SubMenu("Misc").AddSubMenu(new Menu("Use R", "Use R"));
-            _config.SubMenu("Misc").SubMenu("Use R").AddItem(new MenuItem("UseRM", "Use R KillSteal")).SetValue(true);
-            foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != _player.Team))
-                _config.SubMenu("Misc").SubMenu("Use R").AddItem(new MenuItem("castRkill" + enemy.BaseSkinName, enemy.BaseSkinName).SetValue(false));
             _config.SubMenu("Misc").AddItem(new MenuItem("Gap_E", "GapClosers W")).SetValue(true);
             _config.SubMenu("Misc").AddItem(new MenuItem("skinG", "Use Custom Skin").SetValue(true));
             _config.SubMenu("Misc").AddItem(new MenuItem("skinGraves", "Skin Changer").SetValue(new Slider(4, 1, 6)));
@@ -292,6 +296,7 @@ namespace D_Graves
             var useR = _config.Item("UseRC").GetValue<bool>();
             var autoR = _config.Item("UseRE").GetValue<bool>();
             var rushUlti = _config.Item("UseRrush").GetValue<bool>();
+            var useRcombo = _config.Item("UseRcombo").GetValue<bool>();
             if (useQ && _q.IsReady())
             {
                 var t = SimpleTs.GetTarget(_q.Range, SimpleTs.DamageType.Magical);
@@ -305,7 +310,7 @@ namespace D_Graves
                     _w.Cast(t, Packets(), true);
             }
             Fuckinge(target);
-            if (_r.IsReady())
+            if (_r.IsReady() && useRcombo)
             {
                 var t = SimpleTs.GetTarget(_r.Range, SimpleTs.DamageType.Magical);
                 if (_config.Item("castR" + t.BaseSkinName) != null &&
@@ -323,7 +328,7 @@ namespace D_Graves
                 }
             }
 
-            if (_r.IsReady() && autoR)
+            if (_r.IsReady() && autoR && useRcombo)
             {
                 var t = SimpleTs.GetTarget(_r.Range, SimpleTs.DamageType.Magical);
                 if (ObjectManager.Get<Obj_AI_Hero>().Count(hero => hero.IsValidTarget(_r.Range)) >=
