@@ -230,7 +230,7 @@ namespace D_Kayle
 
         private static void AutoR()
         {
-            if (_player.HasBuff("Recall")) return;
+            if (_player.HasBuff("Recall") || Utility.InFountain()) return;
             if (_config.Item("onmeR").GetValue<bool>() && _config.Item("onmeR").GetValue<bool>() &&
                 (_player.Health / _player.MaxHealth) * 100 <= _config.Item("ultiSelfHP").GetValue<Slider>().Value &&
                 _r.IsReady() && Utility.CountEnemysInRange(650) > 0)
@@ -243,7 +243,7 @@ namespace D_Kayle
         {
             foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsAlly))
             {
-                if (_player.HasBuff("Recall")) return;
+                if (_player.HasBuff("Recall") || Utility.InFountain()) return;
                 if (_config.Item("allyR").GetValue<bool>() &&
                     (hero.Health / hero.MaxHealth) * 100 <= _config.Item("ultiallyHP").GetValue<Slider>().Value &&
                     _r.IsReady() && Utility.CountEnemysInRange(1000) > 0 &&
@@ -401,7 +401,7 @@ namespace D_Kayle
             if (_player.Spellbook.CanUseSpell(SpellSlot.W) == SpellState.Ready && _player.IsMe)
             {
 
-                if (_player.HasBuff("Recall")) return;
+                if (_player.HasBuff("Recall") || Utility.InFountain()) return;
 
                 if (_config.Item("onmeW").GetValue<bool>() && _w.IsReady() &&
                     _player.Health <= (_player.MaxHealth * (_config.Item("healper").GetValue<Slider>().Value) / 100))
@@ -415,7 +415,7 @@ namespace D_Kayle
         {
             foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsAlly && !hero.IsMe))
             {
-                if (_player.HasBuff("Recall") || hero.HasBuff("Recall")) return;
+                if (_player.HasBuff("Recall") || hero.HasBuff("Recall") || Utility.InFountain()) return;
                 if (_config.Item("allyW").GetValue<bool>() && 
                     (hero.Health / hero.MaxHealth) * 100 <= _config.Item("allyhealper").GetValue<Slider>().Value &&
                     _w.IsReady() && Utility.CountEnemysInRange(1200) > 0 &&

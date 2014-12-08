@@ -755,7 +755,7 @@ namespace D_Diana
 
         private static void AutoW()
         {
-            if (_player.HasBuff("Recall")) return;
+            if (_player.HasBuff("Recall") || Utility.InFountain()) return;
             if (_w.IsReady() &&
                 _player.Health <= (_player.MaxHealth * (_config.Item("Shieldper").GetValue<Slider>().Value) / 100))
             {

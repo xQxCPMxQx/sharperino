@@ -656,7 +656,7 @@ namespace D_Nidalee
             if (Player.Spellbook.CanUseSpell(SpellSlot.E) == SpellState.Ready && Player.IsMe)
             {
 
-                if (Player.HasBuff("Recall")) return;
+                if (Player.HasBuff("Recall") || Utility.InFountain()) return;
 
                 if (E.IsReady() && Player.Health <= (Player.MaxHealth*(Config.Item("HPercent").GetValue<Slider>().Value)/100))
                 {
@@ -686,7 +686,7 @@ namespace D_Nidalee
         {
             foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsAlly && !hero.IsMe))
             {
-                if (Player.HasBuff("Recall") || hero.HasBuff("Recall")) return;
+                if (Player.HasBuff("Recall") || hero.HasBuff("Recall") || Utility.InFountain()) return;
                 if (E.IsReady() && Config.Item("AllyUseAutoE").GetValue<bool>() &&
                     (hero.Health/hero.MaxHealth)*100 <= Config.Item("AllyHPercent").GetValue<Slider>().Value &&
                     Utility.CountEnemysInRange(1200) > 0 &&

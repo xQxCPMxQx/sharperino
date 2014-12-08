@@ -328,7 +328,7 @@ namespace D_Udyr
         {
             if (_w.IsReady())
             {
-                if (_player.HasBuff("Recall")) return;
+                if (_player.HasBuff("Recall") || Utility.InFountain()) return;
                 if (Utility.CountEnemysInRange(1000) >= 1 &&
                     _player.Health <= (_player.MaxHealth*(_config.Item("AutoShield%").GetValue<Slider>().Value)/100))
                 {
