@@ -312,7 +312,7 @@ namespace D_Udyr
 
         private static void Forest()
         {
-            if (_player.HasBuff("Recall")) return;
+            if (_player.HasBuff("Recall") || Utility.InFountain()) return;
 
             if (_e.IsReady() && _config.Item("ForestE").GetValue<bool>())
             {
