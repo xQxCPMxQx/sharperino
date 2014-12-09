@@ -123,21 +123,22 @@ namespace D_Kayle
 
             //Farm
             _config.AddSubMenu(new Menu("Farm", "Farm"));
-            _config.SubMenu("Farm").AddItem(new MenuItem("UseQLane", "Use Q Lane")).SetValue(true);
-            _config.SubMenu("Farm").AddItem(new MenuItem("UseELane", "Use E Lane")).SetValue(true);
-            _config.SubMenu("Farm").AddItem(new MenuItem("UseQLast", "Use Q Last")).SetValue(true);
-            _config.SubMenu("Farm").AddItem(new MenuItem("UseELast", "Use E Last")).SetValue(true);
-            _config.SubMenu("Farm").AddItem(new MenuItem("UseQjungle", "Use Q Jungle")).SetValue(true);
-            _config.SubMenu("Farm").AddItem(new MenuItem("UseEjungle", "Use E Jungle")).SetValue(true);
-            _config.SubMenu("Farm").AddItem(new MenuItem("Farmmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
-            _config.SubMenu("Farm")
-                .AddItem(
-                    new MenuItem("Activelane", "Lane/Jungle").SetValue(new KeyBind("V".ToCharArray()[0],
-                        KeyBindType.Press)));
-            _config.SubMenu("Farm")
-                .AddItem(
-                    new MenuItem("activelast", "Last Hit").SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
-
+            _config.SubMenu("Farm").AddSubMenu(new Menu("Laneclear", "Laneclear"));
+            _config.SubMenu("Farm").SubMenu("Laneclear").AddItem(new MenuItem("UseQLane", "Use Q Lane")).SetValue(true);
+            _config.SubMenu("Farm").SubMenu("Laneclear").AddItem(new MenuItem("UseELane", "Use E Lane")).SetValue(true);
+            _config.SubMenu("Farm").SubMenu("Laneclear").AddItem(new MenuItem("Farmmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+            _config.SubMenu("Farm").SubMenu("Laneclear").AddItem(new MenuItem("Activelane", "Lane Clear").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
+            _config.SubMenu("Farm").AddSubMenu(new Menu("Lasthit", "Lasthit"));
+            _config.SubMenu("Farm").SubMenu("Lasthit").AddItem(new MenuItem("UseQLast", "Use Q Last")).SetValue(true);
+            _config.SubMenu("Farm").SubMenu("Lasthit").AddItem(new MenuItem("UseELast", "Use E Last")).SetValue(true);
+            _config.SubMenu("Farm").SubMenu("Lasthit").AddItem(new MenuItem("lasthitmana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+            _config.SubMenu("Farm").SubMenu("Lasthit").AddItem(new MenuItem("activelast", "Last Hit").SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
+            _config.SubMenu("Farm").AddSubMenu(new Menu("Jungleclear", "Jungleclear"));
+            _config.SubMenu("Farm").SubMenu("Jungleclear").AddItem(new MenuItem("UseQjungle", "Use Q Jungle")).SetValue(true);
+            _config.SubMenu("Farm").SubMenu("Jungleclear").AddItem(new MenuItem("UseEjungle", "Use E Jungle")).SetValue(true);
+            _config.SubMenu("Farm").SubMenu("Jungleclear").AddItem(new MenuItem("junglemana", "Minimum Mana").SetValue(new Slider(60, 1, 100)));
+            _config.SubMenu("Farm").SubMenu("Jungleclear").AddItem(new MenuItem("Activejungle", "Jungle Clear").SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
+           
             //Smite 
             _config.AddSubMenu(new Menu("Smite", "Smite"));
             _config.SubMenu("Smite").AddItem(new MenuItem("Usesmite", "Use Smite(toggle)").SetValue(new KeyBind("H".ToCharArray()[0], KeyBindType.Toggle)));
@@ -153,8 +154,7 @@ namespace D_Kayle
             _config.SubMenu("Misc").AddItem(new MenuItem("usePackets", "Usepackes")).SetValue(true);
             _config.SubMenu("Misc").AddItem(new MenuItem("skinKa", "Use Custom Skin").SetValue(false));
             _config.SubMenu("Misc").AddItem(new MenuItem("skinKayle", "Skin Changer").SetValue(new Slider(4, 1, 8)));
-            _config.SubMenu("Misc")
-                .AddItem(new MenuItem("GapCloserE", "Use E to GapCloser").SetValue(new Slider(4, 1, 8)));
+            _config.SubMenu("Misc").AddItem(new MenuItem("GapCloserE", "Use Q to GapCloser")).SetValue(true);
             _config.SubMenu("Misc")
                 .AddItem(
                     new MenuItem("Escape", "Escapes key").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
@@ -213,15 +213,19 @@ namespace D_Kayle
                 Harass();
             }
             if (_config.Item("activelast").GetValue<KeyBind>().Active &&
-                (100 * (_player.Mana / _player.MaxMana)) > _config.Item("Farmmana").GetValue<Slider>().Value)
+                (100 * (_player.Mana / _player.MaxMana)) > _config.Item("lasthitmana").GetValue<Slider>().Value)
             {
                 Lasthit();
             }
             if (_config.Item("Activelane").GetValue<KeyBind>().Active &&
                 (100 * (_player.Mana / _player.MaxMana)) > _config.Item("Farmmana").GetValue<Slider>().Value)
             {
+               Farm();
+            }
+            if (_config.Item("Activejungle").GetValue<KeyBind>().Active &&
+                (100*(_player.Mana/_player.MaxMana)) > _config.Item("junglemana").GetValue<Slider>().Value)
+            {
                 JungleFarm();
-                Farm();
             }
             if (_config.Item("Usesmite").GetValue<KeyBind>().Active)
             {
@@ -559,7 +563,7 @@ namespace D_Kayle
         //New map Monsters Name By SKO
         private static void Smiteuse()
         {
-            var jungle = _config.Item("Activelane").GetValue<KeyBind>().Active;
+            var jungle = _config.Item("Activejungle").GetValue<KeyBind>().Active;
             if (ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot) != SpellState.Ready) return;
             var useblue = _config.Item("Useblue").GetValue<bool>();
             var usered = _config.Item("Usered").GetValue<bool>();
