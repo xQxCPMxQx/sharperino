@@ -89,22 +89,21 @@ namespace D_Kayle
             //utilities
             _config.AddSubMenu(new Menu("Utilities", "utilities"));
             _config.SubMenu("utilities").AddItem(new MenuItem("onmeW", "W Self")).SetValue(true);
-            _config.SubMenu("utilities")
-                .AddItem(new MenuItem("healper", "Self Health %"))
-                .SetValue(new Slider(40, 1, 100));
-            _config.SubMenu("utilities").AddItem(new MenuItem("allyW", "W Ally")).SetValue(true);
-            _config.SubMenu("utilities")
-                .AddItem(new MenuItem("allyhealper", "Ally Health %"))
-                .SetValue(new Slider(40, 1, 100));
+            _config.SubMenu("utilities").AddItem(new MenuItem("healper", "Self Health %")).SetValue(new Slider(40, 1, 100));
             _config.SubMenu("utilities").AddItem(new MenuItem("onmeR", "R Self Use")).SetValue(true);
-            _config.SubMenu("utilities")
-                .AddItem(new MenuItem("ultiSelfHP", "Self Health %"))
-                .SetValue(new Slider(40, 1, 100));
-            _config.SubMenu("utilities").AddItem(new MenuItem("allyR", "R Ally Use")).SetValue(true);
-            _config.SubMenu("utilities")
-                .AddItem(new MenuItem("ultiallyHP", "Ally Health %"))
-                .SetValue(new Slider(40, 1, 100));
+            _config.SubMenu("utilities").AddItem(new MenuItem("ultiSelfHP", "Self Health %")).SetValue(new Slider(40, 1, 100));
 
+            _config.SubMenu("utilities").AddSubMenu(new Menu("Use W Ally", "Use W Ally"));
+             _config.SubMenu("utilities").SubMenu("Use W Ally").AddItem(new MenuItem("allyW", "W Ally")).SetValue(true);
+             _config.SubMenu("utilities").SubMenu("Use W Ally").AddItem(new MenuItem("allyhealper", "Ally Health %")).SetValue(new Slider(40, 1, 100));
+             foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsAlly))
+             _config.SubMenu("utilities").SubMenu("Use W Ally").AddItem(new MenuItem("usewally" + hero.BaseSkinName, hero.BaseSkinName).SetValue(true));
+
+             _config.SubMenu("utilities").AddSubMenu(new Menu("Use R Ally", "Use R Ally"));
+             _config.SubMenu("utilities").SubMenu("Use R Ally").AddItem(new MenuItem("allyR", "R Ally Use")).SetValue(true);
+             _config.SubMenu("utilities").SubMenu("Use R Ally").AddItem(new MenuItem("ultiallyHP", "Ally Health %")).SetValue(new Slider(40, 1, 100));
+            foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsAlly))
+                _config.SubMenu("utilities").SubMenu("Use R Ally").AddItem(new MenuItem("userally" + hero.BaseSkinName, hero.BaseSkinName).SetValue(true));
 
             //Harass
             _config.AddSubMenu(new Menu("Harass", "Harass"));
@@ -159,13 +158,22 @@ namespace D_Kayle
                 .AddItem(
                     new MenuItem("Escape", "Escapes key").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
 
-
+            //Damage after combo:
+            MenuItem dmgAfterComboItem = new MenuItem("DamageAfterCombo", "Draw damage after combo").SetValue(true);
+            Utility.HpBarDamageIndicator.DamageToUnit = ComboDamage;
+            Utility.HpBarDamageIndicator.Enabled = dmgAfterComboItem.GetValue<bool>();
+            dmgAfterComboItem.ValueChanged +=
+                delegate(object sender, OnValueChangeEventArgs eventArgs)
+                {
+                    Utility.HpBarDamageIndicator.Enabled = eventArgs.GetNewValue<bool>();
+                };
             //Drawings
             _config.AddSubMenu(new Menu("Drawings", "Drawings"));
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawQ", "Draw Q")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawW", "Draw W")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawE", "Draw E")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("DrawR", "Draw R")).SetValue(true);
+            _config.SubMenu("Drawings").AddItem(dmgAfterComboItem);
             _config.SubMenu("Drawings").AddItem(new MenuItem("Drawsmite", "Draw smite")).SetValue(true);
             _config.SubMenu("Drawings").AddItem(new MenuItem("CircleLag", "Lag Free Circles").SetValue(true));
             _config.SubMenu("Drawings")
@@ -284,6 +292,8 @@ namespace D_Kayle
                     (hero.Health / hero.MaxHealth) * 100 <= _config.Item("ultiallyHP").GetValue<Slider>().Value &&
                     _r.IsReady() && Utility.CountEnemysInRange(1000) > 0 &&
                     hero.Distance(_player.ServerPosition) <= _r.Range)
+                    if (_config.Item("userally" + hero.BaseSkinName) != null &&
+                    _config.Item("userally" + hero.BaseSkinName).GetValue<bool>() == true)
                 {
                     _r.Cast(hero);
                 }
@@ -299,7 +309,7 @@ namespace D_Kayle
                 damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
             if (_q.IsReady())
                 damage += _player.GetSpellDamage(enemy, SpellSlot.Q);
-            if (_e.IsReady())
+            if (_e.IsReady() || ObjectManager.Player.HasBuff("JudicatorRighteousFury"))
             {
                 damage += _player.GetSpellDamage(enemy, SpellSlot.E);
                 damage = damage + _player.GetAutoAttackDamage(enemy, true)*4;
@@ -309,6 +319,11 @@ namespace D_Kayle
             {
                 damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Smite);
             }
+            if (ObjectManager.Player.HasBuff("LichBane"))
+            {
+                damage += _player.BaseAttackDamage * 0.75 + _player.FlatMagicDamageMod * 0.5;
+            }
+
             return (float) damage;
         }
 
@@ -322,7 +337,7 @@ namespace D_Kayle
                 if (_config.Item("UseIgnitecombo").GetValue<bool>() && _igniteSlot != SpellSlot.Unknown &&
                _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
                 {
-                    if (ComboDamage(target) > target.Health)
+                    if (ComboDamage(target) > target.Health -100)
                     {
                         _player.SummonerSpellbook.CastSpell(_igniteSlot, target);
                     }
@@ -486,7 +501,9 @@ namespace D_Kayle
                 if (_config.Item("allyW").GetValue<bool>() && 
                     (hero.Health / hero.MaxHealth) * 100 <= _config.Item("allyhealper").GetValue<Slider>().Value &&
                     _w.IsReady() && Utility.CountEnemysInRange(1200) > 0 &&
-                    hero.Distance(_player.ServerPosition) <= _w.Range)
+                    hero.Distance(_player.ServerPosition) <= _w.Range )
+                    if (_config.Item("usewally" + hero.BaseSkinName) != null &&
+                    _config.Item("usewally" + hero.BaseSkinName).GetValue<bool>() == true)
                 {
                     _w.Cast(hero);
                 }
