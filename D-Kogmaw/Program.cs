@@ -352,11 +352,11 @@ namespace D_Kogmaw
                 _dfg.Cast(etarget);
             }
             if (_igniteSlot != SpellSlot.Unknown && ignitecombo &&
-                _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
+                _player.Spellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
             {
                 if (etarget.Health <= ComboDamage(etarget))
                 {
-                    _player.SummonerSpellbook.CastSpell(_igniteSlot, etarget);
+                    _player.Spellbook.CastSpell(_igniteSlot, etarget);
                 }
             }
             if (useW && _w.IsReady() && etarget.Distance(_player.Position) < _e.Range)
@@ -731,11 +731,11 @@ namespace D_Kogmaw
             var target = SimpleTs.GetTarget(_e.Range, SimpleTs.DamageType.Magical);
             var igniteDmg = _player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
             if (target != null && _config.Item("useigniteks").GetValue<bool>() && _igniteSlot != SpellSlot.Unknown &&
-                _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
+                _player.Spellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
             {
                 if (igniteDmg > target.Health)
                 {
-                    _player.SummonerSpellbook.CastSpell(_igniteSlot, target);
+                    _player.Spellbook.CastSpell(_igniteSlot, target);
                 }
             }
             if (_r.IsReady() && _config.Item("UseRM").GetValue<bool>())
