@@ -312,7 +312,7 @@ namespace D_Shyvana
         {
             var damage = 0d;
             if (_igniteSlot != SpellSlot.Unknown &&
-                _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
+                _player.Spellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
                 damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
             if (Items.HasItem(3077) && Items.CanUseItem(3077))
                 damage += _player.GetItemDamage(enemy, Damage.DamageItems.Tiamat);
@@ -338,10 +338,10 @@ namespace D_Shyvana
             var usesmite = _config.Item("smitecombo").GetValue<bool>();
             var itemscheck = SmiteBlue.Any(Items.HasItem) || SmiteRed.Any(Items.HasItem);
             if (itemscheck && usesmite &&
-                ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot) == SpellState.Ready &&
+                ObjectManager.Player.Spellbook.CanUseSpell(_smiteSlot) == SpellState.Ready &&
                 target.Distance(_player.Position) < _smite.Range)
             {
-                ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, target);
+                ObjectManager.Player.Spellbook.CastSpell(_smiteSlot, target);
             }
         }
 
@@ -356,11 +356,11 @@ namespace D_Shyvana
             var t = SimpleTs.GetTarget(_r.Range, SimpleTs.DamageType.Magical);
             Smiteontarget(t);
             if (t != null && _config.Item("UseIgnite").GetValue<bool>() && _igniteSlot != SpellSlot.Unknown &&
-                _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
+                _player.Spellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
             {
                 if (ComboDamage(t) > t.Health)
                 {
-                    _player.SummonerSpellbook.CastSpell(_igniteSlot, t);
+                    _player.Spellbook.CastSpell(_igniteSlot, t);
                 }
             }
             if (useR && _r.IsReady())
@@ -744,7 +744,7 @@ namespace D_Shyvana
         {
             foreach (
                 var spell in
-                    ObjectManager.Player.SummonerSpellbook.Spells.Where(
+                    ObjectManager.Player.Spellbook.Spells.Where(
                         spell => String.Equals(spell.Name, Smitetype(), StringComparison.CurrentCultureIgnoreCase)))
             {
                 _smiteSlot = spell.Slot;
@@ -764,7 +764,7 @@ namespace D_Shyvana
         private static void Smiteuse()
         {
             var jungle = _config.Item("ActiveJungle").GetValue<KeyBind>().Active;
-            if (ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot) != SpellState.Ready) return;
+            if (ObjectManager.Player.Spellbook.CanUseSpell(_smiteSlot) != SpellState.Ready) return;
             var usered = _config.Item("Usered").GetValue<bool>();
             var health = (100 * (_player.Mana / _player.MaxMana)) < _config.Item("healthJ").GetValue<Slider>().Value;
             string[] jungleMinions;
@@ -791,18 +791,18 @@ namespace D_Shyvana
                         minion.Health <= smiteDmg &&
                         jungleMinions.Any(name => minion.Name.Substring(0, minion.Name.Length - 5).Equals(name)))
                     {
-                        ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, minion);
+                        ObjectManager.Player.Spellbook.CastSpell(_smiteSlot, minion);
                     }
                     if (minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name)) &&
                         !jungleMinions.Any(name => minion.Name.Contains("Mini")))
                     {
-                        ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, minion);
+                        ObjectManager.Player.Spellbook.CastSpell(_smiteSlot, minion);
                     }
                     else if (jungle && usered && health && minion.Health >= smiteDmg &&
                              jungleMinions.Any(name => minion.Name.StartsWith("SRU_Red")) &&
                              !jungleMinions.Any(name => minion.Name.Contains("Mini")))
                     {
-                        ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, minion);
+                        ObjectManager.Player.Spellbook.CastSpell(_smiteSlot, minion);
                     }
                 }
             }
