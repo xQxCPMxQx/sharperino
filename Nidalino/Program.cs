@@ -422,11 +422,11 @@ namespace D_Nidalee
                     _dfg.Cast(target);
                 }
                 if (itemsIgnite && IgniteSlot != SpellSlot.Unknown &&
-                    Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+                    Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 {
                     if (ComboDamage(target) > target.Health)
                     {
-                        Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                        Player.Spellbook.CastSpell(IgniteSlot, target);
                     }
                 }
                 if ( Q.IsReady() && IsHuman && Player.Distance(target) <= Q.Range && Config.Item("UseQCombo").GetValue<bool>())
@@ -704,11 +704,11 @@ namespace D_Nidalee
             var QHDmg = Player.GetSpellDamage(target, SpellSlot.Q);
 
             if (target != null && Config.Item("UseIgnite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+                Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
             {
                 if (igniteDmg > target.Health)
                 {
-                    Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                    Player.Spellbook.CastSpell(IgniteSlot, target);
                 }
             }
 
