@@ -324,10 +324,10 @@ namespace D_Elise
             var usesmite = _config.Item("smitecombo").GetValue<bool>();
             var itemscheck = SmiteBlue.Any(Items.HasItem) || SmiteRed.Any(Items.HasItem);
             if (itemscheck && usesmite &&
-                ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot) == SpellState.Ready &&
+                ObjectManager.Player.Spellbook.CanUseSpell(_smiteSlot) == SpellState.Ready &&
                 target.Distance(_player.Position) < _smite.Range)
             {
-                ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, target);
+                ObjectManager.Player.Spellbook.CastSpell(_smiteSlot, target);
             }
         }
         private static void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
@@ -406,7 +406,7 @@ namespace D_Elise
         private static void Combo()
         {
             var target = SimpleTs.GetTarget(_humanW.Range, SimpleTs.DamageType.Magical);
-            var sReady = (_smiteSlot != SpellSlot.Unknown && ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot) == SpellState.Ready);
+            var sReady = (_smiteSlot != SpellSlot.Unknown && ObjectManager.Player.Spellbook.CanUseSpell(_smiteSlot) == SpellState.Ready);
             var qdmg = _player.GetSpellDamage(target, SpellSlot.Q);
             var wdmg = _player.GetSpellDamage(target, SpellSlot.W);
             if (target == null) return; //buffelisecocoon
@@ -656,7 +656,7 @@ namespace D_Elise
         {
             foreach (
                 var spell in
-                    ObjectManager.Player.SummonerSpellbook.Spells.Where(
+                    ObjectManager.Player.Spellbook.Spells.Where(
                         spell => String.Equals(spell.Name, Smitetype(), StringComparison.CurrentCultureIgnoreCase)))
             {
                 _smiteSlot = spell.Slot;
@@ -678,7 +678,7 @@ namespace D_Elise
         private static void Smiteuse()
         {
             var jungle = _config.Item("ActiveJungle").GetValue<KeyBind>().Active;
-            if (ObjectManager.Player.SummonerSpellbook.CanUseSpell(_smiteSlot) != SpellState.Ready) return;
+            if (ObjectManager.Player.Spellbook.CanUseSpell(_smiteSlot) != SpellState.Ready) return;
             var useblue = _config.Item("Useblue").GetValue<bool>();
             var usered = _config.Item("Usered").GetValue<bool>();
             var health = (100 * (_player.Mana / _player.MaxMana)) < _config.Item("healthJ").GetValue<Slider>().Value;
@@ -707,24 +707,24 @@ namespace D_Elise
                         minion.Health <= smiteDmg &&
                         jungleMinions.Any(name => minion.Name.Substring(0, minion.Name.Length - 5).Equals(name)))
                     {
-                        ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, minion);
+                        ObjectManager.Player.Spellbook.CastSpell(_smiteSlot, minion);
                     }
                     if (minion.Health <= smiteDmg && jungleMinions.Any(name => minion.Name.StartsWith(name)) &&
                         !jungleMinions.Any(name => minion.Name.Contains("Mini")))
                     {
-                        ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, minion);
+                        ObjectManager.Player.Spellbook.CastSpell(_smiteSlot, minion);
                     }
                     else if (jungle && useblue && mana && minion.Health >= smiteDmg &&
                              jungleMinions.Any(name => minion.Name.StartsWith("SRU_Blue")) &&
                              !jungleMinions.Any(name => minion.Name.Contains("Mini")))
                     {
-                        ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, minion);
+                        ObjectManager.Player.Spellbook.CastSpell(_smiteSlot, minion);
                     }
                     else if (jungle && usered && health && minion.Health >= smiteDmg &&
                              jungleMinions.Any(name => minion.Name.StartsWith("SRU_Red")) &&
                              !jungleMinions.Any(name => minion.Name.Contains("Mini")))
                     {
-                        ObjectManager.Player.SummonerSpellbook.CastSpell(_smiteSlot, minion);
+                        ObjectManager.Player.Spellbook.CastSpell(_smiteSlot, minion);
                     }
                 }
             }
@@ -832,7 +832,7 @@ namespace D_Elise
                     if ( col.Distance(_player.Position) < _smite.Range  &&
                         col.Health < _player.GetSummonerSpellDamage(col, Damage.SummonerSpell.Smite))
                     {
-                        _player.SummonerSpellbook.CastSpell(_smiteSlot, col);
+                        _player.Spellbook.CastSpell(_smiteSlot, col);
                         return true;
                     }
                 }
@@ -859,11 +859,11 @@ namespace D_Elise
             var wDmg = _player.GetSpellDamage(target, SpellSlot.W);
 
             if (target != null && _config.Item("UseIgnite").GetValue<bool>() && _igniteSlot != SpellSlot.Unknown &&
-            _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
+            _player.Spellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
             {
                 if (igniteDmg > target.Health)
                 {
-                    _player.SummonerSpellbook.CastSpell(_igniteSlot, target);
+                    _player.Spellbook.CastSpell(_igniteSlot, target);
                 }
             }
             if (_human)
