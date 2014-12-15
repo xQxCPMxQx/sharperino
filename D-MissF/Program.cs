@@ -436,7 +436,7 @@ namespace D_MissF
         {
             var damage = 0d;
             if (_igniteSlot != SpellSlot.Unknown &&
-                _player.SummonerSpellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
+                _player.Spellbook.CanUseSpell(_igniteSlot) == SpellState.Ready)
                 damage += ObjectManager.Player.GetSummonerSpellDamage(enemy, Damage.SummonerSpell.Ignite);
             if (Items.HasItem(3077) && Items.CanUseItem(3077))
                 damage += _player.GetItemDamage(enemy, Damage.DamageItems.Tiamat);
